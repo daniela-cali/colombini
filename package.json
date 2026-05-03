@@ -1,0 +1,20 @@
+{
+  "name": "colombini",
+  "version": "1.0.0",
+  "description": "Colombini - Gestione Assistenza Piscine e Impianti Trattamento Acqua",
+  "scripts": {
+    "copy-assets": "node scripts/copy-assets.js"
+  },
+  "dependencies": {
+    "admin-lte": "^3.2.0",
+    "jquery": "^3.6.0",
+    "bootstrap": "^4.6.2",
+    "@fortawesome/fontawesome-free": "^5.15.4",
+    "overlayscrollbars": "^1.13.3",
+    "chart.js": "^2.9.4",
+    "datatables.net": "^1.13.6",
+    "datatables.net-bs4": "^1.13.6",
+    "select2": "^4.1.0-rc.0",
+    "sweetalert2": "^11.0.0"
+  }
+}

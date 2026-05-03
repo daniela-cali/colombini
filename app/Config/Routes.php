@@ -1,0 +1,123 @@
+<?php
+
+use CodeIgniter\Router\RouteCollection;
+
+/**
+ * @var RouteCollection $routes
+ */
+
+$routes->get('login',  'LoginController::loginView');
+$routes->post('login', 'LoginController::loginAction');
+$routes->get('logout', 'LoginController::logoutAction');
+
+service('auth')->routes($routes, ['except' => ['login', 'logout']]);
+
+// Portale cliente
+$routes->group('portale', ['filter' => 'group:cliente'], function (RouteCollection $routes) {
+    $routes->get('/',                'Portale::index');
+    $routes->get('nuova-richiesta',  'Portale::nuovaRichiesta');
+    $routes->post('nuova-richiesta', 'Portale::storeRichiesta');
+    $routes->get('richiesta/(:num)', 'Portale::show/$1');
+});
+
+// Area gestionale (auth + admin-area filter)
+$routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollection $routes) {
+
+    $routes->get('/',         'Dashboard::index');
+    $routes->get('dashboard', 'Dashboard::index');
+
+    $routes->group('clienti', function (RouteCollection $routes) {
+        $routes->get('/',                   'Clienti::index');
+        $routes->get('new',                 'Clienti::create');
+        $routes->post('/',                  'Clienti::store');
+        $routes->get('import',              'Clienti::importView');
+        $routes->post('import',             'Clienti::importStore');
+        $routes->get('(:num)',              'Clienti::show/$1');
+        $routes->get('(:num)/edit',         'Clienti::edit/$1');
+        $routes->post('(:num)',             'Clienti::update/$1');
+        $routes->post('(:num)/elimina',     'Clienti::delete/$1');
+        $routes->get('(:num)/portale',      'Clienti::creaPortale/$1');
+        $routes->post('(:num)/portale',     'Clienti::storePortale/$1');
+    });
+
+    $routes->group('tecnici', function (RouteCollection $routes) {
+        $routes->get('/',               'Tecnici::index');
+        $routes->get('new',             'Tecnici::create');
+        $routes->post('/',              'Tecnici::store');
+        $routes->get('(:num)',          'Tecnici::show/$1');
+        $routes->get('(:num)/edit',     'Tecnici::edit/$1');
+        $routes->post('(:num)',         'Tecnici::update/$1');
+        $routes->post('(:num)/elimina', 'Tecnici::delete/$1');
+    });
+
+    $routes->group('impianti', function (RouteCollection $routes) {
+        $routes->get('/',               'Impianti::index');
+        $routes->get('piscine',         'Impianti::piscine');
+        $routes->get('trattamento',     'Impianti::trattamento');
+        $routes->get('new',             'Impianti::create');
+        $routes->post('/',              'Impianti::store');
+        $routes->get('(:num)',          'Impianti::show/$1');
+        $routes->get('(:num)/edit',     'Impianti::edit/$1');
+        $routes->post('(:num)',         'Impianti::update/$1');
+        $routes->post('(:num)/elimina', 'Impianti::delete/$1');
+    });
+
+    $routes->group('interventi', function (RouteCollection $routes) {
+        $routes->get('/',               'Interventi::index');
+        $routes->get('new',             'Interventi::create');
+        $routes->post('/',              'Interventi::store');
+        $routes->get('(:num)',          'Interventi::show/$1');
+        $routes->get('(:num)/edit',     'Interventi::edit/$1');
+        $routes->post('(:num)',         'Interventi::update/$1');
+        $routes->post('(:num)/elimina', 'Interventi::delete/$1');
+        $routes->get('(:num)/chiudi',    'Interventi::chiudi/$1');
+        $routes->post('(:num)/assegna', 'Interventi::assegnaTecnico/$1');
+        $routes->get('(:num)/pdf',      'Interventi::pdf/$1');
+    });
+
+    $routes->group('preventivi', function (RouteCollection $routes) {
+        $routes->get('/',               'Preventivi::index');
+        $routes->get('new',             'Preventivi::create');
+        $routes->post('/',              'Preventivi::store');
+        $routes->get('(:num)',          'Preventivi::show/$1');
+        $routes->get('(:num)/edit',     'Preventivi::edit/$1');
+        $routes->post('(:num)',         'Preventivi::update/$1');
+        $routes->post('(:num)/elimina', 'Preventivi::delete/$1');
+    });
+
+    $routes->group('prodotti', function (RouteCollection $routes) {
+        $routes->get('/',               'Prodotti::index');
+        $routes->get('new',             'Prodotti::create');
+        $routes->post('/',              'Prodotti::store');
+        $routes->get('(:num)',          'Prodotti::show/$1');
+        $routes->get('(:num)/edit',     'Prodotti::edit/$1');
+        $routes->post('(:num)',         'Prodotti::update/$1');
+        $routes->post('(:num)/elimina', 'Prodotti::delete/$1');
+    });
+
+    $routes->group('report', function (RouteCollection $routes) {
+        $routes->get('/',           'Report::index');
+        $routes->get('interventi',  'Report::interventi');
+        $routes->get('clienti',     'Report::clienti');
+        $routes->get('impianti',    'Report::impianti');
+    });
+
+    $routes->group('profilo', function (RouteCollection $routes) {
+        $routes->get('/',          'Profilo::index');
+        $routes->post('/',         'Profilo::update');
+        $routes->get('password',   'Profilo::changePassword');
+        $routes->post('password',  'Profilo::updatePassword');
+    });
+
+    $routes->group('impostazioni', function (RouteCollection $routes) {
+        $routes->get('/',  'Impostazioni::index');
+        $routes->post('/', 'Impostazioni::update');
+
+        $routes->group('utenti', function (RouteCollection $routes) {
+            $routes->get('/',                   'Impostazioni::utenti');
+            $routes->get('new',                 'Impostazioni::creaCliente');
+            $routes->post('/',                  'Impostazioni::storeCliente');
+            $routes->post('(:num)/elimina',     'Impostazioni::deleteCliente/$1');
+        });
+    });
+});

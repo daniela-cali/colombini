@@ -1,0 +1,143 @@
+/* =========================================================
+   Colombini — Gestione Piscine & Impianti Trattamento Acqua
+   Palette: Blu / Azzurro / Teal
+   ========================================================= */
+
+/* --- Variabili colore ----------------------------------- */
+:root {
+    --clr-primary:      #1a6fa8;
+    --clr-primary-dark: #135480;
+    --clr-primary-light:#2a8fd4;
+    --clr-teal:         #00bcd4;
+    --clr-teal-dark:    #0097a7;
+    --clr-azure:        #42a5f5;
+    --clr-sidebar-bg:   #1a2d4a;
+    --clr-sidebar-alt:  #162440;
+    --clr-white:        #ffffff;
+    --clr-text-sidebar: #c2d4e8;
+}
+
+/* --- Navbar superiore ----------------------------------- */
+.main-header.navbar {
+    background-color: var(--clr-primary) !important;
+    border-bottom: 3px solid var(--clr-teal);
+}
+.main-header .navbar-brand,
+.main-header .nav-link,
+.main-header .brand-text {
+    color: var(--clr-white) !important;
+}
+.main-header .nav-link:hover {
+    color: var(--clr-azure) !important;
+}
+
+/* --- Sidebar ------------------------------------------- */
+.main-sidebar,
+.main-sidebar::before {
+    background-color: var(--clr-sidebar-bg);
+}
+.sidebar {
+    background-color: var(--clr-sidebar-bg);
+}
+.brand-link {
+    background-color: var(--clr-sidebar-alt) !important;
+    border-bottom: 1px solid var(--clr-teal) !important;
+    color: var(--clr-white) !important;
+}
+.brand-link:hover {
+    background-color: var(--clr-primary-dark) !important;
+}
+
+/* Voci menu */
+.sidebar .nav-link {
+    color: var(--clr-text-sidebar) !important;
+}
+.sidebar .nav-link:hover,
+.sidebar .nav-link:focus {
+    background-color: rgba(0, 188, 212, 0.15) !important;
+    color: var(--clr-white) !important;
+}
+.sidebar .nav-link.active,
+.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active {
+    background-color: var(--clr-primary) !important;
+    color: var(--clr-white) !important;
+    border-left: 3px solid var(--clr-teal);
+}
+.sidebar .nav-header {
+    color: var(--clr-teal) !important;
+    font-size: .7rem;
+    letter-spacing: .08rem;
+    text-transform: uppercase;
+}
+/* Icone sidebar */
+.sidebar .nav-icon {
+    color: var(--clr-azure) !important;
+}
+.sidebar .nav-link.active .nav-icon {
+    color: var(--clr-teal) !important;
+}
+
+/* Sottomenu */
+.nav-treeview > .nav-item > .nav-link {
+    color: #90b8d8 !important;
+}
+.nav-treeview > .nav-item > .nav-link.active,
+.nav-treeview > .nav-item > .nav-link:hover {
+    background-color: rgba(0, 188, 212, 0.1) !important;
+    color: var(--clr-white) !important;
+}
+
+/* --- Pulsanti ------------------------------------------ */
+.btn-primary {
+    background-color: var(--clr-primary) !important;
+    border-color: var(--clr-primary) !important;
+}
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--clr-primary-dark) !important;
+    border-color: var(--clr-primary-dark) !important;
+}
+.btn-info {
+    background-color: var(--clr-teal) !important;
+    border-color: var(--clr-teal) !important;
+}
+.btn-info:hover {
+    background-color: var(--clr-teal-dark) !important;
+    border-color: var(--clr-teal-dark) !important;
+}
+
+/* --- Card header --------------------------------------- */
+.card-primary > .card-header,
+.card-primary.card-outline > .card-header {
+    background-color: var(--clr-primary) !important;
+    border-bottom-color: var(--clr-teal) !important;
+}
+.card-info > .card-header {
+    background-color: var(--clr-teal) !important;
+}
+
+/* --- Small box (dashboard widget) ---------------------- */
+.small-box.bg-info    { background-color: var(--clr-teal) !important; }
+.small-box.bg-primary { background-color: var(--clr-primary) !important; }
+.small-box.bg-azure   { background-color: var(--clr-azure) !important; }
+
+/* --- Testo link ---------------------------------------- */
+a { color: var(--clr-primary); }
+a:hover { color: var(--clr-primary-dark); }
+
+/* --- Scrollbar sidebar --------------------------------- */
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: var(--clr-sidebar-alt); }
+.sidebar::-webkit-scrollbar-thumb { background: var(--clr-primary); border-radius: 2px; }
+
+/* --- Login page ---------------------------------------- */
+.login-page {
+    background: linear-gradient(135deg, var(--clr-sidebar-bg) 0%, var(--clr-primary) 60%, var(--clr-teal) 100%);
+}
+.login-box .card {
+    border-top: 4px solid var(--clr-teal);
+    box-shadow: 0 4px 24px rgba(0,0,0,.3);
+}
+.login-logo a {
+    color: var(--clr-white) !important;
+}

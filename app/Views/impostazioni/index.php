@@ -1,0 +1,46 @@
+<?= $this->extend('layouts/admin') ?>
+
+<?= $this->section('breadcrumb') ?>
+    <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Home</a></li>
+    <li class="breadcrumb-item active">Impostazioni</li>
+<?= $this->endSection() ?>
+
+<?= $this->section('content') ?>
+<div class="row">
+
+    <div class="col-md-4">
+        <a href="<?= base_url('impostazioni/utenti') ?>" class="text-decoration-none">
+            <div class="card card-outline card-primary h-100">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-users fa-3x mb-3" style="color: var(--clr-teal);"></i>
+                    <h5 class="card-title">Utenti Portale</h5>
+                    <p class="text-muted small mb-0">
+                        Crea e gestisci i clienti con accesso al portale di assistenza.
+                    </p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card card-outline card-secondary h-100">
+            <div class="card-body text-center py-4 text-muted">
+                <i class="fas fa-sliders-h fa-3x mb-3"></i>
+                <h5 class="card-title">Parametri Generali</h5>
+                <p class="small mb-0">In costruzione.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card card-outline card-secondary h-100">
+            <div class="card-body text-center py-4 text-muted">
+                <i class="fas fa-envelope fa-3x mb-3"></i>
+                <h5 class="card-title">Notifiche Email</h5>
+                <p class="small mb-0">In costruzione.</p>
+            </div>
+        </div>
+    </div>
+
+</div>
+<?= $this->endSection() ?>

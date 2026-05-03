@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//d/Programmazione/metelicenze_adminlte/vendor/codeigniter4/shield/**)"
+    ]
+  }
+}
