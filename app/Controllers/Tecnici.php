@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\UserModel;
 use App\Models\InterventoModel;
+use App\Models\TecnicoOrarioModel;
 use CodeIgniter\Shield\Entities\User;
 
 class Tecnici extends BaseController
@@ -74,7 +75,7 @@ class Tecnici extends BaseController
             ->with('success', 'Tecnico "' . $username . '" creato con successo.');
     }
 
-    public function show(int $id): string
+    public function show(int $id)
     {
         $users   = new UserModel();
         $tecnico = $users->find($id);
@@ -84,14 +85,23 @@ class Tecnici extends BaseController
         }
 
         $interventi = new InterventoModel();
+        $orariModel = new TecnicoOrarioModel();
 
         return view('tecnici/show', [
-            'title'      => 'Scheda Tecnico',
-            'page_title' => 'Scheda Tecnico',
-            'tecnico'    => $tecnico,
-            'interventi' => $interventi->perTecnico($id),
-            'tipi'       => InterventoModel::TIPI,
-            'stati'      => InterventoModel::STATI,
+            'title'          => 'Scheda Tecnico',
+            'page_title'     => 'Scheda Tecnico',
+            'tecnico'        => $tecnico,
+            'interventi'     => $interventi->perTecnico($id),
+            'tipi'           => InterventoModel::TIPI,
+            'stati'          => InterventoModel::STATI,
+            'orari'          => $orariModel->perTecnico($id),
+            'giorni'         => TecnicoOrarioModel::GIORNI,
+            'orariDefault'   => [
+                'ora_inizio'   => setting('Tecnici.orario_inizio')   ?? '08:00',
+                'ora_fine'     => setting('Tecnici.orario_fine')     ?? '17:00',
+                'pausa_inizio' => setting('Tecnici.pausa_inizio')    ?? '13:00',
+                'pausa_fine'   => setting('Tecnici.pausa_fine')      ?? '14:00',
+            ],
         ]);
     }
 
@@ -152,6 +162,21 @@ class Tecnici extends BaseController
         }
 
         return redirect()->to('tecnici/' . $id)->with('success', 'Tecnico aggiornato.');
+    }
+
+    public function orariUpdate(int $id)
+    {
+        $users   = new UserModel();
+        $tecnico = $users->find($id);
+
+        if (! $tecnico || $tecnico->ruolo !== 'tecnico') {
+            return redirect()->to('tecnici')->with('error', 'Tecnico non trovato.');
+        }
+
+        $orariModel = new TecnicoOrarioModel();
+        $orariModel->salva($id, $this->request->getPost());
+
+        return redirect()->to('tecnici/' . $id)->with('success', 'Orari di lavoro aggiornati.');
     }
 
     public function delete(int $id)
