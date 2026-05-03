@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\UserModel;
+use App\Models\InterventoModel;
 use CodeIgniter\Shield\Entities\User;
 
 class Impostazioni extends BaseController
@@ -15,6 +16,39 @@ class Impostazioni extends BaseController
     public function update()
     {
         return redirect()->to('impostazioni');
+    }
+
+    public function parametri(): string
+    {
+        return view('impostazioni/parametri', [
+            'title'      => 'Parametri Generali',
+            'page_title' => 'Parametri Generali',
+            'durate'     => InterventoModel::DURATE,
+            'tipi'       => InterventoModel::TIPI,
+        ]);
+    }
+
+    public function salvaParametri()
+    {
+        $post = $this->request->getPost();
+
+        // Sede aziendale
+        foreach (['sede_nome', 'sede_indirizzo', 'sede_citta', 'sede_cap', 'sede_lat', 'sede_lng'] as $key) {
+            setting()->set('Azienda.' . $key, $post[$key] ?? null);
+        }
+
+        // Orari default tecnici
+        foreach (['orario_inizio', 'orario_fine', 'pausa_inizio', 'pausa_fine'] as $key) {
+            setting()->set('Tecnici.' . $key, $post[$key] ?? null);
+        }
+
+        // Durate interventi
+        foreach (array_keys(InterventoModel::DURATE) as $tipo) {
+            $val = $post['durata_' . $tipo] ?? null;
+            setting()->set('Interventi.durata_' . $tipo, $val !== null && $val !== '' ? (int) $val : null);
+        }
+
+        return redirect()->to('impostazioni/parametri')->with('success', 'Impostazioni salvate.');
     }
 
     public function utenti(): string

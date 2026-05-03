@@ -116,6 +116,9 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
         $routes->get('/',  'Impostazioni::index');
         $routes->post('/', 'Impostazioni::update');
 
+        $routes->get('parametri',  'Impostazioni::parametri');
+        $routes->post('parametri', 'Impostazioni::salvaParametri');
+
         $routes->group('utenti', function (RouteCollection $routes) {
             $routes->get('/',                   'Impostazioni::utenti');
             $routes->get('new',                 'Impostazioni::creaCliente');
