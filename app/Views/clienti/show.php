@@ -8,19 +8,6 @@
 
 <?= $this->section('content') ?>
 
-<?php if (session()->getFlashdata('success')): ?>
-    <div class="alert alert-success alert-dismissible fade show">
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
-        <?= esc(session()->getFlashdata('success')) ?>
-    </div>
-<?php endif; ?>
-<?php if (session()->getFlashdata('error')): ?>
-    <div class="alert alert-danger alert-dismissible fade show">
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
-        <?= esc(session()->getFlashdata('error')) ?>
-    </div>
-<?php endif; ?>
-
 <div class="row">
 
     <!-- Colonna sinistra: anagrafica -->

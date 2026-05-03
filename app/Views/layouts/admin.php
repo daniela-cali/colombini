@@ -64,5 +64,10 @@
 <script src="<?= base_url('plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js') ?>"></script>
 <script src="<?= base_url('dist/js/adminlte.min.js') ?>"></script>
 <?= $this->renderSection('scripts') ?>
+<script>
+setTimeout(function () {
+    $('.alert-success').fadeOut(600);
+}, 4000);
+</script>
 </body>
 </html>
