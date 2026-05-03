@@ -159,7 +159,54 @@
                 </table>
             </div>
         </div>
+
+        <?php if (!empty($cliente['lat']) && !empty($cliente['lng'])): ?>
+        <div class="card card-outline card-secondary">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-map-marker-alt mr-1"></i> Posizione</h3>
+                <div class="card-tools">
+                    <a href="https://www.openstreetmap.org/?mlat=<?= $cliente['lat'] ?>&mlon=<?= $cliente['lng'] ?>#map=15/<?= $cliente['lat'] ?>/<?= $cliente['lng'] ?>"
+                       target="_blank" class="btn btn-tool" title="Apri in OpenStreetMap">
+                        <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div id="mappa-cliente" style="height:260px;"></div>
+            </div>
+            <?php if ($cliente['geocoded_at']): ?>
+            <div class="card-footer text-muted small">
+                <i class="fas fa-clock mr-1"></i> Geocodificato il <?= date('d/m/Y', strtotime($cliente['geocoded_at'])) ?>
+            </div>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
+
     </div>
 
 </div>
 <?= $this->endSection() ?>
+
+<?php if (!empty($cliente['lat']) && !empty($cliente['lng'])): ?>
+<?= $this->section('styles') ?>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function () {
+    var lat = <?= (float) $cliente['lat'] ?>;
+    var lng = <?= (float) $cliente['lng'] ?>;
+    var map = L.map('mappa-cliente', { zoomControl: true, scrollWheelZoom: false }).setView([lat, lng], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19
+    }).addTo(map);
+    L.marker([lat, lng]).addTo(map)
+        .bindPopup('<?= esc(addslashes($nome_display)) ?><br><small><?= esc(addslashes(trim(($cliente['indirizzo'] ?? '') . ', ' . ($cliente['citta'] ?? '')))) ?></small>')
+        .openPopup();
+})();
+</script>
+<?= $this->endSection() ?>
+<?php endif; ?>

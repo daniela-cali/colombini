@@ -17,6 +17,8 @@ class InterventoModel extends Model
         'cliente_id',
         'tecnico_id',
         'data_pianificata',
+        'durata_viaggio',
+        'durata_effettiva',
         'data_completamento',
         'descrizione',
         'note_interne',
@@ -29,6 +31,20 @@ class InterventoModel extends Model
         'acquedotti'  => 'Acquedotti',
         'commerciale' => 'Richiesta Commerciale',
     ];
+
+    // Durate standard in minuti — override configurabile da Impostazioni
+    public const DURATE = [
+        'piscine'     => 120,
+        'addolcitori' => 60,
+        'acquedotti'  => 90,
+        'commerciale' => 45,
+    ];
+
+    public static function getDurata(string $tipo): int
+    {
+        $val = setting('Interventi.durata_' . $tipo);
+        return $val !== null ? (int) $val : (self::DURATE[$tipo] ?? 60);
+    }
 
     public const STATI = [
         'pianificato' => ['label' => 'Pianificato', 'badge' => 'badge-secondary'],

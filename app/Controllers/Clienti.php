@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 use App\Models\ClienteModel;
 use App\Models\UserModel;
+use App\Services\ClientiImportService;
+use App\Services\GeocoderService;
 use CodeIgniter\Shield\Entities\User;
 
 class Clienti extends BaseController
@@ -88,6 +90,8 @@ class Clienti extends BaseController
             'stato'     => 1,
         ]);
 
+        $this->geocodifica($model, $id);
+
         return redirect()->to('clienti/' . $id)->with('success', 'Cliente creato con successo.');
     }
 
@@ -139,6 +143,8 @@ class Clienti extends BaseController
             'email'     => $this->request->getPost('email')     ?: null,
             'note'      => $this->request->getPost('note')      ?: null,
         ]);
+
+        $this->geocodifica($model, $id);
 
         return redirect()->to('clienti/' . $id)->with('success', 'Cliente aggiornato.');
     }
@@ -244,9 +250,121 @@ class Clienti extends BaseController
         ]);
     }
 
-    public function importStore()
+    public function importAnalizza()
     {
-        return redirect()->back()->with('error', 'Import non ancora implementato.');
+        $file = $this->request->getFile('csv_file');
+
+        if (! $file || ! $file->isValid()) {
+            return redirect()->back()->with('error', 'File non valido o non caricato.');
+        }
+
+        if (! in_array($file->getClientExtension(), ['csv', 'txt'])) {
+            return redirect()->back()->with('error', 'Formato non supportato. Carica un file .csv');
+        }
+
+        $dest = WRITEPATH . 'uploads/import/';
+        if (! is_dir($dest)) mkdir($dest, 0755, true);
+
+        $nomefile = 'clienti_import_' . time() . '.csv';
+        $file->move($dest, $nomefile);
+        $filePath = $dest . $nomefile;
+
+        $service = new ClientiImportService();
+        $headers = $service->leggiHeaders($filePath);
+
+        if (empty($headers)) {
+            unlink($filePath);
+            return redirect()->back()->with('error', 'Impossibile leggere le intestazioni del file.');
+        }
+
+        session()->set('import_file', $filePath);
+        session()->set('import_headers', $headers);
+
+        return redirect()->to('clienti/import/mappa');
+    }
+
+    public function importMappa(): string
+    {
+        $filePath = session()->get('import_file');
+        $headers  = session()->get('import_headers');
+
+        if (! $filePath || ! $headers) {
+            return redirect()->to('clienti/import')->with('error', 'Sessione scaduta, ricarica il file.');
+        }
+
+        $savedMapping = setting('Import.clienti_mapping')
+            ? json_decode(setting('Import.clienti_mapping'), true)
+            : [];
+
+        return view('clienti/import_mappa', [
+            'title'        => 'Mappa Colonne CSV',
+            'page_title'   => 'Import Clienti — Mappa Colonne',
+            'headers'      => $headers,
+            'campi_dest'   => ClientiImportService::CAMPI_DEST,
+            'saved_mapping'=> $savedMapping,
+        ]);
+    }
+
+    public function importEsegui()
+    {
+        $filePath = session()->get('import_file');
+        $headers  = session()->get('import_headers');
+
+        if (! $filePath || ! file_exists($filePath)) {
+            return redirect()->to('clienti/import')->with('error', 'Sessione scaduta, ricarica il file.');
+        }
+
+        // mapping: indice colonna CSV => campo DB
+        $rawMapping = $this->request->getPost('mapping') ?? [];
+        $mapping = [];
+        foreach ($rawMapping as $idx => $dbField) {
+            if ($dbField !== '') $mapping[(int)$idx] = $dbField;
+        }
+
+        if (! in_array('codice', $mapping)) {
+            return redirect()->back()->with('error', 'Devi mappare almeno il campo "Codice".');
+        }
+
+        // salva mapping per i prossimi import
+        $namedMapping = [];
+        foreach ($mapping as $idx => $dbField) {
+            $namedMapping[$headers[$idx]] = $dbField;
+        }
+        setting()->set('Import.clienti_mapping', json_encode($namedMapping));
+
+        $service = new ClientiImportService();
+        $result  = $service->import($filePath, $mapping);
+
+        unlink($filePath);
+        session()->remove(['import_file', 'import_headers']);
+
+        return view('clienti/import_risultato', [
+            'title'      => 'Risultato Import',
+            'page_title' => 'Import Clienti — Risultato',
+            'result'     => $result,
+        ]);
+    }
+
+    private function geocodifica(ClienteModel $model, int $id): void
+    {
+        $indirizzo = $this->request->getPost('indirizzo');
+        $citta     = $this->request->getPost('citta');
+
+        if (! $indirizzo || ! $citta) return;
+
+        $geo = (new GeocoderService())->geocode(
+            $indirizzo,
+            $citta,
+            $this->request->getPost('cap') ?? ''
+        );
+
+        if ($geo) {
+            $model->update($id, [
+                'lat'         => $geo['lat'],
+                'lng'         => $geo['lng'],
+                'geocoded_at' => date('Y-m-d H:i:s'),
+            ]);
+        }
     }
 
     private function getValidationRules(string $tipo, ?int $excludeId = null): array

@@ -10,6 +10,7 @@ class ClienteModel extends Model
     protected $primaryKey     = 'id';
     protected $useTimestamps  = true;
     protected $useSoftDeletes = true;
+    protected $uniqueKeys     = ['codice'];
     protected $allowedFields  = [
         'id_external',
         'codice',
@@ -30,6 +31,9 @@ class ClienteModel extends Model
         'user_id',
         'dt_import',
         'stato',
+        'lat',
+        'lng',
+        'geocoded_at',
     ];
 
     public function generaCodiceInterno(): string

@@ -7,6 +7,17 @@ use CodeIgniter\Shield\Controllers\LoginController as ShieldLoginController;
 
 class LoginController extends ShieldLoginController
 {
+    public function loginView()
+    {
+        if (auth()->loggedIn()) {
+            return auth()->user()->inGroup('cliente')
+                ? redirect()->to(base_url('portale'))
+                : redirect()->to(base_url('/'));
+        }
+
+        return parent::loginView();
+    }
+
     protected function getValidationRules(): array
     {
         return [

@@ -26,6 +26,11 @@
                     </div>
                 </div>
             </form>
+            <a href="<?= base_url('clienti/import') ?>" class="btn btn-outline-secondary btn-sm mr-1">
+                <i class="fas fa-file-csv mr-1"></i>
+                <span class="d-none d-sm-inline">Import CSV</span>
+                <span class="d-sm-none">Import</span>
+            </a>
             <a href="<?= base_url('clienti/new') ?>" class="btn btn-primary btn-sm">
                 <i class="fas fa-plus mr-1"></i>
                 <span class="d-none d-sm-inline">Nuovo cliente</span>

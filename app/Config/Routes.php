@@ -31,7 +31,9 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
         $routes->get('new',                 'Clienti::create');
         $routes->post('/',                  'Clienti::store');
         $routes->get('import',              'Clienti::importView');
-        $routes->post('import',             'Clienti::importStore');
+        $routes->post('import',             'Clienti::importAnalizza');
+        $routes->get('import/mappa',        'Clienti::importMappa');
+        $routes->post('import/esegui',      'Clienti::importEsegui');
         $routes->get('(:num)',              'Clienti::show/$1');
         $routes->get('(:num)/edit',         'Clienti::edit/$1');
         $routes->post('(:num)',             'Clienti::update/$1');
