@@ -23,13 +23,17 @@
     </div>
 
     <div class="col-md-4">
-        <div class="card card-outline card-secondary h-100">
-            <div class="card-body text-center py-4 text-muted">
-                <i class="fas fa-sliders-h fa-3x mb-3"></i>
-                <h5 class="card-title">Parametri Generali</h5>
-                <p class="small mb-0">In costruzione.</p>
+        <a href="<?= base_url('impostazioni/parametri') ?>" class="text-decoration-none">
+            <div class="card card-outline card-primary h-100">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-sliders-h fa-3x mb-3" style="color: var(--clr-teal);"></i>
+                    <h5 class="card-title">Parametri Generali</h5>
+                    <p class="text-muted small mb-0">
+                        Sede, orari default tecnici e durate standard degli interventi.
+                    </p>
+                </div>
             </div>
-        </div>
+        </a>
     </div>
 
     <div class="col-md-4">

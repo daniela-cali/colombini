@@ -146,6 +146,14 @@
                         </div>
                     </div>
 
+                    <div class="mb-3">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-geo"
+                                onclick="verificaIndirizzo()">
+                            <i class="fas fa-map-marker-alt mr-1"></i> Verifica indirizzo
+                        </button>
+                        <span id="geo-result" class="ml-2 small"></span>
+                    </div>
+
                     <hr>
 
                     <div class="form-row">
@@ -215,5 +223,40 @@
 
     aggiornaTipo();
 })();
+
+function verificaIndirizzo() {
+    var indirizzo = document.getElementById('indirizzo').value.trim();
+    var citta     = document.getElementById('citta').value.trim();
+    var cap       = document.getElementById('cap').value.trim();
+    var result    = document.getElementById('geo-result');
+    var btn       = document.getElementById('btn-geo');
+
+    if (!indirizzo && !citta) {
+        result.innerHTML = '<span class="text-warning"><i class="fas fa-exclamation-triangle mr-1"></i>Inserisci almeno indirizzo o città.</span>';
+        return;
+    }
+
+    btn.disabled = true;
+    result.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Ricerca in corso…';
+
+    var q = [indirizzo, cap, citta, 'Italia'].filter(Boolean).join(', ');
+    var url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + encodeURIComponent(q);
+
+    fetch(url, { headers: { 'Accept-Language': 'it' } })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data && data[0]) {
+                var lat = parseFloat(data[0].lat).toFixed(6);
+                var lng = parseFloat(data[0].lon).toFixed(6);
+                result.innerHTML = '<span class="text-success"><i class="fas fa-check-circle mr-1"></i>' + lat + ', ' + lng + '</span>';
+            } else {
+                result.innerHTML = '<span class="text-danger"><i class="fas fa-times-circle mr-1"></i>Indirizzo non trovato — verifica i dati.</span>';
+            }
+        })
+        .catch(function() {
+            result.innerHTML = '<span class="text-danger"><i class="fas fa-times-circle mr-1"></i>Errore di rete.</span>';
+        })
+        .finally(function() { btn.disabled = false; });
+}
 </script>
 <?= $this->endSection() ?>
