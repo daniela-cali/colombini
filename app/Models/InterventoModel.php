@@ -53,6 +53,33 @@ class InterventoModel extends Model
         'annullato'   => ['label' => 'Annullato',   'badge' => 'badge-danger'],
     ];
 
+    public function riepilogoPerTecnico(): array
+    {
+        $mese = date('n');
+        $anno = date('Y');
+
+        $rows = $this->db->query("
+            SELECT
+                u.id,
+                u.nome,
+                u.cognome,
+                SUM(i.stato = 'pianificato')                                          AS pianificati,
+                SUM(i.stato = 'in_corso')                                             AS in_corso,
+                SUM(i.stato = 'completato')                                           AS totale_completati,
+                SUM(i.stato = 'completato'
+                    AND MONTH(i.data_completamento) = {$mese}
+                    AND YEAR(i.data_completamento)  = {$anno})                        AS completati_mese,
+                SUM(i.stato NOT IN ('annullato','completato'))                        AS aperti
+            FROM users u
+            LEFT JOIN interventi i ON i.tecnico_id = u.id AND i.deleted_at IS NULL
+            WHERE u.ruolo = 'tecnico'
+            GROUP BY u.id, u.nome, u.cognome
+            ORDER BY u.cognome, u.nome
+        ")->getResultArray();
+
+        return $rows;
+    }
+
     public function conDettagli(int $limit = 0): array
     {
         $q = $this->select('interventi.*,

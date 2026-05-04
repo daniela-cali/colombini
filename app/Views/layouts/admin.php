@@ -59,6 +59,39 @@
 
 </div>
 
+<!-- Pulsante guida contestuale -->
+<button type="button" id="btn-guida" data-toggle="modal" data-target="#modalGuida"
+        title="Guida" aria-label="Apri guida">
+    <i class="fas fa-question"></i>
+</button>
+
+<!-- Modal guida -->
+<div class="modal fade" id="modalGuida" tabindex="-1" role="dialog" aria-labelledby="guidaTitle">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background:var(--clr-teal);color:#fff;">
+                <h5 class="modal-title" id="guidaTitle">
+                    <i class="fas fa-question-circle mr-2"></i>
+                    Guida — <?= esc($page_title ?? 'Colombini Piscine') ?>
+                </h5>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body guida-body">
+                <?php $helpContent = $this->renderSection('help'); ?>
+                <?php if (trim($helpContent)): ?>
+                    <?= $helpContent ?>
+                <?php else: ?>
+                    <p class="text-muted">Nessuna guida disponibile per questa pagina.</p>
+                    <p>Per assistenza contatta l'amministratore del sistema.</p>
+                <?php endif; ?>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Chiudi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="<?= base_url('plugins/jquery/jquery.min.js') ?>"></script>
 <script src="<?= base_url('plugins/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
 <script src="<?= base_url('plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js') ?>"></script>
@@ -68,6 +101,27 @@
 setTimeout(function () {
     $('.alert-success').fadeOut(600);
 }, 4000);
+
+$(function () {
+    $('input[type="password"]').each(function () {
+        var $input = $(this);
+        if ($input.data('pwd-toggle-init')) return;
+        $input.data('pwd-toggle-init', true);
+
+        if (!$input.parent().hasClass('input-group')) {
+            $input.wrap('<div class="input-group"></div>');
+        }
+
+        var $append = $('<div class="input-group-append"><span class="input-group-text" style="cursor:pointer;" title="Mostra/nascondi password"><i class="fas fa-eye"></i></span></div>');
+        $input.parent().append($append);
+
+        $append.on('click', function () {
+            var icon = $(this).find('i');
+            $input[0].type = $input[0].type === 'password' ? 'text' : 'password';
+            icon.toggleClass('fa-eye fa-eye-slash');
+        });
+    });
+});
 </script>
 </body>
 </html>

@@ -134,6 +134,7 @@ class Tecnici extends BaseController
             'nome'    => 'required|max_length[100]',
             'cognome' => 'required|max_length[100]',
             'telefono'=> 'permit_empty|max_length[30]',
+            'ruolo'   => 'required|in_list[' . implode(',', UserModel::RUOLI_APP) . ']',
         ];
 
         $password = $this->request->getPost('password');
@@ -150,11 +151,19 @@ class Tecnici extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
+        $nuovoRuolo = $this->request->getPost('ruolo');
+
         $users->update($id, [
             'nome'     => $this->request->getPost('nome'),
             'cognome'  => $this->request->getPost('cognome'),
             'telefono' => $this->request->getPost('telefono') ?: null,
+            'ruolo'    => $nuovoRuolo,
         ]);
+
+        if ($tecnico->ruolo !== $nuovoRuolo) {
+            $tecnico->removeGroup($tecnico->ruolo);
+            $tecnico->addGroup($nuovoRuolo);
+        }
 
         if ($password) {
             $tecnico->setPassword($password);

@@ -141,3 +141,47 @@ a:hover { color: var(--clr-primary-dark); }
 .login-logo a {
     color: var(--clr-white) !important;
 }
+
+/* --- Pulsante guida contestuale ------------------------ */
+#btn-guida {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 1050;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: var(--clr-teal);
+    color: #fff;
+    font-size: 1.1rem;
+    box-shadow: 0 3px 10px rgba(0,0,0,.25);
+    cursor: pointer;
+    transition: background .2s, transform .15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#btn-guida:hover {
+    background: var(--clr-teal-dark);
+    transform: scale(1.08);
+}
+
+/* --- Corpo modal guida --------------------------------- */
+.guida-body h5 {
+    color: var(--clr-primary);
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: .4rem;
+    margin-top: 1rem;
+}
+.guida-body h5:first-child { margin-top: 0; }
+.guida-body ul { padding-left: 1.2rem; }
+.guida-body .badge-tip {
+    background: #e8f5e9;
+    color: #2e7d32;
+    font-weight: normal;
+    font-size: .8rem;
+    padding: .25rem .5rem;
+    border-radius: .25rem;
+}
+

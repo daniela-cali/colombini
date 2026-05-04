@@ -135,6 +135,47 @@
 
     <!-- Interventi assegnati -->
     <div class="col-md-8">
+        <?php
+            $meseCorrente  = date('Y-m');
+            $cPianificati  = 0; $cInCorso = 0; $cCompletatiMese = 0; $cAperti = 0;
+            foreach ($interventi as $inv) {
+                if ($inv['stato'] === 'pianificato') $cPianificati++;
+                if ($inv['stato'] === 'in_corso')    $cInCorso++;
+                if ($inv['stato'] === 'completato' &&
+                    substr($inv['data_completamento'] ?? '', 0, 7) === $meseCorrente) $cCompletatiMese++;
+                if (in_array($inv['stato'], ['pianificato','in_corso'])) $cAperti++;
+            }
+        ?>
+        <div class="row mb-3">
+            <div class="col-4">
+                <div class="info-box mb-0 shadow-none border">
+                    <span class="info-box-icon bg-secondary"><i class="fas fa-calendar-alt"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text small">Pianificati</span>
+                        <span class="info-box-number"><?= $cPianificati ?></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="info-box mb-0 shadow-none border">
+                    <span class="info-box-icon bg-warning"><i class="fas fa-spinner"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text small">In corso</span>
+                        <span class="info-box-number"><?= $cInCorso ?></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="info-box mb-0 shadow-none border">
+                    <span class="info-box-icon bg-success"><i class="fas fa-check"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text small">Complet. mese</span>
+                        <span class="info-box-number"><?= $cCompletatiMese ?></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="card card-outline card-primary">
             <div class="card-header">
                 <h3 class="card-title">Interventi assegnati</h3>

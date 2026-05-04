@@ -57,21 +57,27 @@
                         </div>
                     </div>
 
+                    <div class="form-group">
+                        <label for="ruolo">Ruolo <span class="text-danger">*</span></label>
+                        <select name="ruolo" id="ruolo" class="form-control" required>
+                            <?php foreach (\App\Models\UserModel::RUOLI as $key => $label):
+                                if ($key === 'cliente') continue; ?>
+                                <option value="<?= $key ?>"
+                                    <?= old('ruolo', $tecnico->ruolo) === $key ? 'selected' : '' ?>>
+                                    <?= esc($label) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
                     <hr>
                     <p class="text-muted small mb-2">Lascia vuoto per non modificare la password.</p>
 
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label>Nuova Password</label>
-                            <div class="input-group">
-                                <input type="password" name="password" id="password"
-                                       class="form-control" minlength="8">
-                                <div class="input-group-append">
-                                    <span class="input-group-text" id="togglePwd" style="cursor:pointer;">
-                                        <i class="fas fa-eye" id="togglePwdIcon"></i>
-                                    </span>
-                                </div>
-                            </div>
+                            <input type="password" name="password" id="password"
+                                   class="form-control" minlength="8">
                         </div>
                         <div class="form-group col-md-6">
                             <label>Conferma Password</label>
@@ -96,14 +102,3 @@
 </div>
 <?= $this->endSection() ?>
 
-<?= $this->section('scripts') ?>
-<script>
-document.getElementById('togglePwd').addEventListener('click', function () {
-    var pwd  = document.getElementById('password');
-    var icon = document.getElementById('togglePwdIcon');
-    pwd.type = pwd.type === 'password' ? 'text' : 'password';
-    icon.classList.toggle('fa-eye');
-    icon.classList.toggle('fa-eye-slash');
-});
-</script>
-<?= $this->endSection() ?>
