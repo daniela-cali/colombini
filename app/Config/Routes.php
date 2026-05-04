@@ -125,5 +125,14 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
             $routes->post('/',                  'Impostazioni::storeCliente');
             $routes->post('(:num)/elimina',     'Impostazioni::deleteCliente/$1');
         });
+
+        $routes->group('utenti-app', function (RouteCollection $routes) {
+            $routes->get('/',               'Impostazioni::utentiApp');
+            $routes->get('new',             'Impostazioni::creaUtenteApp');
+            $routes->post('/',              'Impostazioni::storeUtenteApp');
+            $routes->get('(:num)/edit',     'Impostazioni::editUtenteApp/$1');
+            $routes->post('(:num)',         'Impostazioni::updateUtenteApp/$1');
+            $routes->post('(:num)/elimina', 'Impostazioni::deleteUtenteApp/$1');
+        });
     });
 });

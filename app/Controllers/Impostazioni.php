@@ -115,6 +115,155 @@ class Impostazioni extends BaseController
             ->with('success', 'Utente portale "' . $username . '" creato con successo.');
     }
 
+    public function utentiApp(): string
+    {
+        $users  = new UserModel();
+        $utenti = $users->whereIn('ruolo', UserModel::RUOLI_APP)
+                        ->orderBy('ruolo', 'ASC')->orderBy('cognome', 'ASC')
+                        ->findAll();
+
+        return view('impostazioni/utenti_app', [
+            'title'      => 'Utenti App',
+            'page_title' => 'Utenti App',
+            'utenti'     => $utenti,
+        ]);
+    }
+
+    public function creaUtenteApp(): string
+    {
+        return view('impostazioni/crea_utente_app', [
+            'title'      => 'Nuovo Utente App',
+            'page_title' => 'Nuovo Utente App',
+        ]);
+    }
+
+    public function storeUtenteApp()
+    {
+        $ruoliValidi = implode(',', UserModel::RUOLI_APP);
+
+        $rules = [
+            'username'         => 'required|min_length[3]|max_length[30]|is_unique[users.username]',
+            'nome'             => 'required|max_length[100]',
+            'cognome'          => 'required|max_length[100]',
+            'ruolo'            => 'required|in_list[' . $ruoliValidi . ']',
+            'password'         => 'required|min_length[8]',
+            'password_confirm' => 'required|matches[password]',
+        ];
+
+        $messages = [
+            'username'         => ['is_unique' => 'Questo nome utente è già in uso.'],
+            'password_confirm' => ['matches'   => 'Le password non coincidono.'],
+        ];
+
+        if (! $this->validate($rules, $messages)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $username = $this->request->getPost('username');
+        $ruolo    = $this->request->getPost('ruolo');
+
+        $users = new UserModel();
+        $user  = new User([
+            'username' => $username,
+            'active'   => true,
+            'nome'     => $this->request->getPost('nome'),
+            'cognome'  => $this->request->getPost('cognome'),
+            'ruolo'    => $ruolo,
+        ]);
+
+        $users->save($user);
+        $user = $users->findById($users->getInsertID());
+
+        $user->createEmailIdentity([
+            'email'    => $username . '@gestionale.colombini-snc.it',
+            'password' => $this->request->getPost('password'),
+        ]);
+
+        $user->addGroup($ruolo);
+
+        return redirect()->to('impostazioni/utenti-app')
+            ->with('success', 'Utente "' . $username . '" creato con successo.');
+    }
+
+    public function editUtenteApp(int $id): string
+    {
+        $users = new UserModel();
+        $user  = $users->findById($id);
+
+        if (! $user || ! in_array($user->ruolo, UserModel::RUOLI_APP)) {
+            return redirect()->to('impostazioni/utenti-app')->with('error', 'Utente non trovato.');
+        }
+
+        return view('impostazioni/edit_utente_app', [
+            'title'      => 'Modifica Utente',
+            'page_title' => 'Modifica Utente',
+            'utente'     => $user,
+        ]);
+    }
+
+    public function updateUtenteApp(int $id)
+    {
+        $users = new UserModel();
+        $user  = $users->findById($id);
+
+        if (! $user || ! in_array($user->ruolo, UserModel::RUOLI_APP)) {
+            return redirect()->to('impostazioni/utenti-app')->with('error', 'Utente non trovato.');
+        }
+
+        $rules = [
+            'nome'    => 'required|max_length[100]',
+            'cognome' => 'required|max_length[100]',
+            'ruolo'   => 'required|in_list[' . implode(',', UserModel::RUOLI_APP) . ']',
+        ];
+
+        $password = $this->request->getPost('password');
+        if ($password) {
+            $rules['password']         = 'min_length[8]';
+            $rules['password_confirm'] = 'matches[password]';
+        }
+
+        if (! $this->validate($rules, ['password_confirm' => ['matches' => 'Le password non coincidono.']])) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $nuovoRuolo = $this->request->getPost('ruolo');
+
+        $users->update($id, [
+            'nome'    => $this->request->getPost('nome'),
+            'cognome' => $this->request->getPost('cognome'),
+            'ruolo'   => $nuovoRuolo,
+        ]);
+
+        // aggiorna il gruppo Shield se il ruolo è cambiato
+        if ($user->ruolo !== $nuovoRuolo) {
+            $user->removeGroup($user->ruolo);
+            $user->addGroup($nuovoRuolo);
+        }
+
+        if ($password) {
+            $user->setPassword($password);
+            $users->save($user);
+        }
+
+        return redirect()->to('impostazioni/utenti-app')
+            ->with('success', 'Utente "' . $user->username . '" aggiornato.');
+    }
+
+    public function deleteUtenteApp(int $id)
+    {
+        $users = new UserModel();
+        $user  = $users->findById($id);
+
+        if (! $user || ! in_array($user->ruolo, UserModel::RUOLI_APP)) {
+            return redirect()->to('impostazioni/utenti-app')->with('error', 'Utente non trovato.');
+        }
+
+        $users->delete($id, true);
+
+        return redirect()->to('impostazioni/utenti-app')
+            ->with('success', 'Utente "' . $user->username . '" eliminato.');
+    }
+
     public function deleteCliente(int $id)
     {
         $users = new UserModel();

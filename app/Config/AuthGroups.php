@@ -61,6 +61,10 @@ class AuthGroups extends ShieldAuthGroups
             'title'       => 'Beta User',
             'description' => 'Has access to beta-level features.',
         ],
+        'staff' => [
+            'title'       => 'Staff',
+            'description' => 'Operatore interno con accesso al gestionale.',
+        ],
         'tecnico' => [
             'title'       => 'Tecnico',
             'description' => 'Tecnico di assistenza Colombini.',
@@ -119,6 +123,7 @@ class AuthGroups extends ShieldAuthGroups
         ],
         'user'     => [],
         'beta'     => ['beta.access'],
+        'staff'    => ['admin.access'],
         'tecnico'  => [],
         'cliente'  => [],
     ];

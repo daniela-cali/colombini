@@ -61,6 +61,57 @@
     </div>
 </div>
 
+<!-- Riepilogo tecnici -->
+<?php if (!empty($riepilogo_tecnici)): ?>
+<div class="row">
+    <?php foreach ($riepilogo_tecnici as $t): ?>
+    <div class="col-lg-3 col-md-4 col-sm-6">
+        <div class="card card-outline card-primary">
+            <div class="card-header p-2">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-hard-hat mr-2" style="color:var(--clr-teal)"></i>
+                    <a href="<?= base_url('tecnici/' . $t['id']) ?>"
+                       class="font-weight-bold text-truncate text-dark">
+                        <?= esc($t['cognome'] . ' ' . $t['nome']) ?>
+                    </a>
+                    <?php if ((int)$t['aperti'] > 0): ?>
+                        <span class="badge badge-warning ml-auto"><?= (int)$t['aperti'] ?></span>
+                    <?php else: ?>
+                        <span class="badge badge-success ml-auto"><i class="fas fa-check"></i></span>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <ul class="list-group list-group-flush small">
+                    <li class="list-group-item d-flex justify-content-between py-1 px-3">
+                        <span class="text-muted">Pianificati</span>
+                        <strong><?= (int)$t['pianificati'] ?></strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between py-1 px-3">
+                        <span class="text-muted">In corso</span>
+                        <strong><?= (int)$t['in_corso'] ?></strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between py-1 px-3">
+                        <span class="text-muted">Completati mese</span>
+                        <strong><?= (int)$t['completati_mese'] ?></strong>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-footer p-1 text-right">
+                <a href="<?= base_url('tecnici/' . $t['id']) ?>" class="btn btn-xs btn-outline-primary">
+                    <i class="fas fa-eye mr-1"></i>Scheda
+                </a>
+                <a href="<?= base_url('interventi/new?tecnico_id=' . $t['id']) ?>"
+                   class="btn btn-xs btn-outline-success">
+                    <i class="fas fa-plus mr-1"></i>Intervento
+                </a>
+            </div>
+        </div>
+    </div>
+    <?php endforeach; ?>
+</div>
+<?php endif; ?>
+
 <!-- Ultime richieste portale -->
 <div class="row">
     <div class="col-12">

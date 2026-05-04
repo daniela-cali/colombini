@@ -9,6 +9,20 @@
 <div class="row">
 
     <div class="col-md-4">
+        <a href="<?= base_url('impostazioni/utenti-app') ?>" class="text-decoration-none">
+            <div class="card card-outline card-primary h-100">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-users-cog fa-3x mb-3" style="color: var(--clr-teal);"></i>
+                    <h5 class="card-title">Utenti App</h5>
+                    <p class="text-muted small mb-0">
+                        Amministratori, staff e tecnici con accesso al gestionale.
+                    </p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-4">
         <a href="<?= base_url('impostazioni/utenti') ?>" class="text-decoration-none">
             <div class="card card-outline card-primary h-100">
                 <div class="card-body text-center py-4">
