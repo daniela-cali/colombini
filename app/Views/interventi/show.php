@@ -104,26 +104,28 @@
                 <?php endif; ?>
 
             </div>
-            <div class="card-footer d-flex justify-content-between">
-                <a href="<?= base_url('interventi') ?>" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left mr-1"></i> Elenco
-                </a>
-                <div class="d-flex flex-wrap gap-2" style="gap:.5rem;">
-                    <a href="<?= base_url('interventi/' . $intervento['id'] . '/edit') ?>"
-                       class="btn btn-warning">
-                        <i class="fas fa-edit mr-1"></i> Modifica
+            <div class="card-footer">
+                <div class="d-flex flex-wrap justify-content-between align-items-center">
+                    <a href="<?= base_url('interventi') ?>" class="btn btn-secondary btn-sm mb-1">
+                        <i class="fas fa-arrow-left mr-1"></i> Elenco
                     </a>
-                    <?php if ($intervento['stato'] !== 'completato' && $intervento['stato'] !== 'annullato'): ?>
-                        <a href="<?= base_url('interventi/' . $intervento['id'] . '/chiudi') ?>"
-                           class="btn btn-success"
-                           onclick="return confirm('Chiudere l\'intervento come completato?')">
-                            <i class="fas fa-check mr-1"></i> Chiudi
+                    <div>
+                        <a href="<?= base_url('interventi/' . $intervento['id'] . '/edit') ?>"
+                           class="btn btn-warning btn-sm mb-1">
+                            <i class="fas fa-edit mr-1"></i> Modifica
                         </a>
-                    <?php endif; ?>
-                    <a href="<?= base_url('interventi/' . $intervento['id'] . '/pdf') ?>"
-                       class="btn btn-outline-secondary">
-                        <i class="fas fa-print mr-1"></i> Stampa
-                    </a>
+                        <?php if ($intervento['stato'] !== 'completato' && $intervento['stato'] !== 'annullato'): ?>
+                            <a href="<?= base_url('interventi/' . $intervento['id'] . '/chiudi') ?>"
+                               class="btn btn-success btn-sm mb-1"
+                               onclick="return confirm('Chiudere l\'intervento come completato?')">
+                                <i class="fas fa-check mr-1"></i> Chiudi
+                            </a>
+                        <?php endif; ?>
+                        <a href="<?= base_url('interventi/' . $intervento['id'] . '/pdf') ?>"
+                           class="btn btn-outline-secondary btn-sm mb-1">
+                            <i class="fas fa-print mr-1"></i> Stampa
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
