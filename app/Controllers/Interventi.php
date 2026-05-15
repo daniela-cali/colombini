@@ -176,7 +176,7 @@ class Interventi extends BaseController
         }
 
         $users     = new UserModel();
-        $clienti   = new ClienteModel();
+        $clientiModel = new ClienteModel();
         $richieste = new RichiestaModel();
 
         $richiesteAperte = $richieste
@@ -186,12 +186,26 @@ class Interventi extends BaseController
             ->orderBy('richieste_assistenza.created_at', 'DESC')
             ->findAll();
 
+        $clientiList = $clientiModel->where('stato', 1)->orderBy('ragsoc, cognome')->findAll();
+
+        // Se il cliente collegato è stato soft-deleted, aggiungilo in testa marcato
+        if ($intervento['cliente_id']) {
+            $inLista = array_search($intervento['cliente_id'], array_column($clientiList, 'id'));
+            if ($inLista === false) {
+                $clienteEliminato = (new ClienteModel())->withDeleted()->find($intervento['cliente_id']);
+                if ($clienteEliminato) {
+                    $clienteEliminato['_eliminato'] = true;
+                    array_unshift($clientiList, $clienteEliminato);
+                }
+            }
+        }
+
         return view('interventi/edit', [
             'title'      => 'Modifica Intervento #' . $id,
             'page_title' => 'Modifica Intervento',
             'intervento' => $intervento,
             'tecnici'    => $users->where('ruolo', 'tecnico')->orderBy('cognome')->findAll(),
-            'clienti'    => $clienti->where('stato', 1)->orderBy('ragsoc, cognome')->findAll(),
+            'clienti'    => $clientiList,
             'richieste'  => $richiesteAperte,
             'tipi'       => TipoInterventoModel::comeLista(),
             'stati'      => InterventoModel::STATI,

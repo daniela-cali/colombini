@@ -132,10 +132,12 @@
                                 <option value="">— Nessuno —</option>
                                 <?php foreach ($clienti as $c): ?>
                                     <option value="<?= $c['id'] ?>"
-                                        <?= $intervento['cliente_id'] == $c['id'] ? 'selected' : '' ?>>
+                                        <?= $intervento['cliente_id'] == $c['id'] ? 'selected' : '' ?>
+                                        <?= !empty($c['_eliminato']) ? 'style="color:#dc3545"' : '' ?>>
                                         <?= esc($c['tipo'] === 'persona_fisica'
                                             ? trim(($c['cognome'] ?? '') . ' ' . ($c['nome'] ?? ''))
                                             : ($c['ragsoc'] ?? '')) ?>
+                                        <?= !empty($c['_eliminato']) ? ' [eliminato]' : '' ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>

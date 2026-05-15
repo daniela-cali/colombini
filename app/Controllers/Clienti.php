@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\ClienteModel;
+use App\Models\InterventoModel;
 use App\Models\UserModel;
 use App\Services\ClientiImportService;
 use App\Services\GeocoderService;
@@ -156,6 +157,12 @@ class Clienti extends BaseController
 
         if (! $cliente) {
             return redirect()->to('clienti')->with('error', 'Cliente non trovato.');
+        }
+
+        $count = (new InterventoModel())->where('cliente_id', $id)->countAllResults();
+        if ($count > 0) {
+            return redirect()->to('clienti/' . $id)
+                ->with('error', "Impossibile eliminare: il cliente ha {$count} intervento/i collegato/i. Rimuovere prima i collegamenti o completare gli interventi.");
         }
 
         $model->delete($id);

@@ -77,7 +77,7 @@ class InterventoModel extends Model
     public function conDettagli(int $limit = 0): array
     {
         $q = $this->select('interventi.*,
-                c.ragsoc AS cliente_ragsoc, c.nome AS cliente_nome, c.cognome AS cliente_cognome,
+                c.ragsoc AS cliente_ragsoc, c.nome AS cliente_nome, c.cognome AS cliente_cognome, c.deleted_at AS cliente_deleted_at,
                 u_tec.nome AS tecnico_nome, u_tec.cognome AS tecnico_cognome, u_tec.colore AS tecnico_colore')
             ->join('clienti c', 'c.id = interventi.cliente_id', 'left')
             ->join('users u_tec', 'u_tec.id = interventi.tecnico_id', 'left')

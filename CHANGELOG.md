@@ -11,6 +11,15 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 
 ---
 
+## [0.5.2] — 2026-05-15
+
+### Corretto
+- **Eliminazione cliente bloccata** se esistono interventi collegati: messaggio d'errore con conteggio e redirect alla scheda cliente
+- **Form modifica intervento**: se il cliente è stato soft-deleted non compare più nella lista, il link veniva azzerato silenziosamente al salvataggio; ora il cliente eliminato appare in cima al dropdown marcato in rosso con `[eliminato]`
+- **Lista interventi**: aggiunto badge `el.` rosso accanto al nome del cliente soft-deleted; `conDettagli()` ora include `cliente_deleted_at` dalla JOIN
+
+---
+
 ## [0.5.1] — 2026-05-15
 
 ### Corretto
