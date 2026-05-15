@@ -11,6 +11,21 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 
 ---
 
+## [0.8.0] — 2026-05-15
+
+### Aggiunto
+- **Calendario interventi** — pagina `/calendario` con FullCalendar v6: vista giorno/settimana/mese, eventi colorati per tecnico, icona del tipo intervento accanto all'orario, testo cliente sempre visibile
+- **Endpoint JSON** `/calendario/eventi` — restituisce gli interventi nel range di date richiesto da FullCalendar
+- **Calendario in sidebar** — voce nel Cruscotto accanto alla Dashboard
+- **Ritorno contestuale** dalla scheda intervento: se aperta dal calendario, breadcrumb e pulsante ✕ riportano al calendario
+
+### Modificato
+- **Palette colori tecnici** — sostituiti i 12 colori vivaci con equivalenti pastello (più leggibili come sfondo negli eventi del calendario)
+- **Testo eventi calendario** — `eventTextColor: #1f2937` per contrasto su sfondi pastello
+- **Checkmark palette tecnici** — colore del segno di spunta cambiato da bianco a `#222`
+
+---
+
 ## [0.7.1] — 2026-05-15
 
 ### Aggiunto

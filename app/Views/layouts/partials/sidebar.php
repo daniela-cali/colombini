@@ -49,6 +49,12 @@
                         <p>Dashboard</p>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="<?= base_url('calendario') ?>" class="nav-link <?= str_starts_with(uri_string(), 'calendario') ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-calendar-alt"></i>
+                        <p>Calendario</p>
+                    </a>
+                </li>
 
                 <!-- Anagrafiche -->
                 <li class="nav-header">Anagrafiche</li>

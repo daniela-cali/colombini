@@ -2,7 +2,11 @@
 
 <?= $this->section('breadcrumb') ?>
     <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Home</a></li>
-    <li class="breadcrumb-item"><a href="<?= base_url('interventi') ?>">Interventi</a></li>
+    <?php if (service('request')->getGet('from') === 'calendario'): ?>
+        <li class="breadcrumb-item"><a href="<?= base_url('calendario') ?>">Calendario</a></li>
+    <?php else: ?>
+        <li class="breadcrumb-item"><a href="<?= base_url('interventi') ?>">Interventi</a></li>
+    <?php endif; ?>
     <li class="breadcrumb-item active">#<?= $intervento['id'] ?></li>
 <?= $this->endSection() ?>
 
@@ -12,8 +16,15 @@
         <div class="card card-outline card-primary">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h3 class="card-title">Intervento #<?= $intervento['id'] ?></h3>
-                <?php $s = $stati[$intervento['stato']] ?? ['label' => $intervento['stato'], 'badge' => 'badge-secondary']; ?>
-                <span class="badge <?= $s['badge'] ?> px-3 py-2"><?= $s['label'] ?></span>
+                <div class="d-flex align-items-center ml-auto">
+                    <?php $s = $stati[$intervento['stato']] ?? ['label' => $intervento['stato'], 'badge' => 'badge-secondary']; ?>
+                    <span class="badge badge-light text-dark px-3 py-2"><?= $s['label'] ?></span>
+                    <?php $from = service('request')->getGet('from'); if ($from): ?>
+                    <a href="<?= base_url($from) ?>" class="btn btn-sm btn-outline-light ml-2" title="Torna a <?= esc($from) ?>">
+                        <i class="fas fa-times"></i>
+                    </a>
+                    <?php endif; ?>
+                </div>
             </div>
             <div class="card-body">
 

@@ -26,6 +26,9 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
     $routes->get('/',         'Dashboard::index');
     $routes->get('dashboard', 'Dashboard::index');
 
+    $routes->get('calendario',        'Calendario::index');
+    $routes->get('calendario/eventi', 'Calendario::eventi');
+
     $routes->group('clienti', function (RouteCollection $routes) {
         $routes->get('/',                   'Clienti::index');
         $routes->get('new',                 'Clienti::create');

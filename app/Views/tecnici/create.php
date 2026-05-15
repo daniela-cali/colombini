@@ -58,8 +58,8 @@
                         <div class="form-group col-md-3">
                             <label>Colore</label>
                             <?php
-                                $coloriPreset = ['#3b82f6','#ef4444','#10b981','#f59e0b','#8b5cf6','#ec4899','#06b6d4','#f97316','#14b8a6','#6366f1','#84cc16','#64748b'];
-                                $coloreSelezionato = old('colore', '#3b82f6');
+                                $coloriPreset = ['#93c5fd','#fca5a5','#6ee7b7','#fcd34d','#c4b5fd','#f9a8d4','#67e8f9','#fdba74','#5eead4','#a5b4fc','#bef264','#cbd5e1'];
+                                $coloreSelezionato = old('colore', '#93c5fd');
                             ?>
                             <div class="color-swatches">
                                 <?php foreach ($coloriPreset as $c): ?>
@@ -115,7 +115,7 @@
 .color-swatch.is-selected {
     box-shadow:0 0 0 2px #fff, 0 0 0 4px rgba(0,0,0,.35);
 }
-.color-swatch.is-selected::after { content:'✓'; color:#fff; font-size:14px; font-weight:700; }
+.color-swatch.is-selected::after { content:'✓'; color:#222; font-size:14px; font-weight:700; }
 </style>
 <?= $this->endSection() ?>
 
