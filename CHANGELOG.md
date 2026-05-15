@@ -9,16 +9,25 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 
 ## [Non rilasciato]
 
+---
+
+## [0.5.0] — 2026-05-15
+
 ### Aggiunto
-- Campo `colore` per ogni tecnico (anagrafica utenti) con color picker nelle form e pallino colorato nella lista e nella scheda
-- Sezione **Sistema / Configurazione** nella sidebar: Tecnici, Tipi Intervento, Impostazioni raggruppati sotto un unico menu
-- Route `/sistema/tecnici` — tecnici spostati dalla sezione Anagrafiche alla sezione Sistema
-- Route `/sistema/tipi-intervento` con CRUD completo per gestire i tipi di intervento
-- Tabella DB `tipi_intervento` (codice, nome, durata default, attivo, ordine) con dati precaricati dai 4 tipi preesistenti
+- **Colore tecnico** — campo `colore` sull'anagrafica utenti con color picker nelle form create/edit e pallino colorato nella lista e nella scheda
+- **Sezione Sistema / Configurazione** nella sidebar: Tecnici, Tipi Intervento e Impostazioni raggruppati sotto un unico menu dropdown
+- **Route `/sistema/tecnici`** — Tecnici spostati dalla sezione Anagrafiche alla sezione Sistema
+- **Route `/sistema/tipi-intervento`** con CRUD completo; tabella DB `tipi_intervento` (codice, nome, durata default, attivo, ordine) precaricata con i 4 tipi esistenti
+- **Elenco interventi raggruppato per tecnico** — una card per ogni tecnico con header colorato e interventi ordinati per data pianificata; sezione separata per i non assegnati
+- **Geolocalizzazione interventi** — campi `citta`, `lat`, `lng`, `geocoded_at` sulla tabella `interventi`; pulsante Nominatim nei form create/edit; mini-mappa Leaflet nella scheda con fallback sulle coordinate del cliente
+- **CHANGELOG.md** — file di versioning semantico (MAJOR.MINOR.PATCH)
+- **Versione in sidebar** — letta dinamicamente da CHANGELOG.md e mostrata nell'header del menu
 
 ### Modificato
-- `InterventoModel` — rimossi i tipi e le durate hardcoded come costanti PHP; ora caricati dalla tabella `tipi_intervento`
-- Impostazioni > Parametri — sezione durate interventi ora dinamica (legge i tipi dal DB)
+- `InterventoModel` — `TIPI` e `DURATE` rimossi come costanti PHP hardcoded; ora caricati dalla tabella `tipi_intervento` tramite `TipoInterventoModel::comeLista()`
+- Impostazioni > Parametri — sezione durate interventi dinamica (legge i tipi dal DB)
+- Elenco interventi — descrizione visibile in anteprima (80 car.) nella lista raggruppata
+- `conDettagli()` — include `tecnico_colore` e (in show) `cliente_lat/lng` per la mappa di fallback
 
 ---
 
