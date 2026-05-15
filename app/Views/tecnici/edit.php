@@ -55,10 +55,21 @@
                                    value="<?= esc(old('telefono', $tecnico->telefono)) ?>"
                                    placeholder="es. 348 1234567">
                         </div>
-                        <div class="form-group col-md-2">
+                        <div class="form-group col-md-3">
                             <label>Colore</label>
-                            <input type="color" name="colore" class="form-control form-control-color w-100"
-                                   value="<?= esc(old('colore', $tecnico->colore ?? '#3b82f6')) ?>">
+                            <?php
+                                $coloriPreset = ['#3b82f6','#ef4444','#10b981','#f59e0b','#8b5cf6','#ec4899','#06b6d4','#f97316','#14b8a6','#6366f1','#84cc16','#64748b'];
+                                $coloreSelezionato = old('colore', $tecnico->colore ?? '#3b82f6');
+                            ?>
+                            <div class="color-swatches">
+                                <?php foreach ($coloriPreset as $c): ?>
+                                    <label class="color-swatch<?= $c === $coloreSelezionato ? ' is-selected' : '' ?>"
+                                           style="background:<?= $c ?>" title="<?= $c ?>">
+                                        <input type="radio" name="colore" value="<?= $c ?>"
+                                               <?= $c === $coloreSelezionato ? 'checked' : '' ?>>
+                                    </label>
+                                <?php endforeach; ?>
+                            </div>
                         </div>
                     </div>
 
@@ -107,3 +118,30 @@
 </div>
 <?= $this->endSection() ?>
 
+<?= $this->section('styles') ?>
+<style>
+.color-swatches { display:flex; flex-wrap:wrap; gap:8px; padding-top:4px; }
+.color-swatch {
+    width:30px; height:30px; border-radius:50%; cursor:pointer;
+    border:2px solid transparent; display:flex; align-items:center; justify-content:center;
+    transition:transform .1s, box-shadow .1s;
+}
+.color-swatch input { position:absolute; opacity:0; width:0; height:0; }
+.color-swatch:hover { transform:scale(1.15); }
+.color-swatch.is-selected {
+    box-shadow:0 0 0 2px #fff, 0 0 0 4px rgba(0,0,0,.35);
+}
+.color-swatch.is-selected::after { content:'✓'; color:#fff; font-size:14px; font-weight:700; }
+</style>
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script>
+document.querySelectorAll('.color-swatch input').forEach(function (r) {
+    r.addEventListener('change', function () {
+        document.querySelectorAll('.color-swatch').forEach(function (s) { s.classList.remove('is-selected'); });
+        this.closest('.color-swatch').classList.add('is-selected');
+    });
+});
+</script>
+<?= $this->endSection() ?>

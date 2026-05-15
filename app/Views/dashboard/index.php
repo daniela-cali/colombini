@@ -64,12 +64,14 @@
 <!-- Riepilogo tecnici -->
 <?php if (!empty($riepilogo_tecnici)): ?>
 <div class="row">
-    <?php foreach ($riepilogo_tecnici as $t): ?>
+    <?php foreach ($riepilogo_tecnici as $t):
+        $clr = esc($t['colore'] ?? '#3b82f6');
+    ?>
     <div class="col-lg-3 col-md-4 col-sm-6">
-        <div class="card card-outline card-primary">
-            <div class="card-header p-2">
+        <div class="card" style="border-top:3px solid <?= $clr ?>;">
+            <div class="card-header p-2" style="background:<?= $clr ?>18;">
                 <div class="d-flex align-items-center">
-                    <i class="fas fa-hard-hat mr-2" style="color:var(--clr-teal)"></i>
+                    <span style="width:12px;height:12px;border-radius:50%;background:<?= $clr ?>;display:inline-block;flex-shrink:0;margin-right:8px;"></span>
                     <a href="<?= base_url('sistema/tecnici/' . $t['id']) ?>"
                        class="font-weight-bold text-truncate text-dark">
                         <?= esc($t['cognome'] . ' ' . $t['nome']) ?>

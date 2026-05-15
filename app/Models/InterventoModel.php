@@ -57,6 +57,7 @@ class InterventoModel extends Model
                 u.id,
                 u.nome,
                 u.cognome,
+                u.colore,
                 SUM(i.stato = 'pianificato')                                          AS pianificati,
                 SUM(i.stato = 'in_corso')                                             AS in_corso,
                 SUM(i.stato = 'completato')                                           AS totale_completati,

@@ -11,6 +11,14 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 
 ---
 
+## [0.6.0] — 2026-05-15
+
+### Aggiunto
+- **Color picker a palette** — nelle form crea/modifica tecnico il native color picker è sostituito da 12 cerchi colorati cliccabili con checkmark sul selezionato (blu, rosso, verde, ambra, viola, rosa, ciano, arancio, teal, indaco, lime, grigio)
+- **Card tecnici colorate in dashboard** — il riepilogo tecnici usa il colore anagrafica (`border-top` + header semitrasparente + pallino), coerente con la lista interventi
+
+---
+
 ## [0.5.2] — 2026-05-15
 
 ### Corretto
