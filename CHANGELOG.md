@@ -11,6 +11,13 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 
 ---
 
+## [0.6.1] — 2026-05-15
+
+### Corretto
+- Campi password nella form modifica tecnico: aggiunto `autocomplete="new-password"` per impedire ai browser di riempire automaticamente le credenziali salvate
+
+---
+
 ## [0.6.0] — 2026-05-15
 
 ### Aggiunto

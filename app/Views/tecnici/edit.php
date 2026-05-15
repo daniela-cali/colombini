@@ -93,12 +93,14 @@
                         <div class="form-group col-md-6">
                             <label>Nuova Password</label>
                             <input type="password" name="password" id="password"
-                                   class="form-control" minlength="8">
+                                   class="form-control" minlength="8"
+                                   autocomplete="new-password">
                         </div>
                         <div class="form-group col-md-6">
                             <label>Conferma Password</label>
                             <input type="password" name="password_confirm"
-                                   class="form-control" minlength="8">
+                                   class="form-control" minlength="8"
+                                   autocomplete="new-password">
                         </div>
                     </div>
 
