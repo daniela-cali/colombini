@@ -11,6 +11,13 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 
 ---
 
+## [0.8.1] — 2026-05-15
+
+### Aggiunto
+- **Guida in linea** su tutte le pagine gestionali (18 view): calendario, clienti, interventi, tecnici, tipi intervento, dashboard, impostazioni
+
+---
+
 ## [0.8.0] — 2026-05-15
 
 ### Aggiunto
