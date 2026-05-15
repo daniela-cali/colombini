@@ -29,6 +29,22 @@
                 </div>
                 <?php endif; ?>
 
+                <?php if ($intervento['citta']): ?>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted small font-weight-bold">Città / Indirizzo</div>
+                    <div class="col-sm-8">
+                        <?= esc($intervento['citta']) ?>
+                        <?php if ($intervento['geocoded_at']): ?>
+                            <br><small class="text-success">
+                                <i class="fas fa-map-marker-alt mr-1"></i>
+                                <?= number_format((float)$intervento['lat'], 5) ?>,
+                                <?= number_format((float)$intervento['lng'], 5) ?>
+                            </small>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+
                 <div class="row mb-3">
                     <div class="col-sm-4 text-muted small font-weight-bold">Cliente</div>
                     <div class="col-sm-8">
@@ -132,6 +148,29 @@
     </div>
 
     <div class="col-md-4">
+
+        <?php
+            $mapLat = $intervento['lat'] ?? $intervento['cliente_lat'] ?? null;
+            $mapLng = $intervento['lng'] ?? $intervento['cliente_lng'] ?? null;
+            $mapSource = $intervento['lat'] ? 'intervento' : ($intervento['cliente_lat'] ? 'cliente' : null);
+        ?>
+
+        <?php if ($mapLat && $mapLng): ?>
+        <div class="card card-outline card-secondary mb-3">
+            <div class="card-header py-2 d-flex justify-content-between align-items-center">
+                <h3 class="card-title small text-muted mb-0">Posizione</h3>
+                <?php if ($mapSource === 'cliente'): ?>
+                    <small class="text-muted"><i class="fas fa-user mr-1"></i>sede cliente</small>
+                <?php else: ?>
+                    <small class="text-success"><i class="fas fa-map-marker-alt mr-1"></i>geocodificato</small>
+                <?php endif; ?>
+            </div>
+            <div class="card-body p-0">
+                <div id="mappa-intervento" style="height:200px;"></div>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <div class="card card-outline card-secondary">
             <div class="card-header">
                 <h3 class="card-title small text-muted">Creato il</h3>
@@ -143,3 +182,33 @@
     </div>
 </div>
 <?= $this->endSection() ?>
+
+<?php
+    $mapLat = $intervento['lat'] ?? $intervento['cliente_lat'] ?? null;
+    $mapLng = $intervento['lng'] ?? $intervento['cliente_lng'] ?? null;
+?>
+<?php if ($mapLat && $mapLng): ?>
+<?= $this->section('styles') ?>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function () {
+    var lat   = <?= (float) $mapLat ?>;
+    var lng   = <?= (float) $mapLng ?>;
+    var label = '<?= esc(addslashes($intervento['citta'] ?? $intervento['luogo_intervento'] ?? 'Intervento #' . $intervento['id'])) ?>';
+
+    var map = L.map('mappa-intervento', { zoomControl: true, scrollWheelZoom: false })
+               .setView([lat, lng], 14);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    L.marker([lat, lng]).addTo(map).bindPopup(label).openPopup();
+})();
+</script>
+<?= $this->endSection() ?>
+<?php endif; ?>

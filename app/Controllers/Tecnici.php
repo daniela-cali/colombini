@@ -2,9 +2,10 @@
 
 namespace App\Controllers;
 
-use App\Models\UserModel;
+use App\Models\TipoInterventoModel;
 use App\Models\InterventoModel;
 use App\Models\TecnicoOrarioModel;
+use App\Models\UserModel;
 use CodeIgniter\Shield\Entities\User;
 
 class Tecnici extends BaseController
@@ -58,6 +59,7 @@ class Tecnici extends BaseController
             'nome'     => $this->request->getPost('nome'),
             'cognome'  => $this->request->getPost('cognome'),
             'telefono' => $this->request->getPost('telefono'),
+            'colore'   => $this->request->getPost('colore') ?: null,
             'ruolo'    => 'tecnico',
         ]);
 
@@ -71,7 +73,7 @@ class Tecnici extends BaseController
 
         $user->addGroup('tecnico');
 
-        return redirect()->to('tecnici')
+        return redirect()->to('sistema/tecnici')
             ->with('success', 'Tecnico "' . $username . '" creato con successo.');
     }
 
@@ -81,7 +83,7 @@ class Tecnici extends BaseController
         $tecnico = $users->find($id);
 
         if (! $tecnico || $tecnico->ruolo !== 'tecnico') {
-            return redirect()->to('tecnici')->with('error', 'Tecnico non trovato.');
+            return redirect()->to('sistema/tecnici')->with('error', 'Tecnico non trovato.');
         }
 
         $interventi = new InterventoModel();
@@ -92,7 +94,7 @@ class Tecnici extends BaseController
             'page_title'     => 'Scheda Tecnico',
             'tecnico'        => $tecnico,
             'interventi'     => $interventi->perTecnico($id),
-            'tipi'           => InterventoModel::TIPI,
+            'tipi'           => TipoInterventoModel::comeLista(),
             'stati'          => InterventoModel::STATI,
             'orari'          => $orariModel->perTecnico($id),
             'giorni'         => TecnicoOrarioModel::GIORNI,
@@ -111,7 +113,7 @@ class Tecnici extends BaseController
         $tecnico = $users->find($id);
 
         if (! $tecnico || $tecnico->ruolo !== 'tecnico') {
-            return redirect()->to('tecnici')->with('error', 'Tecnico non trovato.');
+            return redirect()->to('sistema/tecnici')->with('error', 'Tecnico non trovato.');
         }
 
         return view('tecnici/edit', [
@@ -127,7 +129,7 @@ class Tecnici extends BaseController
         $tecnico = $users->find($id);
 
         if (! $tecnico || $tecnico->ruolo !== 'tecnico') {
-            return redirect()->to('tecnici')->with('error', 'Tecnico non trovato.');
+            return redirect()->to('sistema/tecnici')->with('error', 'Tecnico non trovato.');
         }
 
         $rules = [
@@ -157,6 +159,7 @@ class Tecnici extends BaseController
             'nome'     => $this->request->getPost('nome'),
             'cognome'  => $this->request->getPost('cognome'),
             'telefono' => $this->request->getPost('telefono') ?: null,
+            'colore'   => $this->request->getPost('colore') ?: null,
             'ruolo'    => $nuovoRuolo,
         ]);
 
@@ -170,7 +173,7 @@ class Tecnici extends BaseController
             $users->save($tecnico);
         }
 
-        return redirect()->to('tecnici/' . $id)->with('success', 'Tecnico aggiornato.');
+        return redirect()->to('sistema/tecnici/' . $id)->with('success', 'Tecnico aggiornato.');
     }
 
     public function orariUpdate(int $id)
@@ -179,13 +182,13 @@ class Tecnici extends BaseController
         $tecnico = $users->find($id);
 
         if (! $tecnico || $tecnico->ruolo !== 'tecnico') {
-            return redirect()->to('tecnici')->with('error', 'Tecnico non trovato.');
+            return redirect()->to('sistema/tecnici')->with('error', 'Tecnico non trovato.');
         }
 
         $orariModel = new TecnicoOrarioModel();
         $orariModel->salva($id, $this->request->getPost());
 
-        return redirect()->to('tecnici/' . $id)->with('success', 'Orari di lavoro aggiornati.');
+        return redirect()->to('sistema/tecnici/' . $id)->with('success', 'Orari di lavoro aggiornati.');
     }
 
     public function delete(int $id)
@@ -194,11 +197,11 @@ class Tecnici extends BaseController
         $tecnico = $users->find($id);
 
         if (! $tecnico || $tecnico->ruolo !== 'tecnico') {
-            return redirect()->to('tecnici')->with('error', 'Tecnico non trovato.');
+            return redirect()->to('sistema/tecnici')->with('error', 'Tecnico non trovato.');
         }
 
         $users->delete($id, true);
 
-        return redirect()->to('tecnici')->with('success', 'Tecnico eliminato.');
+        return redirect()->to('sistema/tecnici')->with('success', 'Tecnico eliminato.');
     }
 }

@@ -1,9 +1,21 @@
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
 
-    <a href="<?= base_url('/') ?>" class="brand-link">
+    <?php
+        $_changelog = @file_get_contents(ROOTPATH . 'CHANGELOG.md');
+        $_version   = '';
+        if ($_changelog && preg_match('/^## \[(\d+\.\d+\.\d+)\]/m', $_changelog, $_m)) {
+            $_version = 'v' . $_m[1];
+        }
+    ?>
+    <a href="<?= base_url('/') ?>" class="brand-link" style="position:relative;">
         <i class="fas fa-water ml-3 mr-2" style="color: var(--clr-teal); font-size:1.4rem;"></i>
         <span class="brand-text font-weight-bold">Colombini</span>
         <small class="brand-text text-sm ml-1" style="opacity:.7;">Piscine</small>
+        <?php if ($_version): ?>
+            <small style="position:absolute; bottom:3px; right:8px; font-size:.6rem; opacity:.45; letter-spacing:.02em;">
+                <?= esc($_version) ?>
+            </small>
+        <?php endif; ?>
     </a>
 
     <div class="sidebar">
@@ -44,12 +56,6 @@
                     <a href="<?= base_url('clienti') ?>" class="nav-link <?= str_starts_with(uri_string(), 'clienti') ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-users"></i>
                         <p>Clienti</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="<?= base_url('tecnici') ?>" class="nav-link <?= str_starts_with(uri_string(), 'tecnici') ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-hard-hat"></i>
-                        <p>Tecnici</p>
                     </a>
                 </li>
 
@@ -109,13 +115,39 @@
                     </a>
                 </li>
 
-                <!-- Impostazioni -->
+                <!-- Sistema -->
+                <?php
+                    $_isSistema = str_starts_with(uri_string(), 'sistema') || str_starts_with(uri_string(), 'impostazioni');
+                ?>
                 <li class="nav-header">Sistema</li>
-                <li class="nav-item">
-                    <a href="<?= base_url('impostazioni') ?>" class="nav-link <?= str_starts_with(uri_string(), 'impostazioni') ? 'active' : '' ?>">
+                <li class="nav-item has-treeview <?= $_isSistema ? 'menu-open' : '' ?>">
+                    <a href="#" class="nav-link <?= $_isSistema ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-cog"></i>
-                        <p>Impostazioni</p>
+                        <p>Configurazione <i class="right fas fa-angle-left"></i></p>
                     </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="<?= base_url('sistema/tecnici') ?>"
+                               class="nav-link <?= str_starts_with(uri_string(), 'sistema/tecnici') ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Tecnici</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('sistema/tipi-intervento') ?>"
+                               class="nav-link <?= str_starts_with(uri_string(), 'sistema/tipi-intervento') ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Tipi Intervento</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="<?= base_url('impostazioni') ?>"
+                               class="nav-link <?= str_starts_with(uri_string(), 'impostazioni') ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Impostazioni</p>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
 
             </ul>

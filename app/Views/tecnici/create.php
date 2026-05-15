@@ -2,7 +2,7 @@
 
 <?= $this->section('breadcrumb') ?>
     <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Home</a></li>
-    <li class="breadcrumb-item"><a href="<?= base_url('tecnici') ?>">Tecnici</a></li>
+    <li class="breadcrumb-item"><a href="<?= base_url('sistema/tecnici') ?>">Tecnici</a></li>
     <li class="breadcrumb-item active">Nuovo Tecnico</li>
 <?= $this->endSection() ?>
 
@@ -25,7 +25,7 @@
             <div class="card-header">
                 <h3 class="card-title">Dati tecnico</h3>
             </div>
-            <form method="post" action="<?= base_url('tecnici') ?>">
+            <form method="post" action="<?= base_url('sistema/tecnici') ?>">
                 <?= csrf_field() ?>
                 <div class="card-body">
 
@@ -49,11 +49,16 @@
                                    value="<?= esc(old('username')) ?>"
                                    placeholder="es. mario.rossi" required minlength="3" maxlength="30">
                         </div>
-                        <div class="form-group col-md-6">
+                        <div class="form-group col-md-4">
                             <label>Telefono</label>
                             <input type="tel" name="telefono" class="form-control"
                                    value="<?= esc(old('telefono')) ?>"
                                    placeholder="es. 348 1234567">
+                        </div>
+                        <div class="form-group col-md-2">
+                            <label>Colore</label>
+                            <input type="color" name="colore" class="form-control form-control-color w-100"
+                                   value="<?= esc(old('colore', '#3b82f6')) ?>">
                         </div>
                     </div>
 
@@ -79,7 +84,7 @@
 
                 </div>
                 <div class="card-footer d-flex justify-content-between">
-                    <a href="<?= base_url('tecnici') ?>" class="btn btn-secondary">
+                    <a href="<?= base_url('sistema/tecnici') ?>" class="btn btn-secondary">
                         <i class="fas fa-arrow-left mr-1"></i> Annulla
                     </a>
                     <button type="submit" class="btn btn-primary">

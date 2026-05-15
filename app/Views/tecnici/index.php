@@ -9,7 +9,7 @@
 <div class="card card-outline card-primary">
     <div class="card-header d-flex justify-content-between align-items-center">
         <h3 class="card-title">Elenco tecnici</h3>
-        <a href="<?= base_url('tecnici/new') ?>" class="btn btn-primary btn-sm">
+        <a href="<?= base_url('sistema/tecnici/new') ?>" class="btn btn-primary btn-sm">
             <i class="fas fa-plus mr-1"></i>
             <span class="d-none d-sm-inline">Nuovo tecnico</span>
             <span class="d-sm-none">Nuovo</span>
@@ -20,7 +20,7 @@
             <div class="text-center py-5 text-muted">
                 <i class="fas fa-hard-hat fa-3x mb-3"></i>
                 <p>Nessun tecnico ancora inserito.</p>
-                <a href="<?= base_url('tecnici/new') ?>" class="btn btn-primary">
+                <a href="<?= base_url('sistema/tecnici/new') ?>" class="btn btn-primary">
                     <i class="fas fa-plus mr-1"></i> Aggiungi tecnico
                 </a>
             </div>
@@ -39,7 +39,10 @@
                     <?php foreach ($tecnici as $t): ?>
                         <tr>
                             <td>
-                                <a href="<?= base_url('tecnici/' . $t->id) ?>">
+                                <span style="display:inline-block;width:12px;height:12px;border-radius:50%;
+                                             background:<?= esc($t->colore ?? '#3b82f6') ?>;
+                                             vertical-align:middle;margin-right:6px;"></span>
+                                <a href="<?= base_url('sistema/tecnici/' . $t->id) ?>">
                                     <?= esc($t->cognome . ' ' . $t->nome) ?>
                                 </a>
                                 <?php if ($t->telefono): ?>
@@ -51,12 +54,12 @@
                             <td class="text-muted d-none d-sm-table-cell"><?= esc($t->username) ?></td>
                             <td class="d-none d-md-table-cell"><?= esc($t->telefono ?? '—') ?></td>
                             <td class="text-right">
-                                <a href="<?= base_url('tecnici/' . $t->id) ?>"
+                                <a href="<?= base_url('sistema/tecnici/' . $t->id) ?>"
                                    class="btn btn-sm btn-outline-primary" title="Scheda">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 <form method="post"
-                                      action="<?= base_url('tecnici/' . $t->id . '/elimina') ?>"
+                                      action="<?= base_url('sistema/tecnici/' . $t->id . '/elimina') ?>"
                                       class="d-inline"
                                       onsubmit="return confirm('Eliminare il tecnico <?= esc($t->cognome) ?>?')">
                                     <?= csrf_field() ?>

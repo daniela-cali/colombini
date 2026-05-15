@@ -3,7 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\UserModel;
-use App\Models\InterventoModel;
+use App\Models\TipoInterventoModel;
 use CodeIgniter\Shield\Entities\User;
 
 class Impostazioni extends BaseController
@@ -23,8 +23,7 @@ class Impostazioni extends BaseController
         return view('impostazioni/parametri', [
             'title'      => 'Parametri Generali',
             'page_title' => 'Parametri Generali',
-            'durate'     => InterventoModel::DURATE,
-            'tipi'       => InterventoModel::TIPI,
+            'tipi'       => (new TipoInterventoModel())->where('attivo', 1)->orderBy('ordine')->findAll(),
         ]);
     }
 
@@ -43,7 +42,7 @@ class Impostazioni extends BaseController
         }
 
         // Durate interventi
-        foreach (array_keys(InterventoModel::DURATE) as $tipo) {
+        foreach (array_keys(TipoInterventoModel::comeLista()) as $tipo) {
             $val = $post['durata_' . $tipo] ?? null;
             setting()->set('Interventi.durata_' . $tipo, $val !== null && $val !== '' ? (int) $val : null);
         }

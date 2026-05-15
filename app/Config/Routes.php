@@ -42,15 +42,29 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
         $routes->post('(:num)/portale',     'Clienti::storePortale/$1');
     });
 
-    $routes->group('tecnici', function (RouteCollection $routes) {
-        $routes->get('/',               'Tecnici::index');
-        $routes->get('new',             'Tecnici::create');
-        $routes->post('/',              'Tecnici::store');
-        $routes->get('(:num)',          'Tecnici::show/$1');
-        $routes->get('(:num)/edit',     'Tecnici::edit/$1');
-        $routes->post('(:num)',         'Tecnici::update/$1');
-        $routes->post('(:num)/elimina', 'Tecnici::delete/$1');
-        $routes->post('(:num)/orari',   'Tecnici::orariUpdate/$1');
+    // ── Sistema (configurazione) ──────────────────────────────────────────────
+    $routes->group('sistema', function (RouteCollection $routes) {
+
+        $routes->group('tecnici', function (RouteCollection $routes) {
+            $routes->get('/',               'Tecnici::index');
+            $routes->get('new',             'Tecnici::create');
+            $routes->post('/',              'Tecnici::store');
+            $routes->get('(:num)',          'Tecnici::show/$1');
+            $routes->get('(:num)/edit',     'Tecnici::edit/$1');
+            $routes->post('(:num)',         'Tecnici::update/$1');
+            $routes->post('(:num)/elimina', 'Tecnici::delete/$1');
+            $routes->post('(:num)/orari',   'Tecnici::orariUpdate/$1');
+        });
+
+        $routes->group('tipi-intervento', function (RouteCollection $routes) {
+            $routes->get('/',               'Sistema::tipiIntervento');
+            $routes->get('new',             'Sistema::tipiInterventoCreate');
+            $routes->post('/',              'Sistema::tipiInterventoStore');
+            $routes->get('(:num)/edit',     'Sistema::tipiInterventoEdit/$1');
+            $routes->post('(:num)',         'Sistema::tipiInterventoUpdate/$1');
+            $routes->post('(:num)/elimina', 'Sistema::tipiInterventoDelete/$1');
+        });
+
     });
 
     $routes->group('impianti', function (RouteCollection $routes) {

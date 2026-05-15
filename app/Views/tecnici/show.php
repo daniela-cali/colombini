@@ -2,7 +2,7 @@
 
 <?= $this->section('breadcrumb') ?>
     <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Home</a></li>
-    <li class="breadcrumb-item"><a href="<?= base_url('tecnici') ?>">Tecnici</a></li>
+    <li class="breadcrumb-item"><a href="<?= base_url('sistema/tecnici') ?>">Tecnici</a></li>
     <li class="breadcrumb-item active"><?= esc($tecnico->cognome . ' ' . $tecnico->nome) ?></li>
 <?= $this->endSection() ?>
 
@@ -14,7 +14,8 @@
         <div class="card card-outline card-primary">
             <div class="card-body text-center pt-4">
                 <div class="mb-3">
-                    <i class="fas fa-user-circle fa-5x" style="color: var(--clr-teal);"></i>
+                    <i class="fas fa-user-circle fa-5x"
+                       style="color: <?= esc($tecnico->colore ?? 'var(--clr-teal)') ?>;"></i>
                 </div>
                 <h4 class="mb-0"><?= esc($tecnico->nome . ' ' . $tecnico->cognome) ?></h4>
                 <p class="text-muted mb-3">@<?= esc($tecnico->username) ?></p>
@@ -26,11 +27,11 @@
                 <span class="badge badge-info px-3 py-1">Tecnico</span>
             </div>
             <div class="card-footer d-flex justify-content-between">
-                <a href="<?= base_url('tecnici') ?>" class="btn btn-sm btn-secondary">
+                <a href="<?= base_url('sistema/tecnici') ?>" class="btn btn-sm btn-secondary">
                     <i class="fas fa-arrow-left mr-1"></i> Elenco
                 </a>
                 <div>
-                    <a href="<?= base_url('tecnici/' . $tecnico->id . '/edit') ?>"
+                    <a href="<?= base_url('sistema/tecnici/' . $tecnico->id . '/edit') ?>"
                        class="btn btn-sm btn-outline-primary mr-1">
                         <i class="fas fa-edit mr-1"></i> Modifica
                     </a>
@@ -54,7 +55,7 @@
                     </button>
                 </div>
             </div>
-            <form method="post" action="<?= base_url('tecnici/' . $tecnico->id . '/orari') ?>">
+            <form method="post" action="<?= base_url('sistema/tecnici/' . $tecnico->id . '/orari') ?>">
                 <?= csrf_field() ?>
                 <div class="card-body p-0">
                     <table class="table table-sm mb-0">

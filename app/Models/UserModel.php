@@ -24,6 +24,7 @@ class UserModel extends ShieldUserModel
         'nome',
         'cognome',
         'telefono',
+        'colore',
         'ruolo',
     ];
 }

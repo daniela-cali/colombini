@@ -90,13 +90,39 @@
                         </div>
                     </div>
 
-                    <!-- Luogo -->
-                    <div class="form-group">
-                        <label>Luogo intervento <small class="text-muted">(se diverso dalla sede)</small></label>
-                        <input type="text" name="luogo_intervento" class="form-control"
-                               value="<?= esc($intervento['luogo_intervento'] ?? '') ?>"
-                               placeholder="es. Via Roma 10, Milano">
+                    <!-- Luogo intervento + geo -->
+                    <div class="form-row">
+                        <div class="form-group col-md-5">
+                            <label>Luogo <small class="text-muted font-weight-normal">(descrizione)</small></label>
+                            <input type="text" name="luogo_intervento" id="luogo_intervento"
+                                   class="form-control" value="<?= esc(old('luogo_intervento', $intervento['luogo_intervento'] ?? '')) ?>"
+                                   placeholder="es. Stabilimento Rossi">
+                        </div>
+                        <div class="form-group col-md-5">
+                            <label>Città / Indirizzo <small class="text-muted font-weight-normal">(per geolocalizzazione)</small></label>
+                            <input type="text" name="citta" id="citta"
+                                   class="form-control" value="<?= esc(old('citta', $intervento['citta'] ?? '')) ?>"
+                                   placeholder="es. Via Roma 10, Bergamo">
+                        </div>
+                        <div class="form-group col-md-2 d-flex align-items-end">
+                            <button type="button" class="btn btn-outline-secondary btn-block" id="btn-geo"
+                                    title="Rileva coordinate">
+                                <i class="fas fa-map-marker-alt mr-1"></i>
+                                <span class="d-none d-lg-inline">Geo</span>
+                            </button>
+                        </div>
                     </div>
+                    <div id="geo-result" class="small mb-2" style="margin-top:-8px;">
+                        <?php if ($intervento['geocoded_at']): ?>
+                            <span class="text-success">
+                                <i class="fas fa-check-circle mr-1"></i>
+                                <?= number_format((float)$intervento['lat'], 6) ?>, <?= number_format((float)$intervento['lng'], 6) ?>
+                                <span class="text-muted">(geocodificato il <?= date('d/m/Y', strtotime($intervento['geocoded_at'])) ?>)</span>
+                            </span>
+                        <?php endif; ?>
+                    </div>
+                    <input type="hidden" name="lat" id="lat" value="<?= esc(old('lat', $intervento['lat'] ?? '')) ?>">
+                    <input type="hidden" name="lng" id="lng" value="<?= esc(old('lng', $intervento['lng'] ?? '')) ?>">
 
                     <div class="form-row">
                         <!-- Cliente -->
@@ -168,4 +194,47 @@
 
     </div>
 </div>
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script>
+document.getElementById('btn-geo').addEventListener('click', function () {
+    var citta   = document.getElementById('citta').value.trim();
+    var luogo   = document.getElementById('luogo_intervento').value.trim();
+    var query   = citta || luogo;
+    var result  = document.getElementById('geo-result');
+    var btn     = this;
+
+    if (!query) {
+        result.innerHTML = '<span class="text-warning"><i class="fas fa-exclamation-triangle mr-1"></i>Inserisci città o indirizzo prima.</span>';
+        return;
+    }
+
+    btn.disabled = true;
+    result.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Geolocalizzazione in corso…';
+
+    var url = 'https://nominatim.openstreetmap.org/search?format=json&limit=1&q='
+            + encodeURIComponent(query + ', Italia');
+
+    fetch(url, { headers: { 'Accept-Language': 'it' } })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+            if (data && data[0]) {
+                var lat = parseFloat(data[0].lat).toFixed(6);
+                var lng = parseFloat(data[0].lon).toFixed(6);
+                document.getElementById('lat').value = lat;
+                document.getElementById('lng').value = lng;
+                result.innerHTML = '<span class="text-success"><i class="fas fa-check-circle mr-1"></i>'
+                    + lat + ', ' + lng
+                    + ' <span class="text-muted">(' + data[0].display_name.split(',').slice(0,2).join(',') + ')</span></span>';
+            } else {
+                result.innerHTML = '<span class="text-danger"><i class="fas fa-times-circle mr-1"></i>Indirizzo non trovato.</span>';
+            }
+        })
+        .catch(function () {
+            result.innerHTML = '<span class="text-danger"><i class="fas fa-times-circle mr-1"></i>Errore di rete.</span>';
+        })
+        .finally(function () { btn.disabled = false; });
+});
+</script>
 <?= $this->endSection() ?>

@@ -129,21 +129,21 @@
                     <p class="text-muted small mb-3">
                         Minuti stimati per ogni tipo di intervento, usati nella pianificazione.
                     </p>
-                    <?php foreach ($tipi as $key => $label): ?>
+                    <?php foreach ($tipi as $t): ?>
                         <div class="form-group row align-items-center mb-2">
-                            <label class="col-6 col-form-label"><?= esc($label) ?></label>
+                            <label class="col-6 col-form-label"><?= esc($t['nome']) ?></label>
                             <div class="col-4">
                                 <div class="input-group input-group-sm">
-                                    <input type="number" name="durata_<?= $key ?>" class="form-control"
+                                    <input type="number" name="durata_<?= esc($t['codice']) ?>" class="form-control"
                                            min="5" max="480" step="5"
-                                           value="<?= (int) (setting('Interventi.durata_' . $key) ?? $durate[$key]) ?>">
+                                           value="<?= (int) (setting('Interventi.durata_' . $t['codice']) ?? $t['durata_default']) ?>">
                                     <div class="input-group-append">
                                         <span class="input-group-text">min</span>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-2 text-muted small">
-                                <?= gmdate('G\h i\'', ($durate[$key]) * 60) ?>
+                                <?= gmdate('G\h i\'', (int) $t['durata_default'] * 60) ?>
                             </div>
                         </div>
                     <?php endforeach; ?>

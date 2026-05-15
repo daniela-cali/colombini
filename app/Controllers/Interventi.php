@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\ClienteModel;
 use App\Models\InterventoModel;
+use App\Models\TipoInterventoModel;
 use App\Models\UserModel;
 use App\Models\RichiestaModel;
 
@@ -11,14 +12,54 @@ class Interventi extends BaseController
 {
     public function index(): string
     {
-        $model = new InterventoModel();
+        $model      = new InterventoModel();
+        $interventi = $model->conDettagli();
+        $tipi       = TipoInterventoModel::comeLista();
+
+        // Raggruppa per tecnico, ordinando gli interventi per data pianificata
+        $perTecnico   = [];
+        $nonAssegnati = [];
+
+        foreach ($interventi as $inv) {
+            if ($inv['tecnico_id']) {
+                $tid = $inv['tecnico_id'];
+                if (! isset($perTecnico[$tid])) {
+                    $perTecnico[$tid] = [
+                        'info'       => [
+                            'id'      => $tid,
+                            'nome'    => $inv['tecnico_nome'],
+                            'cognome' => $inv['tecnico_cognome'],
+                            'colore'  => $inv['tecnico_colore'] ?? '#3b82f6',
+                        ],
+                        'interventi' => [],
+                    ];
+                }
+                $perTecnico[$tid]['interventi'][] = $inv;
+            } else {
+                $nonAssegnati[] = $inv;
+            }
+        }
+
+        // Ordina ogni gruppo per data_pianificata ASC (prima i più vicini)
+        foreach ($perTecnico as &$gruppo) {
+            usort($gruppo['interventi'], fn($a, $b) =>
+                strcmp($a['data_pianificata'] ?? '9999-99-99', $b['data_pianificata'] ?? '9999-99-99')
+            );
+        }
+        unset($gruppo);
+
+        // Ordina i tecnici per cognome
+        uasort($perTecnico, fn($a, $b) =>
+            strcmp($a['info']['cognome'] . $a['info']['nome'], $b['info']['cognome'] . $b['info']['nome'])
+        );
 
         return view('interventi/index', [
-            'title'      => 'Interventi',
-            'page_title' => 'Interventi',
-            'interventi' => $model->conDettagli(),
-            'tipi'       => InterventoModel::TIPI,
-            'stati'      => InterventoModel::STATI,
+            'title'        => 'Interventi',
+            'page_title'   => 'Interventi',
+            'perTecnico'   => $perTecnico,
+            'nonAssegnati' => $nonAssegnati,
+            'tipi'         => $tipi,
+            'stati'        => InterventoModel::STATI,
         ]);
     }
 
@@ -44,7 +85,7 @@ class Interventi extends BaseController
             'tecnici'          => $users->where('ruolo', 'tecnico')->orderBy('cognome')->findAll(),
             'clienti'          => $clienti->where('stato', 1)->orderBy('ragsoc, cognome')->findAll(),
             'richieste'        => $richiesteList,
-            'tipi'             => InterventoModel::TIPI,
+            'tipi'             => TipoInterventoModel::comeLista(),
             'tecnico_id_pre'   => $tecnico_id_pre,
             'richiesta_id_pre' => $richiesta_id_pre,
         ]);
@@ -53,7 +94,7 @@ class Interventi extends BaseController
     public function store()
     {
         $rules = [
-            'tipo_intervento' => 'required|in_list[' . implode(',', array_keys(InterventoModel::TIPI)) . ']',
+            'tipo_intervento' => 'required|in_list[' . implode(',', array_keys(TipoInterventoModel::comeLista())) . ']',
             'cliente_id'      => 'permit_empty|is_natural_no_zero',
             'tecnico_id'      => 'permit_empty|is_natural_no_zero',
             'data_pianificata'=> 'permit_empty|valid_date[Y-m-d\TH:i]',
@@ -72,11 +113,18 @@ class Interventi extends BaseController
 
         $richiestaId = $this->request->getPost('richiesta_id') ?: null;
 
+        $lat = $this->request->getPost('lat');
+        $lng = $this->request->getPost('lng');
+
         $model = new InterventoModel();
         $id    = $model->insert([
             'richiesta_id'     => $richiestaId,
             'tipo_intervento'  => $this->request->getPost('tipo_intervento'),
             'luogo_intervento' => $this->request->getPost('luogo_intervento') ?: null,
+            'citta'            => $this->request->getPost('citta') ?: null,
+            'lat'              => $lat !== '' ? $lat : null,
+            'lng'              => $lng !== '' ? $lng : null,
+            'geocoded_at'      => ($lat !== '' && $lng !== '') ? date('Y-m-d H:i:s') : null,
             'cliente_id'       => $this->request->getPost('cliente_id') ?: null,
             'tecnico_id'       => $this->request->getPost('tecnico_id') ?: null,
             'data_pianificata' => $dataPianificata ?: null,
@@ -98,6 +146,7 @@ class Interventi extends BaseController
         $model     = new InterventoModel();
         $intervento = $model->select('interventi.*,
                 c.ragsoc AS cliente_ragsoc, c.nome AS cliente_nome, c.cognome AS cliente_cognome, c.tipo AS cliente_tipo,
+                c.lat AS cliente_lat, c.lng AS cliente_lng,
                 u_tec.nome AS tecnico_nome, u_tec.cognome AS tecnico_cognome,
                 u_tec.telefono AS tecnico_telefono')
             ->join('clienti c', 'c.id = interventi.cliente_id', 'left')
@@ -112,7 +161,7 @@ class Interventi extends BaseController
             'title'      => 'Intervento #' . $id,
             'page_title' => 'Intervento #' . $id,
             'intervento' => $intervento,
-            'tipi'       => InterventoModel::TIPI,
+            'tipi'       => TipoInterventoModel::comeLista(),
             'stati'      => InterventoModel::STATI,
         ]);
     }
@@ -144,7 +193,7 @@ class Interventi extends BaseController
             'tecnici'    => $users->where('ruolo', 'tecnico')->orderBy('cognome')->findAll(),
             'clienti'    => $clienti->where('stato', 1)->orderBy('ragsoc, cognome')->findAll(),
             'richieste'  => $richiesteAperte,
-            'tipi'       => InterventoModel::TIPI,
+            'tipi'       => TipoInterventoModel::comeLista(),
             'stati'      => InterventoModel::STATI,
         ]);
     }
@@ -159,7 +208,7 @@ class Interventi extends BaseController
         }
 
         $rules = [
-            'tipo_intervento'  => 'required|in_list[' . implode(',', array_keys(InterventoModel::TIPI)) . ']',
+            'tipo_intervento'  => 'required|in_list[' . implode(',', array_keys(TipoInterventoModel::comeLista())) . ']',
             'stato'            => 'required|in_list[' . implode(',', array_keys(InterventoModel::STATI)) . ']',
             'cliente_id'       => 'permit_empty|is_natural_no_zero',
             'tecnico_id'       => 'permit_empty|is_natural_no_zero',
@@ -177,9 +226,16 @@ class Interventi extends BaseController
             $dataPianificata = date('Y-m-d H:i:s', strtotime($dataPianificata));
         }
 
+        $lat = $this->request->getPost('lat');
+        $lng = $this->request->getPost('lng');
+
         $data = [
             'tipo_intervento'  => $this->request->getPost('tipo_intervento'),
             'luogo_intervento' => $this->request->getPost('luogo_intervento') ?: null,
+            'citta'            => $this->request->getPost('citta') ?: null,
+            'lat'              => $lat !== '' ? $lat : null,
+            'lng'              => $lng !== '' ? $lng : null,
+            'geocoded_at'      => ($lat !== '' && $lng !== '') ? date('Y-m-d H:i:s') : null,
             'cliente_id'       => $this->request->getPost('cliente_id') ?: null,
             'tecnico_id'       => $this->request->getPost('tecnico_id') ?: null,
             'data_pianificata' => $dataPianificata ?: null,

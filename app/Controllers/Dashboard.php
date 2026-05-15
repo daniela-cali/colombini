@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Models\ClienteModel;
 use App\Models\InterventoModel;
+use App\Models\TipoInterventoModel;
 use App\Models\RichiestaModel;
 use App\Models\UserModel;
 
@@ -50,7 +51,7 @@ class Dashboard extends BaseController
             'ultimi_interventi' => $interventiModel->conDettagli(6),
             'tecnici'           => $usersModel->where('ruolo', 'tecnico')->orderBy('cognome')->findAll(),
             'riepilogo_tecnici' => $interventiModel->riepilogoPerTecnico(),
-            'tipi'              => InterventoModel::TIPI,
+            'tipi'              => TipoInterventoModel::comeLista(),
             'stati_intervento'  => InterventoModel::STATI,
             'stati_richiesta'   => RichiestaModel::STATI,
         ]);
@@ -97,7 +98,7 @@ class Dashboard extends BaseController
                 'completati_mese'   => $cCompletatiMese,
                 'totale_completati' => $cTotaleCompletati,
             ],
-            'tipi'             => InterventoModel::TIPI,
+            'tipi'             => TipoInterventoModel::comeLista(),
             'stati'            => InterventoModel::STATI,
         ]);
     }

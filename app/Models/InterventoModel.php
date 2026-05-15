@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
+use App\Models\TipoInterventoModel;
 
 class InterventoModel extends Model
 {
+    // TIPI e DURATE ora gestiti via DB → TipoInterventoModel::comeLista()
     protected $table          = 'interventi';
     protected $primaryKey     = 'id';
     protected $useTimestamps  = true;
@@ -14,6 +16,10 @@ class InterventoModel extends Model
         'richiesta_id',
         'tipo_intervento',
         'luogo_intervento',
+        'citta',
+        'lat',
+        'lng',
+        'geocoded_at',
         'cliente_id',
         'tecnico_id',
         'data_pianificata',
@@ -25,25 +31,13 @@ class InterventoModel extends Model
         'stato',
     ];
 
-    public const TIPI = [
-        'piscine'     => 'Piscine',
-        'addolcitori' => 'Addolcitori',
-        'acquedotti'  => 'Acquedotti',
-        'commerciale' => 'Richiesta Commerciale',
-    ];
-
-    // Durate standard in minuti — override configurabile da Impostazioni
-    public const DURATE = [
-        'piscine'     => 120,
-        'addolcitori' => 60,
-        'acquedotti'  => 90,
-        'commerciale' => 45,
-    ];
-
     public static function getDurata(string $tipo): int
     {
         $val = setting('Interventi.durata_' . $tipo);
-        return $val !== null ? (int) $val : (self::DURATE[$tipo] ?? 60);
+        if ($val !== null) {
+            return (int) $val;
+        }
+        return TipoInterventoModel::durataDefault($tipo);
     }
 
     public const STATI = [
@@ -84,7 +78,7 @@ class InterventoModel extends Model
     {
         $q = $this->select('interventi.*,
                 c.ragsoc AS cliente_ragsoc, c.nome AS cliente_nome, c.cognome AS cliente_cognome,
-                u_tec.nome AS tecnico_nome, u_tec.cognome AS tecnico_cognome')
+                u_tec.nome AS tecnico_nome, u_tec.cognome AS tecnico_cognome, u_tec.colore AS tecnico_colore')
             ->join('clienti c', 'c.id = interventi.cliente_id', 'left')
             ->join('users u_tec', 'u_tec.id = interventi.tecnico_id', 'left')
             ->orderBy('interventi.created_at', 'DESC');

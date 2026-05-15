@@ -70,7 +70,7 @@
             <div class="card-header p-2">
                 <div class="d-flex align-items-center">
                     <i class="fas fa-hard-hat mr-2" style="color:var(--clr-teal)"></i>
-                    <a href="<?= base_url('tecnici/' . $t['id']) ?>"
+                    <a href="<?= base_url('sistema/tecnici/' . $t['id']) ?>"
                        class="font-weight-bold text-truncate text-dark">
                         <?= esc($t['cognome'] . ' ' . $t['nome']) ?>
                     </a>
@@ -98,7 +98,7 @@
                 </ul>
             </div>
             <div class="card-footer p-1 text-right">
-                <a href="<?= base_url('tecnici/' . $t['id']) ?>" class="btn btn-xs btn-outline-primary">
+                <a href="<?= base_url('sistema/tecnici/' . $t['id']) ?>" class="btn btn-xs btn-outline-primary">
                     <i class="fas fa-eye mr-1"></i>Scheda
                 </a>
                 <a href="<?= base_url('interventi/new?tecnico_id=' . $t['id']) ?>"
