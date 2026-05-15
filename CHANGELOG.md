@@ -11,6 +11,13 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 
 ---
 
+## [0.7.1] — 2026-05-15
+
+### Aggiunto
+- `app/Language/it/Auth.php` — traduzione italiana completa dei messaggi di Shield (login, password, token, 2FA, attivazione, gruppi)
+
+---
+
 ## [0.7.0] — 2026-05-15
 
 ### Aggiunto
