@@ -48,9 +48,11 @@
                 <div class="row mb-3">
                     <div class="col-sm-4 text-muted small font-weight-bold">Cliente</div>
                     <div class="col-sm-8">
-                        <?= $intervento['cliente_nome']
-                            ? esc($intervento['cliente_cognome'] . ' ' . $intervento['cliente_nome'])
-                            : '<span class="text-muted">—</span>' ?>
+                        <?= $intervento['cliente_ragsoc']
+                            ? esc($intervento['cliente_ragsoc'])
+                            : ($intervento['cliente_nome']
+                                ? esc($intervento['cliente_cognome'] . ' ' . $intervento['cliente_nome'])
+                                : '<span class="text-muted">—</span>') ?>
                     </div>
                 </div>
 

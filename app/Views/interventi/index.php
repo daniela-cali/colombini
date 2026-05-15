@@ -37,9 +37,9 @@
 // ── Macro per la tabella interventi di un gruppo ──────────────────────────────
 function _rigaIntervento(array $inv, array $tipi, array $stati): void {
     $s       = $stati[$inv['stato']] ?? ['label' => $inv['stato'], 'badge' => 'badge-secondary'];
-    $cliente = $inv['cliente_cognome']
-        ? esc($inv['cliente_cognome'] . ' ' . $inv['cliente_nome'])
-        : ($inv['cliente_ragsoc'] ? esc($inv['cliente_ragsoc']) : '<span class="text-muted">—</span>');
+    $cliente = $inv['cliente_ragsoc']
+        ? esc($inv['cliente_ragsoc'])
+        : ($inv['cliente_cognome'] ? esc($inv['cliente_cognome'] . ' ' . $inv['cliente_nome']) : '<span class="text-muted">—</span>');
 ?>
     <tr>
         <td class="d-none d-md-table-cell text-muted small"><?= $inv['id'] ?></td>

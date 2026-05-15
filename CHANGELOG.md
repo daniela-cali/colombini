@@ -11,6 +11,13 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 
 ---
 
+## [0.5.1] — 2026-05-15
+
+### Corretto
+- Nome cliente nelle schede intervento e nella lista tecnico: le ditte/società mostravano nome+cognome invece della ragione sociale; ora il campo `ragsoc` ha la precedenza su nome/cognome in tutte le viste
+
+---
+
 ## [0.5.0] — 2026-05-15
 
 ### Aggiunto

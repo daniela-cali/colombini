@@ -210,7 +210,9 @@
                             <tr>
                                 <td class="text-muted"><?= $inv['id'] ?></td>
                                 <td><?= esc($tipi[$inv['tipo_intervento']] ?? $inv['tipo_intervento']) ?></td>
-                                <td><?= $inv['cliente_nome'] ? esc($inv['cliente_cognome'] . ' ' . $inv['cliente_nome']) : '—' ?></td>
+                                <td><?= $inv['cliente_ragsoc']
+                                    ? esc($inv['cliente_ragsoc'])
+                                    : ($inv['cliente_cognome'] ? esc($inv['cliente_cognome'] . ' ' . $inv['cliente_nome']) : '—') ?></td>
                                 <td class="small text-muted">
                                     <?= $inv['data_pianificata'] ? date('d/m/Y', strtotime($inv['data_pianificata'])) : '—' ?>
                                 </td>
