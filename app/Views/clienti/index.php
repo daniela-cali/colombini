@@ -6,7 +6,7 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div class="card card-outline card-primary">
+<div class="card card-primary">
     <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h3 class="card-title mb-0">Elenco clienti</h3>
         <div class="d-flex align-items-center ml-auto">
@@ -15,23 +15,23 @@
                     <input type="text" name="q" class="form-control"
                            placeholder="Cerca..." value="<?= esc($q ?? '') ?>">
                     <div class="input-group-append">
-                        <button type="submit" class="btn btn-outline-secondary">
+                        <button type="submit" class="btn btn-outline-light">
                             <i class="fas fa-search"></i>
                         </button>
                         <?php if ($q ?? ''): ?>
-                            <a href="<?= base_url('clienti') ?>" class="btn btn-outline-secondary" title="Azzera">
+                            <a href="<?= base_url('clienti') ?>" class="btn btn-outline-light" title="Azzera">
                                 <i class="fas fa-times"></i>
                             </a>
                         <?php endif; ?>
                     </div>
                 </div>
             </form>
-            <a href="<?= base_url('clienti/import') ?>" class="btn btn-outline-secondary btn-sm mr-1">
+            <a href="<?= base_url('clienti/import') ?>" class="btn btn-outline-light btn-sm mr-1">
                 <i class="fas fa-file-csv mr-1"></i>
                 <span class="d-none d-sm-inline">Import CSV</span>
                 <span class="d-sm-none">Import</span>
             </a>
-            <a href="<?= base_url('clienti/new') ?>" class="btn btn-primary btn-sm">
+            <a href="<?= base_url('clienti/new') ?>" class="btn btn-light btn-sm text-dark">
                 <i class="fas fa-plus mr-1"></i>
                 <span class="d-none d-sm-inline">Nuovo cliente</span>
                 <span class="d-sm-none">Nuovo</span>

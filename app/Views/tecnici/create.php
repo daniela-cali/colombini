@@ -76,15 +76,8 @@
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label>Password <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <input type="password" name="password" id="password"
-                                       class="form-control" required minlength="8">
-                                <div class="input-group-append">
-                                    <span class="input-group-text" id="togglePwd" style="cursor:pointer;">
-                                        <i class="fas fa-eye" id="togglePwdIcon"></i>
-                                    </span>
-                                </div>
-                            </div>
+                            <input type="password" name="password" id="password"
+                                   class="form-control" required minlength="8">
                         </div>
                         <div class="form-group col-md-6">
                             <label>Conferma Password <span class="text-danger">*</span></label>
@@ -134,12 +127,6 @@ document.querySelectorAll('.color-swatch input').forEach(function (r) {
         this.closest('.color-swatch').classList.add('is-selected');
     });
 });
-document.getElementById('togglePwd').addEventListener('click', function () {
-    var pwd  = document.getElementById('password');
-    var icon = document.getElementById('togglePwdIcon');
-    pwd.type = pwd.type === 'password' ? 'text' : 'password';
-    icon.classList.toggle('fa-eye');
-    icon.classList.toggle('fa-eye-slash');
-});
+
 </script>
 <?= $this->endSection() ?>

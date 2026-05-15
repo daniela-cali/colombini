@@ -57,15 +57,8 @@
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label>Password <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <input type="password" name="password" id="password"
-                                       class="form-control" required minlength="8">
-                                <div class="input-group-append">
-                                    <span class="input-group-text" id="togglePwd" style="cursor:pointer;">
-                                        <i class="fas fa-eye" id="togglePwdIcon"></i>
-                                    </span>
-                                </div>
-                            </div>
+                            <input type="password" name="password" id="password"
+                                   class="form-control" required minlength="8">
                             <small class="form-text text-muted">Minimo 8 caratteri.</small>
                         </div>
                         <div class="form-group col-md-6">
@@ -91,18 +84,3 @@
 </div>
 <?= $this->endSection() ?>
 
-<?= $this->section('scripts') ?>
-<script>
-document.getElementById('togglePwd').addEventListener('click', function () {
-    var pwd  = document.getElementById('password');
-    var icon = document.getElementById('togglePwdIcon');
-    if (pwd.type === 'password') {
-        pwd.type = 'text';
-        icon.classList.replace('fa-eye', 'fa-eye-slash');
-    } else {
-        pwd.type = 'password';
-        icon.classList.replace('fa-eye-slash', 'fa-eye');
-    }
-});
-</script>
-<?= $this->endSection() ?>

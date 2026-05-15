@@ -50,16 +50,9 @@
 
                     <div class="form-group">
                         <label for="password">Password <span class="text-danger">*</span></label>
-                        <div class="input-group">
-                            <input type="password" name="password" id="password" class="form-control"
-                                   minlength="8" required
-                                   placeholder="Minimo 8 caratteri">
-                            <div class="input-group-append">
-                                <button type="button" class="btn btn-outline-secondary" id="togglePwd" tabindex="-1">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
+                        <input type="password" name="password" id="password" class="form-control"
+                               minlength="8" required
+                               placeholder="Minimo 8 caratteri">
                     </div>
 
                     <div class="form-group">
@@ -86,18 +79,3 @@
 </div>
 <?= $this->endSection() ?>
 
-<?= $this->section('scripts') ?>
-<script>
-document.getElementById('togglePwd').addEventListener('click', function () {
-    var pwd = document.getElementById('password');
-    var icon = this.querySelector('i');
-    if (pwd.type === 'password') {
-        pwd.type = 'text';
-        icon.classList.replace('fa-eye', 'fa-eye-slash');
-    } else {
-        pwd.type = 'password';
-        icon.classList.replace('fa-eye-slash', 'fa-eye');
-    }
-});
-</script>
-<?= $this->endSection() ?>

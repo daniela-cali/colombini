@@ -113,6 +113,8 @@ $(function () {
             $input.wrap('<div class="input-group"></div>');
         }
 
+        if ($input.parent().find('.input-group-append').length) return;
+
         var $append = $('<div class="input-group-append"><span class="input-group-text" style="cursor:pointer;" title="Mostra/nascondi password"><i class="fas fa-eye"></i></span></div>');
         $input.parent().append($append);
 

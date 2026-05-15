@@ -11,6 +11,16 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 
 ---
 
+## [0.6.2] — 2026-05-15
+
+### Modificato
+- Header card elenco clienti: rimosso `card-outline` per avere sfondo blu pieno con titolo bianco ad alto contrasto; bottoni aggiornati a `btn-outline-light` / `btn-light text-dark`
+
+### Corretto
+- Icona occhio duplicata sui campi password: il layout `admin.php` ora salta l'aggiunta automatica del toggle se esiste già un `input-group-append`; rimossi i toggle manuali ridondanti da `tecnici/create`, `impostazioni/crea_cliente`, `clienti/crea_portale`
+
+---
+
 ## [0.6.1] — 2026-05-15
 
 ### Corretto
