@@ -47,6 +47,7 @@ class Sistema extends BaseController
         $model->insert([
             'codice'         => $this->request->getPost('codice'),
             'nome'           => $this->request->getPost('nome'),
+            'icona'          => $this->request->getPost('icona') ?: 'fa-tools',
             'durata_default' => (int) $this->request->getPost('durata_default'),
             'attivo'         => 1,
             'ordine'         => (int) ($this->request->getPost('ordine') ?: 0),
@@ -98,6 +99,7 @@ class Sistema extends BaseController
         $model->update($id, [
             'codice'         => $this->request->getPost('codice'),
             'nome'           => $this->request->getPost('nome'),
+            'icona'          => $this->request->getPost('icona') ?: 'fa-tools',
             'durata_default' => (int) $this->request->getPost('durata_default'),
             'attivo'         => (int) ($this->request->getPost('attivo') ?? 1),
             'ordine'         => (int) ($this->request->getPost('ordine') ?: 0),

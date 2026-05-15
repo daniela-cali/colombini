@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\RichiestaModel;
+use App\Models\TipoInterventoModel;
 
 class Portale extends BaseController
 {
@@ -15,7 +16,7 @@ class Portale extends BaseController
             'title'      => 'Area Cliente',
             'page_title' => 'Le mie richieste',
             'richieste'  => $richieste,
-            'tipi'       => RichiestaModel::TIPI,
+            'tipi'       => TipoInterventoModel::comeLista(),
             'stati'      => RichiestaModel::STATI,
         ]);
     }
@@ -25,14 +26,14 @@ class Portale extends BaseController
         return view('portale/nuova_richiesta', [
             'title'      => 'Nuova Richiesta',
             'page_title' => 'Nuova Richiesta di Assistenza',
-            'tipi'       => RichiestaModel::TIPI,
+            'tipi'       => TipoInterventoModel::comeListaCompleta(),
         ]);
     }
 
     public function storeRichiesta()
     {
         $rules = [
-            'tipo_intervento'  => 'required|in_list[' . implode(',', array_keys(RichiestaModel::TIPI)) . ']',
+            'tipo_intervento'  => 'required|in_list[' . implode(',', array_keys(TipoInterventoModel::comeLista())) . ']',
             'richiedente'      => 'required|max_length[100]',
             'telefono_contatto'=> 'required|max_length[30]',
             'note'             => 'required|max_length[2000]',
@@ -71,7 +72,7 @@ class Portale extends BaseController
             'title'      => 'Richiesta #' . $id,
             'page_title' => 'Dettaglio Richiesta',
             'richiesta'  => $richiesta,
-            'tipi'       => RichiestaModel::TIPI,
+            'tipi'       => TipoInterventoModel::comeLista(),
             'stati'      => RichiestaModel::STATI,
         ]);
     }

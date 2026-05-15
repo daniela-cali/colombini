@@ -34,19 +34,12 @@
                         Tipo di intervento <span class="text-danger">*</span>
                     </label>
                     <div class="row no-gutters" style="gap:0;">
-                        <?php
-                        $icone = [
-                            'piscine'     => 'fa-swimming-pool',
-                            'addolcitori' => 'fa-filter',
-                            'acquedotti'  => 'fa-water',
-                            'commerciale' => 'fa-handshake',
-                        ];
-                        foreach ($tipi as $key => $label): ?>
+                        <?php foreach ($tipi as $tipo): ?>
                         <div class="col-6 p-1">
-                            <div class="tipo-card <?= old('tipo_intervento') === $key ? 'selected' : '' ?>"
-                                 data-value="<?= $key ?>">
-                                <i class="fas <?= $icone[$key] ?>"></i>
-                                <?= $label ?>
+                            <div class="tipo-card <?= old('tipo_intervento') === $tipo['codice'] ? 'selected' : '' ?>"
+                                 data-value="<?= esc($tipo['codice']) ?>">
+                                <i class="fas <?= esc($tipo['icona'] ?? 'fa-tools') ?>"></i>
+                                <?= esc($tipo['nome']) ?>
                             </div>
                         </div>
                         <?php endforeach; ?>

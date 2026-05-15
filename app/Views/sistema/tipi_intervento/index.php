@@ -29,6 +29,7 @@
                         <tr>
                             <th>Ordine</th>
                             <th>Codice</th>
+                            <th>Icona</th>
                             <th>Nome</th>
                             <th class="d-none d-sm-table-cell">Durata default</th>
                             <th>Stato</th>
@@ -40,6 +41,9 @@
                         <tr>
                             <td class="text-muted"><?= (int) $t['ordine'] ?></td>
                             <td><code><?= esc($t['codice']) ?></code></td>
+                            <td class="text-center" style="width:50px;">
+                                <i class="fas <?= esc($t['icona'] ?? 'fa-tools') ?> fa-lg" title="<?= esc($t['icona'] ?? '') ?>"></i>
+                            </td>
                             <td><?= esc($t['nome']) ?></td>
                             <td class="d-none d-sm-table-cell"><?= (int) $t['durata_default'] ?> min</td>
                             <td>

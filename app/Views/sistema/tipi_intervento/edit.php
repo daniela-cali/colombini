@@ -44,6 +44,9 @@
                                required maxlength="100">
                     </div>
 
+                    <?php $this->setVar('valoreIcona', old('icona', $tipo['icona'] ?? 'fa-tools')); ?>
+                    <?= $this->include('sistema/tipi_intervento/_icona_picker') ?>
+
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label>Durata default (minuti) <span class="text-danger">*</span></label>
@@ -83,3 +86,4 @@
     </div>
 </div>
 <?= $this->endSection() ?>
+

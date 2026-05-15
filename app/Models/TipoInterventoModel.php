@@ -9,7 +9,7 @@ class TipoInterventoModel extends Model
     protected $table         = 'tipi_intervento';
     protected $primaryKey    = 'id';
     protected $useTimestamps = true;
-    protected $allowedFields = ['codice', 'nome', 'durata_default', 'attivo', 'ordine'];
+    protected $allowedFields = ['codice', 'nome', 'icona', 'durata_default', 'attivo', 'ordine'];
 
     /** Restituisce ['piscine' => 'Piscine', ...] per i tipi attivi, ordinati */
     public static function comeLista(): array
@@ -20,6 +20,12 @@ class TipoInterventoModel extends Model
             $out[$row['codice']] = $row['nome'];
         }
         return $out;
+    }
+
+    /** Restituisce i record completi (codice, nome, icona, ...) per i tipi attivi, ordinati */
+    public static function comeListaCompleta(): array
+    {
+        return (new self())->where('attivo', 1)->orderBy('ordine')->findAll();
     }
 
     public static function durataDefault(string $codice): int

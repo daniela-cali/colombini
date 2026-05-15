@@ -11,6 +11,20 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 
 ---
 
+## [0.7.0] — 2026-05-15
+
+### Aggiunto
+- **Colonna `icona` su `tipi_intervento`** — migrazione con pre-popolamento dei 4 tipi esistenti
+- **Icon picker** nel gestione tipi intervento (create/edit): pannello con ~60 icone FA5 ricercabili per nome o parola chiave italiana, anteprima live
+- **Colonna icona visibile** nell'elenco tipi intervento
+- **Portale cliente** — tipi intervento letti da DB (`TipoInterventoModel`) invece di `RichiestaModel::TIPI`; icone dinamiche con fallback `fa-tools`
+- `TipoInterventoModel::comeListaCompleta()` — nuovo metodo che restituisce i record completi
+
+### Corretto
+- `Sistema::tipiInterventoStore/Update` — campo `icona` ora incluso nel salvataggio
+
+---
+
 ## [0.6.2] — 2026-05-15
 
 ### Modificato
