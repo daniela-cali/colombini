@@ -11,6 +11,15 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 
 ---
 
+## [0.8.2] — 2026-05-15
+
+### Corretto
+- **Eliminazione tecnico** bloccata se ha interventi aperti (pianificati o in corso); messaggio d'errore con conteggio e redirect alla scheda
+- **Eliminazione tipo intervento** bloccata se usato da almeno un intervento; suggerisce di disattivarlo invece
+- Guide in linea aggiornate per riflettere il comportamento reale dell'eliminazione
+
+---
+
 ## [0.8.1] — 2026-05-15
 
 ### Aggiunto

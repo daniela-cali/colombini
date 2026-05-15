@@ -200,6 +200,16 @@ class Tecnici extends BaseController
             return redirect()->to('sistema/tecnici')->with('error', 'Tecnico non trovato.');
         }
 
+        $aperti = (new InterventoModel())
+            ->where('tecnico_id', $id)
+            ->whereNotIn('stato', ['completato', 'annullato'])
+            ->countAllResults();
+
+        if ($aperti > 0) {
+            return redirect()->to('sistema/tecnici/' . $id)
+                ->with('error', "Impossibile eliminare il tecnico: ha {$aperti} intervento/i aperto/i. Riassegna o chiudi gli interventi prima di procedere.");
+        }
+
         $users->delete($id, true);
 
         return redirect()->to('sistema/tecnici')->with('success', 'Tecnico eliminato.');

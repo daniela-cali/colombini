@@ -84,6 +84,6 @@
 <h5><i class="fas fa-eye mr-1"></i> Scheda tecnico</h5>
 <p>Clicca sull'icona <strong>occhio</strong> per aprire la scheda completa del tecnico, dove trovi gli interventi assegnati, i contatori di attività e il form per configurare gli orari di lavoro.</p>
 <h5><i class="fas fa-trash mr-1"></i> Eliminazione</h5>
-<p>L'eliminazione è permanente. Prima di eliminare un tecnico, verifica che non abbia interventi aperti assegnati: in quel caso riassegna gli interventi o chiudili prima di procedere.</p>
+<p>Il sistema blocca l'eliminazione se il tecnico ha interventi aperti (pianificati o in corso). Riassegna o chiudi tutti gli interventi attivi prima di procedere.</p>
 <p><span class="badge-tip"><i class="fas fa-lightbulb mr-1"></i> Ogni tecnico ha anche un accesso al gestionale con username e password: gestisci le credenziali dalla sezione Impostazioni &gt; Utenti App.</span></p>
 <?= $this->endSection() ?>

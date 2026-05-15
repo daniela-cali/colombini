@@ -257,5 +257,6 @@ function toggleRow(g) {
 <p>Spunta i giorni lavorativi e imposta ora di inizio, fine e pausa pranzo. Gli orari vengono usati dal sistema per la pianificazione e per il calendario. Clicca <strong>Salva orari</strong> per confermare le modifiche.</p>
 <h5><i class="fas fa-tools mr-1"></i> Interventi assegnati</h5>
 <p>La tabella mostra tutti gli interventi assegnati al tecnico, con stato e data pianificata. Clicca sull'icona occhio per aprire la scheda di un intervento specifico.</p>
-<p><span class="badge-tip"><i class="fas fa-lightbulb mr-1"></i> Usa il pulsante <strong>Nuovo intervento</strong> nella scheda per creare un intervento con il tecnico già preassegnato.</span></p>
+<h5><i class="fas fa-trash mr-1"></i> Eliminazione</h5>
+<p>Il sistema blocca l'eliminazione se il tecnico ha interventi aperti (pianificati o in corso). Riassegna o chiudi tutti gli interventi attivi prima di procedere.</p>
 <?= $this->endSection() ?>

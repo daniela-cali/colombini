@@ -112,6 +112,21 @@ class Sistema extends BaseController
     public function tipiInterventoDelete(int $id)
     {
         $model = new TipoInterventoModel();
+        $tipo  = $model->find($id);
+
+        if (! $tipo) {
+            return redirect()->to('sistema/tipi-intervento')->with('error', 'Tipo non trovato.');
+        }
+
+        $usati = (new \App\Models\InterventoModel())
+            ->where('tipo_intervento', $tipo['codice'])
+            ->countAllResults();
+
+        if ($usati > 0) {
+            return redirect()->to('sistema/tipi-intervento')
+                ->with('error', "Impossibile eliminare «{$tipo['nome']}»: è usato da {$usati} intervento/i. Disattivalo invece di eliminarlo.");
+        }
+
         $model->delete($id);
 
         return redirect()->to('sistema/tipi-intervento')
