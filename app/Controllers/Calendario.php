@@ -22,7 +22,7 @@ class Calendario extends BaseController
 
         $interventi = $model
             ->select('interventi.id, interventi.tipo_intervento, interventi.stato,
-                      interventi.data_pianificata, interventi.durata_effettiva,
+                      interventi.data_pianificata, interventi.durata_effettiva, interventi.descrizione,
                       c.ragsoc AS cliente_ragsoc, c.nome AS cliente_nome, c.cognome AS cliente_cognome,
                       u.nome AS tecnico_nome, u.cognome AS tecnico_cognome, u.colore AS tecnico_colore,
                       ti.durata_default AS tipo_durata, ti.nome AS tipo_nome, ti.icona AS tipo_icona')
@@ -56,10 +56,11 @@ class Calendario extends BaseController
                 'color' => $colore,
                 'url'   => base_url('interventi/' . $i['id'] . '?from=calendario'),
                 'extendedProps' => [
-                    'tecnico' => $tecnico,
-                    'tipo'    => $i['tipo_nome'] ?: $i['tipo_intervento'],
-                    'icona'   => $i['tipo_icona'] ?: 'fa-tools',
-                    'stato'   => $i['stato'],
+                    'tecnico'     => $tecnico,
+                    'tipo'        => $i['tipo_nome'] ?: $i['tipo_intervento'],
+                    'icona'       => $i['tipo_icona'] ?: 'fa-tools',
+                    'stato'       => $i['stato'],
+                    'descrizione' => $i['descrizione'] ?: '',
                 ],
             ];
         }

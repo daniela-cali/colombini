@@ -6,7 +6,6 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('styles') ?>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css">
 <style>
     #calendario { min-height: 600px; }
     .fc-event { cursor: pointer; }
@@ -21,10 +20,51 @@
         <div id="calendario"></div>
     </div>
 </div>
+
+<!-- Modal dettaglio intervento -->
+<div class="modal fade" id="modalIntervento" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" id="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-tools mr-2" id="modal-icona"></i>
+                    <span id="modal-cliente"></span>
+                </h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4 text-muted font-weight-normal small">Tipo</dt>
+                    <dd class="col-sm-8" id="modal-tipo"></dd>
+                    <dt class="col-sm-4 text-muted font-weight-normal small">Tecnico</dt>
+                    <dd class="col-sm-8" id="modal-tecnico"></dd>
+                    <dt class="col-sm-4 text-muted font-weight-normal small">Data</dt>
+                    <dd class="col-sm-8" id="modal-data"></dd>
+                    <dt class="col-sm-4 text-muted font-weight-normal small">Stato</dt>
+                    <dd class="col-sm-8" id="modal-stato"></dd>
+                </dl>
+                <div id="modal-descrizione-wrap" class="mt-3 pt-3 border-top" style="display:none;">
+                    <p class="small text-muted mb-1">Descrizione</p>
+                    <p id="modal-descrizione" class="mb-0" style="white-space:pre-wrap;font-size:.9rem;"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Chiudi</button>
+                <a href="#" id="modal-btn-modifica" class="btn btn-warning btn-sm">
+                    <i class="fas fa-edit mr-1"></i> Modifica
+                </a>
+                <a href="#" id="modal-btn-apri" class="btn btn-primary btn-sm">
+                    <i class="fas fa-eye mr-1"></i> Apri scheda
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.11/locales/it.global.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     var calendar = new FullCalendar.Calendar(document.getElementById('calendario'), {
@@ -58,12 +98,38 @@ document.addEventListener('DOMContentLoaded', function () {
             var p   = info.event.extendedProps;
             var tip = [p.tecnico, p.tipo, p.stato].filter(Boolean).join(' · ');
             $(info.el).tooltip({ title: tip, placement: 'top', trigger: 'hover', container: 'body' });
+            $(info.el).on('click', function () { $(this).tooltip('hide'); });
         },
         eventClick: function (info) {
-            if (info.event.url) {
-                info.jsEvent.preventDefault();
-                window.location.href = info.event.url;
-            }
+            info.jsEvent.preventDefault();
+            var p   = info.event.extendedProps;
+            var url = info.event.url;
+
+            // Badge stato
+            var badgeClass = { pianificato: 'badge-secondary', in_corso: 'badge-warning', completato: 'badge-success', annullato: 'badge-danger' };
+            var statoLabel = { pianificato: 'Pianificato', in_corso: 'In corso', completato: 'Completato', annullato: 'Annullato' };
+
+            // Data formattata
+            var start = info.event.start;
+            var dataFmt = start ? start.toLocaleDateString('it-IT', { weekday:'long', day:'2-digit', month:'long', year:'numeric' })
+                                + ' alle ' + start.toLocaleTimeString('it-IT', { hour:'2-digit', minute:'2-digit' })
+                                : '—';
+
+            // Popola modal
+            $('#modal-icona').attr('class', 'fas ' + (p.icona || 'fa-tools') + ' mr-2');
+            $('#modal-cliente').text(info.event.title);
+            $('#modal-header').css('border-left', '4px solid ' + (info.event.backgroundColor || '#6c757d'));
+            $('#modal-tipo').text(p.tipo || '—');
+            $('#modal-tecnico').text(p.tecnico || 'Non assegnato');
+            $('#modal-data').text(dataFmt);
+            $('#modal-stato').html('<span class="badge ' + (badgeClass[p.stato] || 'badge-secondary') + '">' + (statoLabel[p.stato] || p.stato) + '</span>');
+            var urlBase = url.split('?')[0];
+            $('#modal-descrizione').text(p.descrizione || '');
+            $('#modal-descrizione-wrap').toggle(!!p.descrizione);
+            $('#modal-btn-apri').attr('href', urlBase + '?from=calendario');
+            $('#modal-btn-modifica').attr('href', urlBase.replace(/\/interventi\/(\d+)$/, '/interventi/$1/edit') + '?from=calendario');
+
+            $('#modalIntervento').modal('show');
         },
         eventContent: function (info) {
             var p    = info.event.extendedProps;

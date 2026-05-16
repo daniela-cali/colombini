@@ -278,7 +278,9 @@ class Interventi extends BaseController
 
         $model->update($id, $data);
 
-        return redirect()->to('interventi/' . $id)->with('success', 'Intervento aggiornato.');
+        $from = $this->request->getPost('from');
+        $dest = $from ? base_url($from) : base_url('interventi/' . $id);
+        return redirect()->to($dest)->with('success', 'Intervento aggiornato.');
     }
 
     public function delete(int $id)

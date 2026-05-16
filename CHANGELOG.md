@@ -11,6 +11,19 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 
 ---
 
+## [0.8.4] — 2026-05-16
+
+### Aggiunto
+- **Modal al click** sul evento del calendario: riepilogo cliente, tecnico, tipo, data, stato e descrizione; bottoni Apri scheda e Modifica
+- **`?from=calendario`** nei link del modal: breadcrumb e pulsante ✕ funzionano anche dalla pagina modifica intervento
+- **Redirect post-salvataggio** al calendario se l'edit è stato aperto dal calendario (campo hidden `from`)
+- **Locale italiana** FullCalendar: script `@fullcalendar/core/locales/it.global.min.js`
+
+### Corretto
+- Rimosso CSS link FullCalendar inesistente (gli stili sono iniettati dal bundle JS)
+
+---
+
 ## [0.8.2] — 2026-05-15
 
 ### Corretto
