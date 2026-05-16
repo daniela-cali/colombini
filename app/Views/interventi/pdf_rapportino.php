@@ -48,6 +48,10 @@ table.firme td { width: 50%; padding: 0 20px; text-align: center; }
 <!-- Intestazione azienda -->
 <table class="header"><tr>
     <td>
+        <?php if ($azienda['logo']): ?>
+        <img src="<?= $azienda['logo'] ?>" alt="<?= esc($azienda['nome']) ?>"
+             style="max-height:44px;max-width:180px;margin-bottom:4px;display:block;">
+        <?php endif; ?>
         <div class="company-name"><?= esc($azienda['nome'] ?: 'Colombini Piscine') ?></div>
         <div class="company-info">
             <?php

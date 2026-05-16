@@ -290,7 +290,7 @@ class Clienti extends BaseController
         return redirect()->to('clienti/import/mappa');
     }
 
-    public function importMappa(): string
+    public function importMappa(): ?string
     {
         $filePath = session()->get('import_file');
         $headers  = session()->get('import_headers');

@@ -347,8 +347,11 @@ class Interventi extends BaseController
         $pdf->loadHtml($html, 'UTF-8');
         $pdf->setPaper('A4', 'portrait');
         $pdf->render();
-        $pdf->stream('rapportino-' . $id . '.pdf', ['Attachment' => 0]);
-        exit();
+
+        $download = $this->response->download('rapportino-' . $id . '.pdf', $pdf->output(), true);
+        $download->inline();
+
+        return $download;
     }
 
     public function inviaEmail(int $id)
@@ -374,25 +377,42 @@ class Interventi extends BaseController
         $pdf->setPaper('A4', 'portrait');
         $pdf->render();
 
-        $tmpFile = WRITEPATH . 'cache/rapportino_' . $id . '_' . uniqid() . '.pdf';
-        file_put_contents($tmpFile, $pdf->output());
+        $pdfOutput = $pdf->output();
+        $tmpFile   = WRITEPATH . 'cache/rapportino_' . $id . '_' . uniqid() . '.pdf';
+        $written   = file_put_contents($tmpFile, $pdfOutput);
+        log_message('debug', 'PDF rapportino #' . $id . ': ' . strlen($pdfOutput) . ' byte generati, ' . $written . ' byte scritti in ' . $tmpFile . ', valido=' . (substr($pdfOutput, 0, 4) === '%PDF' ? 'SI' : 'NO'));
 
         $aziendaNome = setting('Azienda.sede_nome') ?: 'Colombini Piscine';
         $emailFrom   = config('Email')->fromEmail ?: 'noreply@colombinipiscine.it';
 
         $mailer = \Config\Services::email();
+        $mailer->setNewline("\r\n");
+        $mailer->setCRLF("\r\n");
         $mailer->setFrom($emailFrom, $aziendaNome);
         $mailer->setTo($emailDest);
         if ($emailFrom !== $emailDest) {
             $mailer->setCC($emailFrom);
         }
-        $mailer->setSubject('Rapportino intervento #' . $id . ' — ' . $aziendaNome);
+        $logoPath = setting('Azienda.sede_logo_path') ?? '';
+        $logoSrc  = $logoPath ? base_url($logoPath) : '';
+
+        $firma = view('email/firma', [
+            'aziendaNome' => $aziendaNome,
+            'telefono'    => setting('Azienda.sede_telefono') ?? '',
+            'sito'        => setting('Azienda.sede_sito') ?? '',
+            'indirizzo'   => trim((setting('Azienda.sede_indirizzo') ?? '') . ' — ' . (setting('Azienda.sede_citta') ?? ''), ' —'),
+            'logoSrc'     => $logoSrc,
+        ], ['debug' => false]);
+
+        $mailer->setMailType('html');
+        $mailer->setSubject('Rapportino intervento #' . $id . ' - ' . $dati['nomeCliente'] . ' - ' . $aziendaNome);
         $mailer->setMessage(
-            'Gentile ' . esc($dati['nomeCliente']) . ",\n\n" .
-            "in allegato il rapportino relativo all'intervento #" . $id . ".\n\n" .
-            "Cordiali saluti,\n" . $aziendaNome
+            '<p>Gentile ' . htmlspecialchars($dati['nomeCliente'], ENT_QUOTES, 'UTF-8') . ',</p>' .
+            '<p>in allegato il rapportino relativo all\'intervento #' . $id . '.</p>' .
+            '<p>Cordiali saluti,</p>' .
+            $firma
         );
-        $mailer->attach($tmpFile, 'attachment', 'rapportino-' . $id . '.pdf', 'application/pdf');
+        $mailer->attach($tmpFile, 'attachment', 'rapportino-' . $id . '.pdf');
 
         $inviato = $mailer->send(false);
         @unlink($tmpFile);
@@ -423,6 +443,13 @@ class Interventi extends BaseController
             ? trim(($intervento['tecnico_cognome'] ?? '') . ' ' . $intervento['tecnico_nome'])
             : 'Non assegnato';
 
+        $logoPath   = setting('Azienda.sede_logo_path') ?? '';
+        $logoBase64 = '';
+        if ($logoPath && is_file(FCPATH . $logoPath)) {
+            $mime       = mime_content_type(FCPATH . $logoPath) ?: 'image/png';
+            $logoBase64 = 'data:' . $mime . ';base64,' . base64_encode(file_get_contents(FCPATH . $logoPath));
+        }
+
         return [
             'intervento'  => $intervento,
             'nomeCliente' => $nomeCliente,
@@ -434,6 +461,7 @@ class Interventi extends BaseController
                 'indirizzo' => setting('Azienda.sede_indirizzo') ?? '',
                 'citta'     => setting('Azienda.sede_citta')     ?? '',
                 'cap'       => setting('Azienda.sede_cap')       ?? '',
+                'logo'      => $logoBase64,
             ],
         ];
     }

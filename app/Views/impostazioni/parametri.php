@@ -11,7 +11,7 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<form method="post" action="<?= base_url('impostazioni/parametri') ?>">
+<form method="post" action="<?= base_url('impostazioni/parametri') ?>" enctype="multipart/form-data">
     <?= csrf_field() ?>
     <div class="row">
 
@@ -74,6 +74,33 @@
                         </div>
                     </div>
                     <div id="geo-sede-result" class="small mb-2"></div>
+                    <div class="form-row">
+                        <div class="form-group col-6">
+                            <label>Telefono</label>
+                            <input type="text" name="sede_telefono" class="form-control"
+                                   value="<?= esc(setting('Azienda.sede_telefono') ?? '') ?>"
+                                   placeholder="es. +39 0521 000000">
+                        </div>
+                        <div class="form-group col-6">
+                            <label>Sito web</label>
+                            <input type="text" name="sede_sito" class="form-control"
+                                   value="<?= esc(setting('Azienda.sede_sito') ?? '') ?>"
+                                   placeholder="es. www.colombinipiscine.it">
+                        </div>
+                    </div>
+                    <div class="form-group mb-0">
+                        <label>Logo aziendale <small class="text-muted">— PNG, JPG o SVG, max 1 MB</small></label>
+                        <?php $logoPath = setting('Azienda.sede_logo_path'); ?>
+                        <?php if ($logoPath): ?>
+                        <div class="mb-2">
+                            <img src="<?= base_url($logoPath) ?>?v=<?= time() ?>"
+                                 alt="Logo attuale" style="max-height:50px;max-width:200px;border:1px solid #dee2e6;border-radius:4px;padding:4px;">
+                            <small class="text-muted ml-2">Logo attuale</small>
+                        </div>
+                        <?php endif; ?>
+                        <input type="file" name="sede_logo" class="form-control-file"
+                               accept="image/png,image/jpeg,image/svg+xml">
+                    </div>
                 </div>
             </div>
         </div>

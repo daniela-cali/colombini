@@ -32,8 +32,19 @@ class Impostazioni extends BaseController
         $post = $this->request->getPost();
 
         // Sede aziendale
-        foreach (['sede_nome', 'sede_indirizzo', 'sede_citta', 'sede_cap', 'sede_lat', 'sede_lng'] as $key) {
+        foreach (['sede_nome', 'sede_indirizzo', 'sede_citta', 'sede_cap', 'sede_lat', 'sede_lng', 'sede_telefono', 'sede_sito'] as $key) {
             setting()->set('Azienda.' . $key, $post[$key] ?? null);
+        }
+
+        // Upload logo
+        $logo = $this->request->getFile('sede_logo');
+        if ($logo && $logo->isValid() && ! $logo->hasMoved()) {
+            $dir = FCPATH . 'uploads' . DIRECTORY_SEPARATOR;
+            if (! is_dir($dir)) mkdir($dir, 0755, true);
+            $ext      = $logo->getClientExtension();
+            $filename = 'logo_azienda.' . $ext;
+            $logo->move($dir, $filename, true);
+            setting()->set('Azienda.sede_logo_path', 'uploads/' . $filename);
         }
 
         // Orari default tecnici
