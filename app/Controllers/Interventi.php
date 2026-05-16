@@ -7,6 +7,8 @@ use App\Models\InterventoModel;
 use App\Models\TipoInterventoModel;
 use App\Models\UserModel;
 use App\Models\RichiestaModel;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class Interventi extends BaseController
 {
@@ -148,7 +150,7 @@ class Interventi extends BaseController
         $model     = new InterventoModel();
         $intervento = $model->select('interventi.*,
                 c.ragsoc AS cliente_ragsoc, c.nome AS cliente_nome, c.cognome AS cliente_cognome, c.tipo AS cliente_tipo,
-                c.lat AS cliente_lat, c.lng AS cliente_lng,
+                c.lat AS cliente_lat, c.lng AS cliente_lng, c.email AS cliente_email,
                 u_tec.nome AS tecnico_nome, u_tec.cognome AS tecnico_cognome,
                 u_tec.telefono AS tecnico_telefono,
                 r.richiedente AS richiesta_richiedente')
@@ -330,8 +332,109 @@ class Interventi extends BaseController
         return redirect()->to($from)->with('success', 'Tecnico assegnato.');
     }
 
-    public function pdf(int $id): string
+    public function pdf(int $id)
     {
-        return view('coming_soon', ['title' => 'Stampa Intervento', 'page_title' => 'Stampa Intervento']);
+        $dati = $this->_datiRapportino($id);
+        if (! $dati) {
+            return redirect()->to('interventi')->with('error', 'Intervento non trovato.');
+        }
+        $html = view('interventi/pdf_rapportino', $dati);
+
+        $opt = new Options();
+        $opt->set('defaultFont', 'DejaVu Sans');
+        $opt->set('isRemoteEnabled', false);
+        $pdf = new Dompdf($opt);
+        $pdf->loadHtml($html, 'UTF-8');
+        $pdf->setPaper('A4', 'portrait');
+        $pdf->render();
+        $pdf->stream('rapportino-' . $id . '.pdf', ['Attachment' => 0]);
+        exit();
+    }
+
+    public function inviaEmail(int $id)
+    {
+        $dati = $this->_datiRapportino($id);
+        if (! $dati) {
+            return redirect()->back()->with('error', 'Intervento non trovato.');
+        }
+
+        $emailCliente = $dati['intervento']['cliente_email'] ?? '';
+        $emailDest    = trim($this->request->getPost('email_destinatario') ?: $emailCliente);
+        if (! $emailDest) {
+            return redirect()->back()->with('error', 'Nessun indirizzo email disponibile per questo cliente.');
+        }
+
+        $html = view('interventi/pdf_rapportino', $dati);
+
+        $opt = new Options();
+        $opt->set('defaultFont', 'DejaVu Sans');
+        $opt->set('isRemoteEnabled', false);
+        $pdf = new Dompdf($opt);
+        $pdf->loadHtml($html, 'UTF-8');
+        $pdf->setPaper('A4', 'portrait');
+        $pdf->render();
+
+        $tmpFile = WRITEPATH . 'cache/rapportino_' . $id . '_' . uniqid() . '.pdf';
+        file_put_contents($tmpFile, $pdf->output());
+
+        $aziendaNome = setting('Azienda.sede_nome') ?: 'Colombini Piscine';
+        $emailFrom   = config('Email')->fromEmail ?: 'noreply@colombinipiscine.it';
+
+        $mailer = \Config\Services::email();
+        $mailer->setFrom($emailFrom, $aziendaNome);
+        $mailer->setTo($emailDest);
+        if ($emailFrom !== $emailDest) {
+            $mailer->setCC($emailFrom);
+        }
+        $mailer->setSubject('Rapportino intervento #' . $id . ' — ' . $aziendaNome);
+        $mailer->setMessage(
+            'Gentile ' . esc($dati['nomeCliente']) . ",\n\n" .
+            "in allegato il rapportino relativo all'intervento #" . $id . ".\n\n" .
+            "Cordiali saluti,\n" . $aziendaNome
+        );
+        $mailer->attach($tmpFile, 'attachment', 'rapportino-' . $id . '.pdf', 'application/pdf');
+
+        $inviato = $mailer->send(false);
+        @unlink($tmpFile);
+
+        if ($inviato) {
+            return redirect()->back()->with('success', 'Rapportino inviato a ' . esc($emailDest) . '.');
+        }
+        return redirect()->back()->with('error', 'Errore nell\'invio email. Verifica la configurazione SMTP nelle impostazioni.');
+    }
+
+    private function _datiRapportino(int $id): ?array
+    {
+        $model      = new InterventoModel();
+        $intervento = $model->select('interventi.*,
+                c.ragsoc AS cliente_ragsoc, c.nome AS cliente_nome, c.cognome AS cliente_cognome,
+                c.email AS cliente_email,
+                u_tec.nome AS tecnico_nome, u_tec.cognome AS tecnico_cognome')
+            ->join('clienti c', 'c.id = interventi.cliente_id', 'left')
+            ->join('users u_tec', 'u_tec.id = interventi.tecnico_id', 'left')
+            ->find($id);
+
+        if (! $intervento) return null;
+
+        $nomeCliente = $intervento['cliente_ragsoc']
+            ?: trim(($intervento['cliente_cognome'] ?? '') . ' ' . ($intervento['cliente_nome'] ?? ''))
+            ?: '—';
+        $nomeTecnico = $intervento['tecnico_nome']
+            ? trim(($intervento['tecnico_cognome'] ?? '') . ' ' . $intervento['tecnico_nome'])
+            : 'Non assegnato';
+
+        return [
+            'intervento'  => $intervento,
+            'nomeCliente' => $nomeCliente,
+            'nomeTecnico' => $nomeTecnico,
+            'tipi'        => TipoInterventoModel::comeLista(),
+            'stati'       => InterventoModel::STATI,
+            'azienda'     => [
+                'nome'      => setting('Azienda.sede_nome')      ?? '',
+                'indirizzo' => setting('Azienda.sede_indirizzo') ?? '',
+                'citta'     => setting('Azienda.sede_citta')     ?? '',
+                'cap'       => setting('Azienda.sede_cap')       ?? '',
+            ],
+        ];
     }
 }

@@ -11,6 +11,15 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 
 ---
 
+## [0.8.9] — 2026-05-16
+
+### Aggiunto
+- **Rapportino PDF** — generazione con Dompdf (intestazione azienda, dati intervento, note di chiusura, spazio firme); bottone "PDF" apre in nuova tab
+- **Invio email rapportino** — modal con email destinatario pre-compilata dall'anagrafica cliente; PDF allegato; CC all'indirizzo aziendale; bottone "Invia" nella scheda intervento
+- **Configurazione SMTP** via `.env` (non committato)
+
+---
+
 ## [0.8.8] — 2026-05-16
 
 ### Aggiunto

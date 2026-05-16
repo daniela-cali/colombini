@@ -172,9 +172,13 @@
                             </button>
                         <?php endif; ?>
                         <a href="<?= base_url('interventi/' . $intervento['id'] . '/pdf') ?>"
-                           class="btn btn-outline-secondary btn-sm mb-1">
-                            <i class="fas fa-print mr-1"></i> Stampa
+                           target="_blank" class="btn btn-outline-secondary btn-sm mb-1">
+                            <i class="fas fa-file-pdf mr-1"></i> PDF
                         </a>
+                        <button type="button" class="btn btn-outline-info btn-sm mb-1"
+                                data-toggle="modal" data-target="#modalEmail">
+                            <i class="fas fa-envelope mr-1"></i> Invia
+                        </button>
                     </div>
                 </div>
             </div>
@@ -212,6 +216,40 @@
             <div class="card-body">
                 <p class="mb-0"><?= date('d/m/Y \a\l\l\e H:i', strtotime($intervento['created_at'])) ?></p>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal invio email rapportino -->
+<div class="modal fade" id="modalEmail" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="<?= base_url('interventi/' . $intervento['id'] . '/invia-email') ?>">
+                <?= csrf_field() ?>
+                <div class="modal-header" style="background:var(--clr-teal);color:#fff;">
+                    <h5 class="modal-title">
+                        <i class="fas fa-envelope mr-2"></i>Invia rapportino per email
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group mb-0">
+                        <label for="email_destinatario" class="font-weight-bold small">Indirizzo email destinatario</label>
+                        <input type="email" name="email_destinatario" id="email_destinatario"
+                               class="form-control"
+                               value="<?= esc($intervento['cliente_email'] ?? '') ?>"
+                               placeholder="email@esempio.it"
+                               required>
+                        <small class="text-muted">Il PDF verrà allegato e inviato a questo indirizzo.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-info btn-sm">
+                        <i class="fas fa-paper-plane mr-1"></i> Invia
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

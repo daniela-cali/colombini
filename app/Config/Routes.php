@@ -95,7 +95,8 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
         $routes->post('(:num)/elimina', 'Interventi::delete/$1');
         $routes->post('(:num)/chiudi',   'Interventi::chiudi/$1');
         $routes->post('(:num)/assegna', 'Interventi::assegnaTecnico/$1');
-        $routes->get('(:num)/pdf',      'Interventi::pdf/$1');
+        $routes->get('(:num)/pdf',         'Interventi::pdf/$1');
+        $routes->post('(:num)/invia-email', 'Interventi::inviaEmail/$1');
     });
 
     $routes->group('preventivi', function (RouteCollection $routes) {
