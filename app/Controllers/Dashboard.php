@@ -52,6 +52,7 @@ class Dashboard extends BaseController
             'tecnici'           => $usersModel->where('ruolo', 'tecnico')->orderBy('cognome')->findAll(),
             'riepilogo_tecnici' => $interventiModel->riepilogoPerTecnico(),
             'tipi'              => TipoInterventoModel::comeLista(),
+            'icone'             => array_column(TipoInterventoModel::comeListaCompleta(), 'icona', 'codice'),
             'stati_intervento'  => InterventoModel::STATI,
             'stati_richiesta'   => RichiestaModel::STATI,
         ]);
@@ -99,6 +100,7 @@ class Dashboard extends BaseController
                 'totale_completati' => $cTotaleCompletati,
             ],
             'tipi'             => TipoInterventoModel::comeLista(),
+            'icone'            => array_column(TipoInterventoModel::comeListaCompleta(), 'icona', 'codice'),
             'stati'            => InterventoModel::STATI,
         ]);
     }

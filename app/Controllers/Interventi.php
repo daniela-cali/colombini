@@ -15,6 +15,7 @@ class Interventi extends BaseController
         $model      = new InterventoModel();
         $interventi = $model->conDettagli();
         $tipi       = TipoInterventoModel::comeLista();
+        $icone      = array_column(TipoInterventoModel::comeListaCompleta(), 'icona', 'codice');
 
         // Raggruppa per tecnico, ordinando gli interventi per data pianificata
         $perTecnico   = [];
@@ -59,6 +60,7 @@ class Interventi extends BaseController
             'perTecnico'   => $perTecnico,
             'nonAssegnati' => $nonAssegnati,
             'tipi'         => $tipi,
+            'icone'        => $icone,
             'stati'        => InterventoModel::STATI,
         ]);
     }

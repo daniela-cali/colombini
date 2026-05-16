@@ -100,7 +100,7 @@
                                         <?php endif; ?>
                                     </td>
                                     <td class="align-middle">
-                                        <?= esc($tipi[$inv['tipo_intervento']] ?? $inv['tipo_intervento']) ?>
+                                        <i class="fas <?= esc($icone[$inv['tipo_intervento']] ?? 'fa-tools') ?> mr-1 text-muted"></i><?= esc($tipi[$inv['tipo_intervento']] ?? $inv['tipo_intervento']) ?>
                                     </td>
                                     <td class="align-middle">
                                         <?= $cliente ? esc($cliente) : '<span class="text-muted">—</span>' ?>

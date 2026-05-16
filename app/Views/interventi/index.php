@@ -35,7 +35,7 @@
 
 <?php
 // ── Macro per la tabella interventi di un gruppo ──────────────────────────────
-function _rigaIntervento(array $inv, array $tipi, array $stati): void {
+function _rigaIntervento(array $inv, array $tipi, array $icone, array $stati): void {
     $s       = $stati[$inv['stato']] ?? ['label' => $inv['stato'], 'badge' => 'badge-secondary'];
     $nomeCliente = $inv['cliente_ragsoc']
         ? esc($inv['cliente_ragsoc'])
@@ -50,7 +50,7 @@ function _rigaIntervento(array $inv, array $tipi, array $stati): void {
     <tr>
         <td class="d-none d-md-table-cell text-muted small"><?= $inv['id'] ?></td>
         <td>
-            <strong><?= esc($tipi[$inv['tipo_intervento']] ?? $inv['tipo_intervento']) ?></strong>
+            <i class="fas <?= esc($icone[$inv['tipo_intervento']] ?? 'fa-tools') ?> mr-1 text-muted"></i><strong><?= esc($tipi[$inv['tipo_intervento']] ?? $inv['tipo_intervento']) ?></strong>
             <?php if ($inv['luogo_intervento']): ?>
                 <br><small class="text-muted"><?= esc($inv['luogo_intervento']) ?></small>
             <?php endif; ?>
@@ -79,7 +79,7 @@ function _rigaIntervento(array $inv, array $tipi, array $stati): void {
 <?php } ?>
 
 <?php
-function _tabellaGruppo(array $interventi, array $tipi, array $stati): void { ?>
+function _tabellaGruppo(array $interventi, array $tipi, array $icone, array $stati): void { ?>
     <div class="table-responsive">
         <table class="table table-sm table-hover mb-0">
             <thead class="thead-light">
@@ -94,7 +94,7 @@ function _tabellaGruppo(array $interventi, array $tipi, array $stati): void { ?>
             </thead>
             <tbody>
                 <?php foreach ($interventi as $inv): ?>
-                    <?php _rigaIntervento($inv, $tipi, $stati); ?>
+                    <?php _rigaIntervento($inv, $tipi, $icone, $stati); ?>
                 <?php endforeach; ?>
             </tbody>
         </table>
@@ -115,7 +115,7 @@ function _tabellaGruppo(array $interventi, array $tipi, array $stati): void { ?>
         <span class="badge badge-secondary"><?= $nInv ?></span>
     </div>
     <div class="card-body p-0">
-        <?php _tabellaGruppo($gruppo['interventi'], $tipi, $stati); ?>
+        <?php _tabellaGruppo($gruppo['interventi'], $tipi, $icone, $stati); ?>
     </div>
 </div>
 <?php endforeach; ?>
@@ -129,7 +129,7 @@ function _tabellaGruppo(array $interventi, array $tipi, array $stati): void { ?>
         <span class="badge badge-secondary"><?= count($nonAssegnati) ?></span>
     </div>
     <div class="card-body p-0">
-        <?php _tabellaGruppo($nonAssegnati, $tipi, $stati); ?>
+        <?php _tabellaGruppo($nonAssegnati, $tipi, $icone, $stati); ?>
     </div>
 </div>
 <?php endif; ?>

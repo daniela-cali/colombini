@@ -11,6 +11,14 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 
 ---
 
+## [0.8.6] — 2026-05-16
+
+### Modificato
+- **Icone tipo intervento** visibili in lista interventi, dashboard admin (ultimi interventi e ultime richieste portale) e dashboard tecnico
+- **Correzione** colonna "Tipo" nelle ultime richieste portale: mostrava il codice grezzo invece del nome (usava `$stati_richiesta` anziché `$tipi`)
+
+---
+
 ## [0.8.5] — 2026-05-16
 
 ### Aggiunto

@@ -162,7 +162,7 @@
                                         ?>
                                     </td>
                                     <td class="d-none d-md-table-cell">
-                                        <?= esc($stati_richiesta[$r['tipo_intervento']] ?? $r['tipo_intervento']) ?>
+                                        <i class="fas <?= esc($icone[$r['tipo_intervento']] ?? 'fa-tools') ?> mr-1 text-muted"></i><?= esc($tipi[$r['tipo_intervento']] ?? $r['tipo_intervento']) ?>
                                     </td>
                                     <td class="d-none d-sm-table-cell text-muted small">
                                         <?= date('d/m/Y H:i', strtotime($r['created_at'])) ?>
@@ -224,7 +224,7 @@
                             <tbody>
                             <?php foreach ($ultimi_interventi as $inv): ?>
                                 <tr>
-                                    <td><?= esc($tipi[$inv['tipo_intervento']] ?? $inv['tipo_intervento']) ?></td>
+                                    <td><i class="fas <?= esc($icone[$inv['tipo_intervento']] ?? 'fa-tools') ?> mr-1 text-muted"></i><?= esc($tipi[$inv['tipo_intervento']] ?? $inv['tipo_intervento']) ?></td>
                                     <td>
                                         <?php
                                             if ($inv['cliente_ragsoc'] ?? '') {
