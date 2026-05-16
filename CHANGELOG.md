@@ -11,6 +11,20 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 
 ---
 
+## [0.8.5] — 2026-05-16
+
+### Aggiunto
+- **Modal "Novità"** — al primo accesso dopo un aggiornamento mostra le novità della versione corrente; si chiude solo dopo conferma AJAX che aggiorna `ultima_versione_vista` sul profilo utente
+- **Versione in navbar** — badge cliccabile a sinistra del nome utente che apre il changelog completo
+- **Ruolo `operativo`** aggiunto alle costanti `RUOLI` e `RUOLI_APP` del `UserModel`
+- **Migration** `AddUltimaVersioneVista` — colonna `ultima_versione_vista VARCHAR(20)` sulla tabella `users`
+- **Endpoint** `POST /profilo/versione-vista` — aggiorna la versione vista dall'utente corrente
+
+### Modificato
+- Versione rimossa dal brand della sidebar (spostata in navbar)
+
+---
+
 ## [0.8.4] — 2026-05-16
 
 ### Aggiunto

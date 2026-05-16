@@ -125,8 +125,9 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
     $routes->group('profilo', function (RouteCollection $routes) {
         $routes->get('/',          'Profilo::index');
         $routes->post('/',         'Profilo::update');
-        $routes->get('password',   'Profilo::changePassword');
-        $routes->post('password',  'Profilo::updatePassword');
+        $routes->get('password',         'Profilo::changePassword');
+        $routes->post('password',        'Profilo::updatePassword');
+        $routes->post('versione-vista',  'Profilo::aggiornaVersioneVista');
     });
 
     $routes->group('impostazioni', function (RouteCollection $routes) {

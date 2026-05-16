@@ -60,6 +60,57 @@
 
 </div>
 
+<!-- Modal novità versione -->
+<?php
+    $_cl = @file_get_contents(ROOTPATH . 'CHANGELOG.md');
+    $_versioneCorrente = '';
+    $_sezioneNovita    = '';
+    if ($_cl && preg_match('/^## \[(\d+\.\d+\.\d+)\]/m', $_cl, $_mv)) {
+        $_versioneCorrente = $_mv[1];
+        if (preg_match('/^## \[' . preg_quote($_versioneCorrente, '/') . '\][^\n]*\n(.*?)(?=^## \[|\z)/ms', $_cl, $_ms)) {
+            $_sezioneNovita = trim($_ms[1]);
+        }
+    }
+    $_utenteCorrente = auth()->user();
+    $_versioneUtente = $_utenteCorrente ? ($_utenteCorrente->ultima_versione_vista ?? '') : $_versioneCorrente;
+    $_mostraNovita   = $_versioneCorrente && $_versioneUtente !== $_versioneCorrente;
+?>
+<?php if ($_mostraNovita): ?>
+<div class="modal fade" id="modalNovita" tabindex="-1" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background:var(--clr-teal);color:#fff;">
+                <h5 class="modal-title">
+                    <i class="fas fa-star mr-2"></i>Novità — v<?= esc($_versioneCorrente) ?>
+                </h5>
+            </div>
+            <div class="modal-body" id="novita-body" style="font-size:.9rem;"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-sm" id="btn-novita-ok">
+                    <i class="fas fa-check mr-1"></i> Ho capito, grazie!
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
+<!-- Modal changelog completo -->
+<div class="modal fade" id="modalChangelog" tabindex="-1">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background:var(--clr-teal);color:#fff;">
+                <h5 class="modal-title"><i class="fas fa-history mr-2"></i>Changelog</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" id="changelog-body" style="font-size:.9rem;"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Chiudi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Pulsante guida contestuale -->
 <button type="button" id="btn-guida" data-toggle="modal" data-target="#modalGuida"
         title="Guida" aria-label="Apri guida">
@@ -93,6 +144,7 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/marked@9.1.6/marked.min.js"></script>
 <script src="<?= base_url('plugins/jquery/jquery.min.js') ?>"></script>
 <script src="<?= base_url('plugins/bootstrap/js/bootstrap.bundle.min.js') ?>"></script>
 <script src="<?= base_url('plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js') ?>"></script>
@@ -124,6 +176,31 @@ $(function () {
             icon.toggleClass('fa-eye fa-eye-slash');
         });
     });
+
+    // Modal changelog completo
+    var _changelogMd = <?= json_encode($_cl ?: '') ?>;
+    $('#modalChangelog').on('show.bs.modal', function () {
+        var body = document.getElementById('changelog-body');
+        if (!body.innerHTML.trim()) {
+            body.innerHTML = marked.parse(_changelogMd);
+        }
+    });
+
+    // Modal novità
+    <?php if ($_mostraNovita): ?>
+    var _novitaMd      = <?= json_encode($_sezioneNovita) ?>;
+    var _versioneNuova = <?= json_encode($_versioneCorrente) ?>;
+    document.getElementById('novita-body').innerHTML = marked.parse(_novitaMd);
+    $('#modalNovita').modal('show');
+    $('#btn-novita-ok').on('click', function () {
+        $.post('<?= base_url('profilo/versione-vista') ?>', {
+            versione:               _versioneNuova,
+            <?= csrf_token() ?>: '<?= csrf_hash() ?>'
+        }, function () {
+            $('#modalNovita').modal('hide');
+        });
+    });
+    <?php endif; ?>
 });
 </script>
 </body>

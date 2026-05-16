@@ -1,21 +1,9 @@
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
 
-    <?php
-        $_changelog = @file_get_contents(ROOTPATH . 'CHANGELOG.md');
-        $_version   = '';
-        if ($_changelog && preg_match('/^## \[(\d+\.\d+\.\d+)\]/m', $_changelog, $_m)) {
-            $_version = 'v' . $_m[1];
-        }
-    ?>
-    <a href="<?= base_url('/') ?>" class="brand-link" style="position:relative;">
+    <a href="<?= base_url('/') ?>" class="brand-link">
         <i class="fas fa-water ml-3 mr-2" style="color: var(--clr-teal); font-size:1.4rem;"></i>
         <span class="brand-text font-weight-bold">Colombini</span>
         <small class="brand-text text-sm ml-1" style="opacity:.7;">Piscine</small>
-        <?php if ($_version): ?>
-            <small style="position:absolute; bottom:3px; right:8px; font-size:.6rem; opacity:.45; letter-spacing:.02em;">
-                <?= esc($_version) ?>
-            </small>
-        <?php endif; ?>
     </a>
 
     <div class="sidebar">

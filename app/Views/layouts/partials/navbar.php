@@ -14,7 +14,21 @@
         <?php
             $_u        = auth()->user();
             $_username = $_u ? (string) $_u->username : 'Utente';
+            $_clNav    = @file_get_contents(ROOTPATH . 'CHANGELOG.md');
+            $_verNav   = '';
+            if ($_clNav && preg_match('/^## \[(\d+\.\d+\.\d+)\]/m', $_clNav, $_mNav)) {
+                $_verNav = 'v' . $_mNav[1];
+            }
         ?>
+        <?php if ($_verNav): ?>
+        <li class="nav-item d-none d-sm-inline-flex align-items-center mr-2">
+            <span style="font-size:.7rem; opacity:.7; cursor:pointer; letter-spacing:.03em; color:#fff;"
+                  data-toggle="modal" data-target="#modalChangelog"
+                  title="Visualizza changelog">
+                <?= esc($_verNav) ?>
+            </span>
+        </li>
+        <?php endif; ?>
         <li class="nav-item dropdown">
             <a class="nav-link" data-toggle="dropdown" href="#">
                 <i class="fas fa-user-circle mr-1"></i>

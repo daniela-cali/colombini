@@ -7,13 +7,14 @@ use CodeIgniter\Shield\Models\UserModel as ShieldUserModel;
 class UserModel extends ShieldUserModel
 {
     public const RUOLI = [
-        'admin'    => 'Amministratore',
-        'staff'    => 'Staff',
-        'tecnico'  => 'Tecnico',
-        'cliente'  => 'Cliente portale',
+        'admin'      => 'Amministratore',
+        'staff'      => 'Staff',
+        'tecnico'    => 'Tecnico',
+        'operativo'  => 'Operativo',
+        'cliente'    => 'Cliente portale',
     ];
 
-    public const RUOLI_APP = ['admin', 'staff', 'tecnico'];
+    public const RUOLI_APP = ['admin', 'staff', 'tecnico', 'operativo'];
 
     protected $allowedFields = [
         'username',
@@ -26,5 +27,6 @@ class UserModel extends ShieldUserModel
         'telefono',
         'colore',
         'ruolo',
+        'ultima_versione_vista',
     ];
 }

@@ -23,4 +23,14 @@ class Profilo extends BaseController
     {
         return redirect()->to('profilo');
     }
+
+    public function aggiornaVersioneVista()
+    {
+        $versione = $this->request->getPost('versione');
+        if ($versione) {
+            $user = auth()->user();
+            (new \App\Models\UserModel())->update($user->id, ['ultima_versione_vista' => $versione]);
+        }
+        return $this->response->setJSON(['ok' => true]);
+    }
 }
