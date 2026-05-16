@@ -11,6 +11,18 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 
 ---
 
+## [0.8.8] — 2026-05-16
+
+### Aggiunto
+- **Note di chiusura** — modal al click di "Chiudi" con textarea opzionale; colonna `note_chiusura TEXT` sulla tabella `interventi`; visibile nella scheda se valorizzata
+- **Richiedente** nella scheda intervento — mostrato solo se presente e diverso dal nome cliente (dati dalla richiesta portale collegata)
+
+### Corretto
+- Fix accessibilità Bootstrap 4: `aria-hidden` impostato prima che il focus uscisse dal modal; risolto con blur globale su `hide.bs.modal`
+- Modal "Chiudi" non appariva: era posizionato fuori da `$this->section('content')` e veniva scartato da CI4
+
+---
+
 ## [0.8.7] — 2026-05-16
 
 ### Aggiunto

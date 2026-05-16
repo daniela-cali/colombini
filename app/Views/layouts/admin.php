@@ -156,6 +156,13 @@ setTimeout(function () {
 }, 4000);
 
 $(function () {
+    // Fix Bootstrap 4: aria-hidden viene impostato prima che il focus esca dal modal
+    $(document).on('hide.bs.modal', '.modal', function () {
+        if (document.activeElement && $.contains(this, document.activeElement)) {
+            document.activeElement.blur();
+        }
+    });
+
     $('input[type="password"]').each(function () {
         var $input = $(this);
         if ($input.data('pwd-toggle-init')) return;

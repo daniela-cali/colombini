@@ -150,9 +150,11 @@ class Interventi extends BaseController
                 c.ragsoc AS cliente_ragsoc, c.nome AS cliente_nome, c.cognome AS cliente_cognome, c.tipo AS cliente_tipo,
                 c.lat AS cliente_lat, c.lng AS cliente_lng,
                 u_tec.nome AS tecnico_nome, u_tec.cognome AS tecnico_cognome,
-                u_tec.telefono AS tecnico_telefono')
+                u_tec.telefono AS tecnico_telefono,
+                r.richiedente AS richiesta_richiedente')
             ->join('clienti c', 'c.id = interventi.cliente_id', 'left')
             ->join('users u_tec', 'u_tec.id = interventi.tecnico_id', 'left')
+            ->join('richieste_assistenza r', 'r.id = interventi.richiesta_id', 'left')
             ->find($id);
 
         if (! $intervento) {
@@ -295,11 +297,17 @@ class Interventi extends BaseController
     public function chiudi(int $id)
     {
         $model = new InterventoModel();
-        $model->update($id, [
+        $data  = [
             'stato'              => 'completato',
             'data_completamento' => date('Y-m-d H:i:s'),
-        ]);
-        return redirect()->to('interventi/' . $id)->with('success', 'Intervento chiuso.');
+        ];
+        $note = trim($this->request->getPost('note_chiusura') ?? '');
+        if ($note !== '') {
+            $data['note_chiusura'] = $note;
+        }
+        $model->update($id, $data);
+        $from = $this->request->getPost('from') ?: 'interventi/' . $id;
+        return redirect()->to($from)->with('success', 'Intervento chiuso.');
     }
 
     public function assegnaTecnico(int $id)

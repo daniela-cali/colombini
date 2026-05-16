@@ -67,6 +67,19 @@
                     </div>
                 </div>
 
+                <?php
+                    $nomeCliente = $intervento['cliente_ragsoc']
+                        ?: trim(($intervento['cliente_cognome'] ?? '') . ' ' . ($intervento['cliente_nome'] ?? ''));
+                    $richiedente = $intervento['richiesta_richiedente'] ?? '';
+                    $mostraRichiedente = $richiedente && $richiedente !== $nomeCliente;
+                ?>
+                <?php if ($mostraRichiedente): ?>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted small font-weight-bold">Richiedente</div>
+                    <div class="col-sm-8"><?= esc($richiedente) ?></div>
+                </div>
+                <?php endif; ?>
+
                 <div class="row mb-3">
                     <div class="col-sm-4 text-muted small font-weight-bold">Tecnico</div>
                     <div class="col-sm-8">
@@ -120,6 +133,15 @@
                 </div>
                 <?php endif; ?>
 
+                <?php if ($intervento['note_chiusura']): ?>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted small font-weight-bold">Note di chiusura</div>
+                    <div class="col-sm-8">
+                        <p class="mb-0" style="white-space:pre-wrap"><?= esc($intervento['note_chiusura']) ?></p>
+                    </div>
+                </div>
+                <?php endif; ?>
+
                 <?php if ($intervento['richiesta_id']): ?>
                 <hr>
                 <div class="row">
@@ -144,11 +166,10 @@
                             <i class="fas fa-edit mr-1"></i> Modifica
                         </a>
                         <?php if ($intervento['stato'] !== 'completato' && $intervento['stato'] !== 'annullato'): ?>
-                            <a href="<?= base_url('interventi/' . $intervento['id'] . '/chiudi') ?>"
-                               class="btn btn-success btn-sm mb-1"
-                               onclick="return confirm('Chiudere l\'intervento come completato?')">
+                            <button type="button" class="btn btn-success btn-sm mb-1"
+                                    data-toggle="modal" data-target="#modalChiudi">
                                 <i class="fas fa-check mr-1"></i> Chiudi
-                            </a>
+                            </button>
                         <?php endif; ?>
                         <a href="<?= base_url('interventi/' . $intervento['id'] . '/pdf') ?>"
                            class="btn btn-outline-secondary btn-sm mb-1">
@@ -194,6 +215,47 @@
         </div>
     </div>
 </div>
+
+<!-- Modal chiusura intervento -->
+<?php $from = service('request')->getGet('from'); ?>
+<div class="modal fade" id="modalChiudi" tabindex="-1" data-backdrop="static">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="<?= base_url('interventi/' . $intervento['id'] . '/chiudi') ?>">
+                <?= csrf_field() ?>
+                <?php if ($from): ?>
+                    <input type="hidden" name="from" value="<?= esc($from) ?>">
+                <?php endif; ?>
+                <div class="modal-header" style="background:var(--clr-teal);color:#fff;">
+                    <h5 class="modal-title">
+                        <i class="fas fa-check-circle mr-2"></i>Chiudi intervento #<?= $intervento['id'] ?>
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small mb-3">
+                        L'intervento verrà marcato come <strong>completato</strong> con data e ora attuali.
+                    </p>
+                    <div class="form-group mb-0">
+                        <label for="note_chiusura" class="font-weight-bold small">
+                            Note di chiusura <span class="text-muted font-weight-normal">(opzionale)</span>
+                        </label>
+                        <textarea name="note_chiusura" id="note_chiusura" rows="4"
+                                  class="form-control"
+                                  placeholder="Es: lavoro completato, ricambi installati, cliente soddisfatto…"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-success btn-sm">
+                        <i class="fas fa-check mr-1"></i> Conferma chiusura
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <?= $this->endSection() ?>
 
 <?php

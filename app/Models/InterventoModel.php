@@ -28,6 +28,7 @@ class InterventoModel extends Model
         'data_completamento',
         'descrizione',
         'note_interne',
+        'note_chiusura',
         'stato',
     ];
 
