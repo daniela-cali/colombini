@@ -8,9 +8,10 @@
 <?= $this->section('styles') ?>
 <style>
     #calendario { min-height: 600px; }
-    .fc-event { cursor: pointer; }
+    .fc-event { cursor: grab; }
     .fc-event-title { font-weight: 500; font-size: .8rem; }
     .fc-timegrid-event .fc-event-title { white-space: normal; }
+    body.fc-dragging .tooltip { display: none !important; }
 </style>
 <?= $this->endSection() ?>
 
@@ -67,6 +68,9 @@
 <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.11/locales/it.global.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    var _csrfToken = '<?= csrf_token() ?>';
+    var _csrfHash  = '<?= csrf_hash() ?>';
+
     var calendar = new FullCalendar.Calendar(document.getElementById('calendario'), {
         locale: 'it',
         initialView: window.innerWidth < 768 ? 'timeGridDay' : 'timeGridWeek',
@@ -88,6 +92,43 @@ document.addEventListener('DOMContentLoaded', function () {
         allDaySlot:   false,
         nowIndicator: true,
         height:       'auto',
+        editable:       true,
+        longPressDelay: 300,
+        eventDragStart: function (info) {
+            $('body').addClass('fc-dragging');
+            $('.tooltip').remove();
+        },
+        eventDragStop: function (info) {
+            $('body').removeClass('fc-dragging');
+            $('.tooltip').remove();
+        },
+        eventDrop: function (info) {
+            var dt  = info.event.start;
+            var pad = function (n) { return String(n).padStart(2, '0'); };
+            var startLocal = dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate())
+                           + ' ' + pad(dt.getHours()) + ':' + pad(dt.getMinutes()) + ':00';
+            var postData = { id: info.event.id, start: startLocal };
+            postData[_csrfToken] = _csrfHash;
+            $.ajax({
+                url:      '<?= base_url('calendario/sposta') ?>',
+                type:     'POST',
+                data:     postData,
+                headers:  { 'X-CSRF-TOKEN': _csrfHash },
+                dataType: 'json',
+                success: function (res) {
+                    if (res && res.csrf) _csrfHash = res.csrf;
+                    if (!res || !res.ok) {
+                        info.revert();
+                        alert('Errore nel salvataggio.');
+                    }
+                },
+                error: function (xhr) {
+                    console.error('sposta error', xhr.status, xhr.responseText);
+                    info.revert();
+                    alert('Errore nel salvataggio. Lo spostamento è stato annullato.');
+                },
+            });
+        },
         eventSources: [{
             url: '<?= base_url('calendario/eventi') ?>',
             failure: function () {

@@ -11,6 +11,21 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 
 ---
 
+## [0.8.7] — 2026-05-16
+
+### Aggiunto
+- **Drag & drop sul calendario** — trascinamento degli eventi per aggiornare `data_pianificata`; endpoint `POST /calendario/sposta`; revert automatico in caso di errore
+- **Route calendario raggruppate** in `$routes->group('calendario', ...)`
+- **Timezone applicazione** impostata su `Europe/Rome` in `App.php`
+
+### Corretto
+- Tooltip Bootstrap rimasto nel DOM dopo il drag: rimosso via `eventDragStart` / `eventDragStop` con classe `fc-dragging` su body
+- `longPressDelay: 300` per drag su touch più reattivo
+- CSRF rigenerato correttamente dopo ogni POST: il nuovo hash viene restituito nella risposta JSON e aggiornato in JS
+- Datetime inviato al server in ora locale (non UTC) per evitare conversioni errate
+
+---
+
 ## [0.8.6] — 2026-05-16
 
 ### Modificato

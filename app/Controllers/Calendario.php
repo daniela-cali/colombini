@@ -67,4 +67,20 @@ class Calendario extends BaseController
 
         return $this->response->setJSON($events);
     }
+
+    public function sposta()
+    {
+        $id    = (int) $this->request->getPost('id');
+        $start = $this->request->getPost('start');
+
+        if (! $id || ! $start) {
+            return $this->response->setStatusCode(400)->setJSON(['ok' => false, 'msg' => 'Dati mancanti']);
+        }
+
+        $data = date('Y-m-d H:i:s', strtotime($start));
+
+        (new InterventoModel())->update($id, ['data_pianificata' => $data]);
+
+        return $this->response->setJSON(['ok' => true, 'csrf' => csrf_hash()]);
+    }
 }

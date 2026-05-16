@@ -26,8 +26,11 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
     $routes->get('/',         'Dashboard::index');
     $routes->get('dashboard', 'Dashboard::index');
 
-    $routes->get('calendario',        'Calendario::index');
-    $routes->get('calendario/eventi', 'Calendario::eventi');
+    $routes->group('calendario', function (RouteCollection $routes) {
+        $routes->get('/',       'Calendario::index');
+        $routes->get('eventi',  'Calendario::eventi');
+        $routes->post('sposta', 'Calendario::sposta');
+    });
 
     $routes->group('clienti', function (RouteCollection $routes) {
         $routes->get('/',                   'Clienti::index');
