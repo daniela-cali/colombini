@@ -11,6 +11,22 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 
 ---
 
+## [0.9.0] — 2026-05-16
+
+### Aggiunto
+- **Firma email HTML** — layout a colonna con logo aziendale, sottotitolo, indirizzo, telefono e sito web; etichette testo (Ind. Tel. Web) al posto delle icone
+- **Logo aziendale** — upload PNG/JPG/SVG dalla pagina Impostazioni; usato nella firma email (URL pubblico) e nel rapportino PDF (base64 inline per Dompdf)
+- **Campi telefono e sito web** nelle impostazioni aziendali
+- **Email in modalità HTML** — `setMailType('html')` con corpo formattato e firma integrata
+- **Nome cliente nell'oggetto email** — es. `Rapportino intervento #2 - Martiri Srl - Colombini Snc`
+
+### Corretto
+- Commenti debug CI4 (`<!-- DEBUG-VIEW START -->`) rimossi dalle email con `['debug' => false]`
+- URL senza `index.php` — `App::$indexPage = ''`
+- Estensione PHP `gd` abilitata per il rendering immagini PNG in Dompdf
+
+---
+
 ## [0.8.9] — 2026-05-16
 
 ### Aggiunto

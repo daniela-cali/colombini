@@ -18,14 +18,14 @@
 
             <?php if ($indirizzo): ?>
             <div style="font-size:12px;color:#6b7280;margin-bottom:10px;">
-                &#9656; <?= esc($indirizzo) ?>
+                <span style="color:#9ca3af;font-size:11px;">Ind.</span> <?= esc($indirizzo) ?>
             </div>
             <?php endif; ?>
 
             <table cellpadding="0" cellspacing="0" border="0">
                 <?php if ($telefono): ?>
                 <tr>
-                    <td style="padding:2px 10px 2px 0;color:#6b7280;font-size:12px;width:14px;">&#9742;</td>
+                    <td style="padding:2px 10px 2px 0;color:#9ca3af;font-size:11px;width:14px;">Tel.</td>
                     <td style="padding:2px 0;">
                         <a href="tel:<?= esc($telefono) ?>"
                            style="color:#374151;text-decoration:none;font-size:13px;">
