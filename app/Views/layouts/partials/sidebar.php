@@ -135,6 +135,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="<?= base_url('sistema/veicoli') ?>"
+                               class="nav-link <?= str_starts_with(uri_string(), 'sistema/veicoli') ? 'active' : '' ?>">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Veicoli</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="<?= base_url('impostazioni') ?>"
                                class="nav-link <?= str_starts_with(uri_string(), 'impostazioni') ? 'active' : '' ?>">
                                 <i class="far fa-circle nav-icon"></i>

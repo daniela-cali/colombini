@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\TipoInterventoModel;
+use App\Models\VeicoloModel;
 
 class Sistema extends BaseController
 {
@@ -131,5 +132,112 @@ class Sistema extends BaseController
 
         return redirect()->to('sistema/tipi-intervento')
             ->with('success', 'Tipo intervento eliminato.');
+    }
+
+    // ─── Veicoli ──────────────────────────────────────────────────────────────
+
+    public function veicoli(): string
+    {
+        $model = new VeicoloModel();
+
+        return view('sistema/veicoli/index', [
+            'title'      => 'Veicoli Aziendali',
+            'page_title' => 'Veicoli Aziendali',
+            'veicoli'    => $model->orderBy('nome')->findAll(),
+        ]);
+    }
+
+    public function veicoliCreate(): string
+    {
+        return view('sistema/veicoli/create', [
+            'title'      => 'Nuovo Veicolo',
+            'page_title' => 'Nuovo Veicolo',
+        ]);
+    }
+
+    public function veicoliStore()
+    {
+        $rules = [
+            'nome'  => 'required|max_length[100]',
+            'targa' => 'required|min_length[4]|max_length[20]|is_unique[veicoli.targa]',
+        ];
+
+        $messages = [
+            'targa' => ['is_unique' => 'Questa targa è già presente.'],
+        ];
+
+        if (! $this->validate($rules, $messages)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $model = new VeicoloModel();
+        $model->insert([
+            'nome'  => $this->request->getPost('nome'),
+            'targa' => strtoupper($this->request->getPost('targa')),
+            'attivo' => 1,
+        ]);
+
+        return redirect()->to('sistema/veicoli')->with('success', 'Veicolo aggiunto.');
+    }
+
+    public function veicoliEdit(int $id)
+    {
+        $model   = new VeicoloModel();
+        $veicolo = $model->find($id);
+
+        if (! $veicolo) {
+            return redirect()->to('sistema/veicoli')->with('error', 'Veicolo non trovato.');
+        }
+
+        return view('sistema/veicoli/edit', [
+            'title'      => 'Modifica Veicolo',
+            'page_title' => 'Modifica Veicolo',
+            'veicolo'    => $veicolo,
+        ]);
+    }
+
+    public function veicoliUpdate(int $id)
+    {
+        $model   = new VeicoloModel();
+        $veicolo = $model->find($id);
+
+        if (! $veicolo) {
+            return redirect()->to('sistema/veicoli')->with('error', 'Veicolo non trovato.');
+        }
+
+        $rules = [
+            'nome'  => 'required|max_length[100]',
+            'targa' => "required|min_length[4]|max_length[20]|is_unique[veicoli.targa,id,{$id}]",
+        ];
+
+        $messages = [
+            'targa' => ['is_unique' => 'Questa targa è già presente.'],
+        ];
+
+        if (! $this->validate($rules, $messages)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $model->update($id, [
+            'nome'   => $this->request->getPost('nome'),
+            'targa'  => strtoupper($this->request->getPost('targa')),
+            'attivo' => (int) ($this->request->getPost('attivo') ?? 1),
+        ]);
+
+        return redirect()->to('sistema/veicoli')->with('success', 'Veicolo aggiornato.');
+    }
+
+    public function veicoliDelete(int $id)
+    {
+        $model   = new VeicoloModel();
+        $veicolo = $model->find($id);
+
+        if (! $veicolo) {
+            return redirect()->to('sistema/veicoli')->with('error', 'Veicolo non trovato.');
+        }
+
+        $model->delete($id);
+
+        return redirect()->to('sistema/veicoli')->with('success', 'Veicolo eliminato.');
     }
 }

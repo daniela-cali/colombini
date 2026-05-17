@@ -71,6 +71,15 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
             $routes->post('(:num)/elimina', 'Sistema::tipiInterventoDelete/$1');
         });
 
+        $routes->group('veicoli', function (RouteCollection $routes) {
+            $routes->get('/',               'Sistema::veicoli');
+            $routes->get('new',             'Sistema::veicoliCreate');
+            $routes->post('/',              'Sistema::veicoliStore');
+            $routes->get('(:num)/edit',     'Sistema::veicoliEdit/$1');
+            $routes->post('(:num)',         'Sistema::veicoliUpdate/$1');
+            $routes->post('(:num)/elimina', 'Sistema::veicoliDelete/$1');
+        });
+
     });
 
     $routes->group('impianti', function (RouteCollection $routes) {
