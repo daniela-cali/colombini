@@ -72,11 +72,11 @@
                     </div>
 
                 </div>
-                <div class="card-footer d-flex justify-content-between">
-                    <a href="<?= base_url('sistema/tipi-intervento') ?>" class="btn btn-secondary">
+                <div class="card-footer clearfix">
+                    <a href="<?= base_url('sistema/tipi-intervento') ?>" class="btn btn-secondary float-left">
                         <i class="fas fa-arrow-left mr-1"></i> Annulla
                     </a>
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary float-right">
                         <i class="fas fa-save mr-1"></i> Salva modifiche
                     </button>
                 </div>

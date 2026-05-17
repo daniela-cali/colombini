@@ -40,11 +40,11 @@
                     </p>
                 <?php endif; ?>
             </div>
-            <div class="card-footer d-flex justify-content-between">
-                <a href="<?= base_url('clienti') ?>" class="btn btn-sm btn-secondary">
+            <div class="card-footer clearfix">
+                <a href="<?= base_url('clienti') ?>" class="btn btn-sm btn-secondary float-left">
                     <i class="fas fa-arrow-left mr-1"></i> Elenco
                 </a>
-                <a href="<?= base_url('clienti/' . $cliente['id'] . '/edit') ?>" class="btn btn-sm btn-primary">
+                <a href="<?= base_url('clienti/' . $cliente['id'] . '/edit') ?>" class="btn btn-sm btn-primary float-right">
                     <i class="fas fa-edit mr-1"></i> Modifica
                 </a>
             </div>

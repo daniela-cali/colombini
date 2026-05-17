@@ -14,13 +14,13 @@
 <div class="row">
     <div class="col-md-8">
         <div class="card card-outline card-primary">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header">
                 <h3 class="card-title">Intervento #<?= $intervento['id'] ?></h3>
-                <div class="d-flex align-items-center ml-auto">
+                <div class="card-tools">
                     <?php $s = $stati[$intervento['stato']] ?? ['label' => $intervento['stato'], 'badge' => 'badge-secondary']; ?>
                     <span class="badge badge-light text-dark px-3 py-2"><?= $s['label'] ?></span>
                     <?php $from = service('request')->getGet('from'); if ($from): ?>
-                    <a href="<?= base_url($from) ?>" class="btn btn-sm btn-outline-light ml-2" title="Torna a <?= esc($from) ?>">
+                    <a href="<?= base_url($from) ?>" class="btn btn-sm btn-outline-secondary ml-2" title="Torna a <?= esc($from) ?>">
                         <i class="fas fa-times"></i>
                     </a>
                     <?php endif; ?>
@@ -195,13 +195,15 @@
 
         <?php if ($mapLat && $mapLng): ?>
         <div class="card card-outline card-secondary mb-3">
-            <div class="card-header py-2 d-flex justify-content-between align-items-center">
+            <div class="card-header py-2">
                 <h3 class="card-title small text-muted mb-0">Posizione</h3>
-                <?php if ($mapSource === 'cliente'): ?>
-                    <small class="text-muted"><i class="fas fa-user mr-1"></i>sede cliente</small>
-                <?php else: ?>
-                    <small class="text-success"><i class="fas fa-map-marker-alt mr-1"></i>geocodificato</small>
-                <?php endif; ?>
+                <div class="card-tools">
+                    <?php if ($mapSource === 'cliente'): ?>
+                        <small class="text-muted"><i class="fas fa-user mr-1"></i>sede cliente</small>
+                    <?php else: ?>
+                        <small class="text-success"><i class="fas fa-map-marker-alt mr-1"></i>geocodificato</small>
+                    <?php endif; ?>
+                </div>
             </div>
             <div class="card-body p-0">
                 <div id="mappa-intervento" style="height:200px;"></div>

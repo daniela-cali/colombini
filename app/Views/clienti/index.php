@@ -7,31 +7,31 @@
 
 <?= $this->section('content') ?>
 <div class="card card-primary">
-    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div class="card-header">
         <h3 class="card-title mb-0">Elenco clienti</h3>
-        <div class="d-flex align-items-center ml-auto">
+        <div class="card-tools d-flex align-items-center">
             <form method="get" action="<?= base_url('clienti') ?>" class="mr-2 mb-0">
                 <div class="input-group input-group-sm">
                     <input type="text" name="q" class="form-control"
                            placeholder="Cerca..." value="<?= esc($q ?? '') ?>">
                     <div class="input-group-append">
-                        <button type="submit" class="btn btn-outline-light">
+                        <button type="submit" class="btn btn-outline-secondary">
                             <i class="fas fa-search"></i>
                         </button>
                         <?php if ($q ?? ''): ?>
-                            <a href="<?= base_url('clienti') ?>" class="btn btn-outline-light" title="Azzera">
+                            <a href="<?= base_url('clienti') ?>" class="btn btn-outline-secondary" title="Azzera">
                                 <i class="fas fa-times"></i>
                             </a>
                         <?php endif; ?>
                     </div>
                 </div>
             </form>
-            <a href="<?= base_url('clienti/import') ?>" class="btn btn-outline-light btn-sm mr-1">
+            <a href="<?= base_url('clienti/import') ?>" class="btn btn-outline-secondary btn-sm mr-1">
                 <i class="fas fa-file-csv mr-1"></i>
                 <span class="d-none d-sm-inline">Import CSV</span>
                 <span class="d-sm-none">Import</span>
             </a>
-            <a href="<?= base_url('clienti/new') ?>" class="btn btn-light btn-sm text-dark">
+            <a href="<?= base_url('clienti/new') ?>" class="btn btn-primary btn-sm">
                 <i class="fas fa-plus mr-1"></i>
                 <span class="d-none d-sm-inline">Nuovo cliente</span>
                 <span class="d-sm-none">Nuovo</span>

@@ -50,14 +50,16 @@
 <div class="row">
     <div class="col-12">
         <div class="card card-outline card-primary">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header">
                 <h3 class="card-title">
                     <i class="fas fa-calendar-check mr-1"></i> Prossimi interventi
                 </h3>
-                <a href="<?= base_url('interventi?tecnico_id=' . $tecnico->id) ?>"
-                   class="btn btn-sm btn-outline-primary">
-                    Tutti i miei interventi
-                </a>
+                <div class="card-tools">
+                    <a href="<?= base_url('interventi?tecnico_id=' . $tecnico->id) ?>"
+                       class="btn btn-sm btn-outline-primary">
+                        Tutti i miei interventi
+                    </a>
+                </div>
             </div>
             <div class="card-body p-0">
                 <?php if (empty($prossimi)): ?>

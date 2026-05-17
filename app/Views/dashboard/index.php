@@ -118,13 +118,15 @@
 <div class="row">
     <div class="col-12">
         <div class="card card-outline card-info">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header">
                 <h3 class="card-title">
                     <i class="fas fa-inbox mr-1"></i> Ultime richieste portale
                 </h3>
                 <?php $nuove = array_filter($ultime_richieste ?? [], fn($r) => $r['stato'] === 'nuova'); ?>
                 <?php if (count($nuove)): ?>
+                <div class="card-tools">
                     <span class="badge badge-info"><?= count($nuove) ?> nuove</span>
+                </div>
                 <?php endif; ?>
             </div>
             <div class="card-body p-0">
@@ -194,13 +196,15 @@
 <div class="row">
     <div class="col-md-8">
         <div class="card card-primary card-outline">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header">
                 <h3 class="card-title">
                     <i class="fas fa-tools mr-1"></i> Ultimi Interventi
                 </h3>
-                <a href="<?= base_url('interventi') ?>" class="btn btn-sm btn-primary">
-                    Vedi tutti
-                </a>
+                <div class="card-tools">
+                    <a href="<?= base_url('interventi') ?>" class="btn btn-sm btn-primary">
+                        Vedi tutti
+                    </a>
+                </div>
             </div>
             <div class="card-body p-0">
                 <?php if (empty($ultimi_interventi)): ?>

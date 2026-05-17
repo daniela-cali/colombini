@@ -26,11 +26,11 @@
                 <?php endif; ?>
                 <span class="badge badge-info px-3 py-1">Tecnico</span>
             </div>
-            <div class="card-footer d-flex justify-content-between">
-                <a href="<?= base_url('sistema/tecnici') ?>" class="btn btn-sm btn-secondary">
+            <div class="card-footer clearfix">
+                <a href="<?= base_url('sistema/tecnici') ?>" class="btn btn-sm btn-secondary float-left">
                     <i class="fas fa-arrow-left mr-1"></i> Elenco
                 </a>
-                <div>
+                <div class="float-right">
                     <a href="<?= base_url('sistema/tecnici/' . $tecnico->id . '/edit') ?>"
                        class="btn btn-sm btn-outline-primary mr-1">
                         <i class="fas fa-edit mr-1"></i> Modifica

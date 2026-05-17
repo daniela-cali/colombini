@@ -37,6 +37,7 @@
                            class="form-control"
                            placeholder="Nome utente"
                            value="<?= esc(old('username')) ?>"
+                           autocomplete = "username"
                            autofocus>
                     <div class="input-group-append">
                         <div class="input-group-text"><i class="fas fa-user"></i></div>
@@ -48,7 +49,8 @@
                            id="password"
                            name="password"
                            class="form-control"
-                           placeholder="Password">
+                           placeholder="Password"
+                           autocomplete="current-password">
                     <div class="input-group-append">
                         <span class="input-group-text" id="togglePassword"
                               title="Mostra/nascondi password"

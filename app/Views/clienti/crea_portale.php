@@ -62,11 +62,11 @@
                                placeholder="Ripeti la password">
                     </div>
 
-                    <div class="card-footer px-0 pb-0 d-flex justify-content-between">
-                        <a href="<?= base_url('clienti/' . $cliente['id']) ?>" class="btn btn-secondary">
+                    <div class="card-footer px-0 pb-0 clearfix">
+                        <a href="<?= base_url('clienti/' . $cliente['id']) ?>" class="btn btn-secondary float-left">
                             <i class="fas fa-times mr-1"></i> Annulla
                         </a>
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-primary float-right">
                             <i class="fas fa-key mr-1"></i> Crea accesso
                         </button>
                     </div>

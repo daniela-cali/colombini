@@ -7,11 +7,13 @@
 
 <?= $this->section('content') ?>
 <div class="card card-outline card-primary">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header">
         <h3 class="card-title">Tipi di intervento</h3>
-        <a href="<?= base_url('sistema/tipi-intervento/new') ?>" class="btn btn-primary btn-sm">
-            <i class="fas fa-plus mr-1"></i> Nuovo tipo
-        </a>
+        <div class="card-tools">
+            <a href="<?= base_url('sistema/tipi-intervento/new') ?>" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus mr-1"></i> Nuovo tipo
+            </a>
+        </div>
     </div>
     <div class="card-body p-0">
         <?php if (empty($tipi)): ?>

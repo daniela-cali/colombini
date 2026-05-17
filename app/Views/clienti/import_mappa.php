@@ -64,11 +64,11 @@
                     </table>
 
                 </div>
-                <div class="card-footer d-flex justify-content-between">
-                    <a href="<?= base_url('clienti/import') ?>" class="btn btn-secondary">
+                <div class="card-footer clearfix">
+                    <a href="<?= base_url('clienti/import') ?>" class="btn btn-secondary float-left">
                         <i class="fas fa-arrow-left mr-1"></i> Ricarica file
                     </a>
-                    <button type="submit" class="btn btn-success">
+                    <button type="submit" class="btn btn-success float-right">
                         <i class="fas fa-play mr-1"></i> Avvia import
                     </button>
                 </div>

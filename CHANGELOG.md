@@ -11,6 +11,21 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 
 ---
 
+## [0.10.1] — 2026-05-17
+
+### Corretto
+- **Adeguamento layout AdminLTE** — card-header con `.card-tools` (usa `margin-left: auto` nativo) al posto di `d-flex justify-content-between`; card-footer con `clearfix` + `float-left`/`float-right` per l'allineamento pulsanti Annulla/Salva; applicato su 22 view (clienti, tecnici, interventi, dashboard, impostazioni, sistema)
+- **Login** — attributi `autocomplete` corretti sui campi credenziali
+
+---
+
+## [0.10.0] — 2026-05-17
+
+### Aggiunto
+- **Censimento veicoli aziendali** — anagrafica veicoli (nome, targa) in Sistema / Configurazione: CRUD completo con migration, model, controller e views; voce "Veicoli" nella sidebar; targa univoca salvata automaticamente in maiuscolo
+
+---
+
 ## [0.9.0] — 2026-05-16
 
 ### Aggiunto

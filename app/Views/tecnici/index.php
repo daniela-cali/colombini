@@ -7,13 +7,15 @@
 
 <?= $this->section('content') ?>
 <div class="card card-outline card-primary">
-    <div class="card-header d-flex justify-content-between align-items-center">
+    <div class="card-header">
         <h3 class="card-title">Elenco tecnici</h3>
-        <a href="<?= base_url('sistema/tecnici/new') ?>" class="btn btn-primary btn-sm">
-            <i class="fas fa-plus mr-1"></i>
-            <span class="d-none d-sm-inline">Nuovo tecnico</span>
-            <span class="d-sm-none">Nuovo</span>
-        </a>
+        <div class="card-tools">
+            <a href="<?= base_url('sistema/tecnici/new') ?>" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus mr-1"></i>
+                <span class="d-none d-sm-inline">Nuovo tecnico</span>
+                <span class="d-sm-none">Nuovo</span>
+            </a>
+        </div>
     </div>
     <div class="card-body p-0">
         <?php if (empty($tecnici)): ?>

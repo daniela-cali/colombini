@@ -10,11 +10,13 @@
 <div class="row">
     <div class="col-12">
         <div class="card card-outline card-primary">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header">
                 <h3 class="card-title">Utenti con accesso al gestionale</h3>
-                <a href="<?= base_url('impostazioni/utenti-app/new') ?>" class="btn btn-primary btn-sm">
-                    <i class="fas fa-plus mr-1"></i> Nuovo utente
-                </a>
+                <div class="card-tools">
+                    <a href="<?= base_url('impostazioni/utenti-app/new') ?>" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus mr-1"></i> Nuovo utente
+                    </a>
+                </div>
             </div>
             <div class="card-body p-0">
                 <?php

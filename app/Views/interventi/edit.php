@@ -23,13 +23,13 @@
         <?php endif; ?>
 
         <div class="card card-outline card-primary">
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="card-header">
                 <h3 class="card-title">Modifica Intervento #<?= $intervento['id'] ?></h3>
-                <div class="d-flex align-items-center ml-auto">
+                <div class="card-tools">
                     <?php $s = $stati[$intervento['stato']] ?? ['label' => $intervento['stato'], 'badge' => 'badge-secondary']; ?>
                     <span class="badge badge-light text-dark px-3 py-2"><?= $s['label'] ?></span>
                     <?php $from = service('request')->getGet('from'); if ($from): ?>
-                    <a href="<?= base_url($from) ?>" class="btn btn-sm btn-outline-light ml-2" title="Torna a <?= esc($from) ?>">
+                    <a href="<?= base_url($from) ?>" class="btn btn-sm btn-outline-secondary ml-2" title="Torna a <?= esc($from) ?>">
                         <i class="fas fa-times"></i>
                     </a>
                     <?php endif; ?>
@@ -193,11 +193,11 @@
                     </div>
 
                 </div>
-                <div class="card-footer d-flex justify-content-between">
-                    <a href="<?= base_url('interventi/' . $intervento['id']) ?>" class="btn btn-secondary">
+                <div class="card-footer clearfix">
+                    <a href="<?= base_url('interventi/' . $intervento['id']) ?>" class="btn btn-secondary float-left">
                         <i class="fas fa-times mr-1"></i> Annulla
                     </a>
-                    <button type="submit" class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary float-right">
                         <i class="fas fa-save mr-1"></i> Salva modifiche
                     </button>
                 </div>
