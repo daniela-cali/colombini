@@ -74,6 +74,18 @@
                     </div>
 
                     <div class="form-group">
+                        <div class="custom-control custom-switch">
+                            <input type="hidden" name="richiede_cambio_auto" value="0">
+                            <input type="checkbox" class="custom-control-input" id="richiede_cambio_auto"
+                                   name="richiede_cambio_auto" value="1"
+                                   <?= old('richiede_cambio_auto', $tecnico->richiede_cambio_auto ?? 0) ? 'checked' : '' ?>>
+                            <label class="custom-control-label" for="richiede_cambio_auto">
+                                Richiede veicolo con cambio automatico
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label for="ruolo">Ruolo <span class="text-danger">*</span></label>
                         <select name="ruolo" id="ruolo" class="form-control" required>
                             <?php foreach (\App\Models\UserModel::RUOLI as $key => $label):

@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\TipoInterventoModel;
 use App\Models\InterventoModel;
 use App\Models\TecnicoOrarioModel;
+use App\Models\TecnicoCompetenzaModel;
 use App\Models\UserModel;
 use CodeIgniter\Shield\Entities\User;
 
@@ -59,8 +60,9 @@ class Tecnici extends BaseController
             'nome'     => $this->request->getPost('nome'),
             'cognome'  => $this->request->getPost('cognome'),
             'telefono' => $this->request->getPost('telefono'),
-            'colore'   => $this->request->getPost('colore') ?: null,
-            'ruolo'    => 'tecnico',
+            'colore'              => $this->request->getPost('colore') ?: null,
+            'ruolo'               => 'tecnico',
+            'richiede_cambio_auto' => (int) ($this->request->getPost('richiede_cambio_auto') ?? 0),
         ]);
 
         $users->save($user);
@@ -87,7 +89,14 @@ class Tecnici extends BaseController
         }
 
         $interventi = new InterventoModel();
-        $orariModel = new TecnicoOrarioModel();
+        $orariModel      = new TecnicoOrarioModel();
+        $competenzeModel = new TecnicoCompetenzaModel();
+        $tipiModel       = new TipoInterventoModel();
+
+        $competenze = [];
+        foreach ($competenzeModel->perTecnico($id) as $c) {
+            $competenze[$c['tipo_intervento_id']] = $c['livello'];
+        }
 
         return view('tecnici/show', [
             'title'          => 'Scheda Tecnico',
@@ -104,6 +113,9 @@ class Tecnici extends BaseController
                 'pausa_inizio' => setting('Tecnici.pausa_inizio')    ?? '13:00',
                 'pausa_fine'   => setting('Tecnici.pausa_fine')      ?? '14:00',
             ],
+            'tipiTutti'      => $tipiModel->orderBy('ordine')->findAll(),
+            'competenze'     => $competenze,
+            'livelliLabel'   => TecnicoCompetenzaModel::LIVELLI,
         ]);
     }
 
@@ -156,11 +168,12 @@ class Tecnici extends BaseController
         $nuovoRuolo = $this->request->getPost('ruolo');
 
         $users->update($id, [
-            'nome'     => $this->request->getPost('nome'),
-            'cognome'  => $this->request->getPost('cognome'),
-            'telefono' => $this->request->getPost('telefono') ?: null,
-            'colore'   => $this->request->getPost('colore') ?: null,
-            'ruolo'    => $nuovoRuolo,
+            'nome'                => $this->request->getPost('nome'),
+            'cognome'             => $this->request->getPost('cognome'),
+            'telefono'            => $this->request->getPost('telefono') ?: null,
+            'colore'              => $this->request->getPost('colore') ?: null,
+            'ruolo'               => $nuovoRuolo,
+            'richiede_cambio_auto' => (int) ($this->request->getPost('richiede_cambio_auto') ?? 0),
         ]);
 
         if ($tecnico->ruolo !== $nuovoRuolo) {
@@ -189,6 +202,21 @@ class Tecnici extends BaseController
         $orariModel->salva($id, $this->request->getPost());
 
         return redirect()->to('sistema/tecnici/' . $id)->with('success', 'Orari di lavoro aggiornati.');
+    }
+
+    public function competenzeUpdate(int $id)
+    {
+        $users   = new UserModel();
+        $tecnico = $users->find($id);
+
+        if (! $tecnico || $tecnico->ruolo !== 'tecnico') {
+            return redirect()->to('sistema/tecnici')->with('error', 'Tecnico non trovato.');
+        }
+
+        $competenzeModel = new TecnicoCompetenzaModel();
+        $competenzeModel->salva($id, $this->request->getPost());
+
+        return redirect()->to('sistema/tecnici/' . $id)->with('success', 'Competenze aggiornate.');
     }
 
     public function delete(int $id)

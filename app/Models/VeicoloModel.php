@@ -9,7 +9,7 @@ class VeicoloModel extends Model
     protected $table      = 'veicoli';
     protected $primaryKey = 'id';
 
-    protected $allowedFields = ['nome', 'targa', 'attivo'];
+    protected $allowedFields = ['nome', 'targa', 'cambio_automatico', 'carico_massimo', 'attivo'];
 
     protected $useTimestamps = true;
 

@@ -44,6 +44,24 @@
                                style="text-transform:uppercase;">
                     </div>
 
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Carico massimo (kg)</label>
+                            <input type="number" name="carico_massimo" class="form-control"
+                                   value="<?= esc(old('carico_massimo', $veicolo['carico_massimo'])) ?>"
+                                   min="0" placeholder="Lascia vuoto se non rilevante">
+                        </div>
+                        <div class="form-group col-md-6 d-flex align-items-end pb-2">
+                            <div class="custom-control custom-switch">
+                                <input type="hidden" name="cambio_automatico" value="0">
+                                <input type="checkbox" class="custom-control-input" id="cambio_automatico"
+                                       name="cambio_automatico" value="1"
+                                       <?= old('cambio_automatico', $veicolo['cambio_automatico']) ? 'checked' : '' ?>>
+                                <label class="custom-control-label" for="cambio_automatico">Cambio automatico</label>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <div class="custom-control custom-switch">
                             <input type="hidden" name="attivo" value="0">

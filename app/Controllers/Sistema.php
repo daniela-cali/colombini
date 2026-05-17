@@ -172,9 +172,11 @@ class Sistema extends BaseController
 
         $model = new VeicoloModel();
         $model->insert([
-            'nome'  => $this->request->getPost('nome'),
-            'targa' => strtoupper($this->request->getPost('targa')),
-            'attivo' => 1,
+            'nome'              => $this->request->getPost('nome'),
+            'targa'             => strtoupper($this->request->getPost('targa')),
+            'cambio_automatico' => (int) ($this->request->getPost('cambio_automatico') ?? 0),
+            'carico_massimo'    => $this->request->getPost('carico_massimo') !== '' ? (int) $this->request->getPost('carico_massimo') : null,
+            'attivo'            => 1,
         ]);
 
         return redirect()->to('sistema/veicoli')->with('success', 'Veicolo aggiunto.');
@@ -219,9 +221,11 @@ class Sistema extends BaseController
         }
 
         $model->update($id, [
-            'nome'   => $this->request->getPost('nome'),
-            'targa'  => strtoupper($this->request->getPost('targa')),
-            'attivo' => (int) ($this->request->getPost('attivo') ?? 1),
+            'nome'              => $this->request->getPost('nome'),
+            'targa'             => strtoupper($this->request->getPost('targa')),
+            'cambio_automatico' => (int) ($this->request->getPost('cambio_automatico') ?? 0),
+            'carico_massimo'    => $this->request->getPost('carico_massimo') !== '' ? (int) $this->request->getPost('carico_massimo') : null,
+            'attivo'            => (int) ($this->request->getPost('attivo') ?? 1),
         ]);
 
         return redirect()->to('sistema/veicoli')->with('success', 'Veicolo aggiornato.');
