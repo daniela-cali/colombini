@@ -26,6 +26,13 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
     $routes->get('/',         'Dashboard::index');
     $routes->get('dashboard', 'Dashboard::index');
 
+    $routes->group('viaggi', function (RouteCollection $routes) {
+        $routes->get('/',                   'Viaggi::index');
+        $routes->get('(:num)',              'Viaggi::show/$1');
+        $routes->post('(:num)/autorizza',   'Viaggi::autorizza/$1');
+        $routes->post('(:num)/annulla',     'Viaggi::annulla/$1');
+    });
+
     $routes->group('calendario', function (RouteCollection $routes) {
         $routes->get('/',       'Calendario::index');
         $routes->get('eventi',  'Calendario::eventi');

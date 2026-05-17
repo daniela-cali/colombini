@@ -109,6 +109,7 @@ class Clienti extends BaseController
             'title'      => 'Modifica Cliente',
             'page_title' => 'Modifica Cliente',
             'cliente'    => $cliente,
+            'from'       => $this->request->getGet('from') ?? '',
         ]);
     }
 
@@ -147,7 +148,12 @@ class Clienti extends BaseController
 
         $this->geocodifica($model, $id);
 
-        return redirect()->to('clienti/' . $id)->with('success', 'Cliente aggiornato.');
+        $from = $this->request->getPost('_from');
+        $redirectTo = ($from && preg_match('/^[a-zA-Z0-9\/_-]+$/', $from))
+            ? $from
+            : 'clienti/' . $id;
+
+        return redirect()->to($redirectTo)->with('success', 'Cliente aggiornato.');
     }
 
     public function delete(int $id)

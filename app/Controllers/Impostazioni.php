@@ -296,17 +296,25 @@ class Impostazioni extends BaseController
         $clienti = new ClienteModel();
 
         $totale    = $clienti->where('stato', 1)->countAllResults();
-        $geocodati = $clienti->where('stato', 1)->whereNotNull('geocoded_at')->countAllResults();
+        $geocodati = $clienti->where('stato', 1)->where('geocoded_at IS NOT NULL')->countAllResults();
         $falliti   = $clienti->where('stato', 1)->where('geocoded_at IS NULL')->where('geocodifica_fallita', 1)->countAllResults();
         $daFare    = $clienti->where('stato', 1)->where('geocoded_at IS NULL')->where('geocodifica_fallita', 0)->countAllResults();
 
+        $clientiFalliti = (new ClienteModel())
+            ->where('stato', 1)
+            ->where('geocoded_at IS NULL')
+            ->where('geocodifica_fallita', 1)
+            ->orderBy('ragsoc, cognome')
+            ->findAll();
+
         return view('impostazioni/geocodifica', [
-            'title'      => 'Geocodifica Clienti',
-            'page_title' => 'Geocodifica Clienti',
-            'totale'     => $totale,
-            'geocodati'  => $geocodati,
-            'falliti'    => $falliti,
-            'da_fare'    => $daFare,
+            'title'           => 'Geocodifica Clienti',
+            'page_title'      => 'Geocodifica Clienti',
+            'totale'          => $totale,
+            'geocodati'       => $geocodati,
+            'falliti'         => $falliti,
+            'da_fare'         => $daFare,
+            'clienti_falliti' => $clientiFalliti,
         ]);
     }
 

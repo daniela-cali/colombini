@@ -43,6 +43,12 @@
                         <p>Calendario</p>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="<?= base_url('viaggi') ?>" class="nav-link <?= str_starts_with(uri_string(), 'viaggi') ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-route"></i>
+                        <p>Viaggi</p>
+                    </a>
+                </li>
 
                 <!-- Anagrafiche -->
                 <li class="nav-header">Anagrafiche</li>

@@ -26,6 +26,9 @@ In AdminLTE 3, non usare `d-flex justify-content-between` su `.card-header` e `.
 </div>
 ```
 
+## View Help
+Per ogni nuova view creare sempre il corrispondente file help in `app/Views/help/<sezione>/<nome_view>.php`, seguendo il pattern delle help esistenti: titoletti `<h5>` con icona FontAwesome, paragrafi `<p>`, eventuale `.badge-tip` per suggerimenti. La view principale include il file con `<?= $this->include('help/<sezione>/<nome_view>') ?>` dentro la sezione `help`.
+
 ## Changelog
 Prima di ogni commit aggiornare `CHANGELOG.md` seguendo il pattern markdown esistente e includerlo nella stessa commit.
 Il sistema confronta `CHANGELOG.md` con il campo `users.ultima_versione_vista` per mostrare le novità all'avvio dell'applicazione.

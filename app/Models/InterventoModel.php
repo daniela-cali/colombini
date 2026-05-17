@@ -30,6 +30,9 @@ class InterventoModel extends Model
         'note_interne',
         'note_chiusura',
         'stato',
+        'priorita',
+        'fissato',
+        'ora_inizio',
     ];
 
     public static function getDurata(string $tipo): int
@@ -42,10 +45,17 @@ class InterventoModel extends Model
     }
 
     public const STATI = [
-        'pianificato' => ['label' => 'Pianificato', 'badge' => 'badge-secondary'],
-        'in_corso'    => ['label' => 'In corso',    'badge' => 'badge-warning'],
-        'completato'  => ['label' => 'Completato',  'badge' => 'badge-success'],
-        'annullato'   => ['label' => 'Annullato',   'badge' => 'badge-danger'],
+        'da_pianificare' => ['label' => 'Da pianificare', 'badge' => 'badge-info'],
+        'pianificato'    => ['label' => 'Pianificato',    'badge' => 'badge-secondary'],
+        'in_corso'       => ['label' => 'In corso',       'badge' => 'badge-warning'],
+        'completato'     => ['label' => 'Completato',     'badge' => 'badge-success'],
+        'annullato'      => ['label' => 'Annullato',      'badge' => 'badge-danger'],
+    ];
+
+    public const PRIORITA = [
+        'urgente'     => ['label' => 'Urgente',     'badge' => 'badge-danger'],
+        'ordinario'   => ['label' => 'Ordinario',   'badge' => 'badge-secondary'],
+        'programmato' => ['label' => 'Programmato', 'badge' => 'badge-info'],
     ];
 
     public function riepilogoPerTecnico(): array

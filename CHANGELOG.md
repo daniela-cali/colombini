@@ -13,6 +13,8 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 - **VRP — Competenze tecnici** — tabella `tecnici_competenze` (FK su users e tipi_intervento, livelli: Apprendista / Autonomo / Referente); form inline nella scheda tecnico per assegnare il livello per ogni tipo intervento
 - **VRP — Requisiti veicoli** — colonne `cambio_automatico` e `carico_massimo` su `veicoli`; flag `richiede_cambio_auto` su `users`; form aggiornati per tecnici e veicoli
 - **VRP — Geocodifica clienti (Fase 2)** — colonna `geocodifica_fallita` su `clienti`; badge colorati nell'elenco e scheda clienti (rosso = mai tentato, arancio = fallito); utility in Impostazioni con barra progresso AJAX passo-passo, contatori riepilogo e opzione "Riprova falliti"
+- **VRP — Sezione Viaggi e tabelle DB (Fase 3)** — nuove tabelle `viaggi` e `viaggi_tappe`; colonne `priorita` (urgente/ordinario/programmato), `fissato`, `ora_inizio` su `interventi`; nuovo stato `da_pianificare`; `veicolo_id` opzionale su `users`; controller/views Viaggi con elenco per data, dettaglio tappe, autorizzazione e annullamento viaggio; voce "Viaggi" in sidebar
+- **Geocodifica** — elenco clienti con indirizzo non trovato nella utility, con link diretto alla modifica; redirect automatico alla pagina di provenienza dopo il salvataggio (`_from` hidden field)
 
 ---
 

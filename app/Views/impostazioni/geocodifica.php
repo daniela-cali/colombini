@@ -100,6 +100,55 @@
             </div>
         </div>
 
+        <?php if (! empty($clienti_falliti)): ?>
+        <div class="card card-outline card-warning">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-exclamation-triangle mr-1 text-warning"></i>
+                    Indirizzi non trovati
+                </h3>
+                <div class="card-tools">
+                    <span class="badge badge-warning"><?= count($clienti_falliti) ?></span>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0">
+                    <thead>
+                        <tr>
+                            <th>Codice</th>
+                            <th>Cliente</th>
+                            <th class="d-none d-md-table-cell">Indirizzo</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($clienti_falliti as $c): ?>
+                        <tr>
+                            <td class="text-muted small align-middle"><?= esc($c['codice']) ?></td>
+                            <td class="align-middle">
+                                <?php if ($c['tipo'] === 'persona_fisica'): ?>
+                                    <?= esc(trim(($c['cognome'] ?? '') . ' ' . ($c['nome'] ?? ''))) ?>
+                                <?php else: ?>
+                                    <?= esc($c['ragsoc'] ?? '') ?>
+                                <?php endif; ?>
+                            </td>
+                            <td class="d-none d-md-table-cell align-middle text-muted small">
+                                <?= esc(trim(($c['indirizzo'] ?? '') . ', ' . ($c['citta'] ?? ''))) ?>
+                            </td>
+                            <td class="text-right align-middle">
+                                <a href="<?= base_url('clienti/' . $c['id'] . '/edit?from=impostazioni/geocodifica') ?>"
+                                   class="btn btn-xs btn-outline-warning" title="Correggi indirizzo">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <div class="text-right">
             <a href="<?= base_url('impostazioni') ?>" class="btn btn-secondary btn-sm">
                 <i class="fas fa-arrow-left mr-1"></i> Torna alle impostazioni
@@ -109,6 +158,10 @@
     </div>
 </div>
 
+<?= $this->endSection() ?>
+
+<?= $this->section('help') ?>
+<?= $this->include('help/impostazioni/geocodifica') ?>
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>

@@ -28,6 +28,9 @@
             </div>
             <form method="post" action="<?= base_url('clienti/' . $cliente['id']) ?>">
                 <?= csrf_field() ?>
+                <?php if ($from ?? ''): ?>
+                    <input type="hidden" name="_from" value="<?= esc($from) ?>">
+                <?php endif; ?>
                 <div class="card-body">
 
                     <!-- Tipo cliente -->
