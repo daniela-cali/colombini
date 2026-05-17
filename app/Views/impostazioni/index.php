@@ -8,7 +8,7 @@
 <?= $this->section('content') ?>
 <div class="row">
 
-    <div class="col-md-4">
+    <div class="col-md-4 mb-4">
         <a href="<?= base_url('impostazioni/utenti-app') ?>" class="text-decoration-none">
             <div class="card card-outline card-primary h-100">
                 <div class="card-body text-center py-4">
@@ -22,7 +22,7 @@
         </a>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-4 mb-4">
         <a href="<?= base_url('impostazioni/utenti') ?>" class="text-decoration-none">
             <div class="card card-outline card-primary h-100">
                 <div class="card-body text-center py-4">
@@ -36,7 +36,7 @@
         </a>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-4 mb-4">
         <a href="<?= base_url('impostazioni/parametri') ?>" class="text-decoration-none">
             <div class="card card-outline card-primary h-100">
                 <div class="card-body text-center py-4">
@@ -50,7 +50,21 @@
         </a>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-4 mb-4">
+        <a href="<?= base_url('impostazioni/geocodifica') ?>" class="text-decoration-none">
+            <div class="card card-outline card-primary h-100">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-map-marked-alt fa-3x mb-3" style="color: var(--clr-teal);"></i>
+                    <h5 class="card-title">Geocodifica Clienti</h5>
+                    <p class="text-muted small mb-0">
+                        Verifica e aggiorna le coordinate geografiche dei clienti per l'ottimizzazione dei percorsi.
+                    </p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-4 mb-4">
         <div class="card card-outline card-secondary h-100">
             <div class="card-body text-center py-4 text-muted">
                 <i class="fas fa-envelope fa-3x mb-3"></i>

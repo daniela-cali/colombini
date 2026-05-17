@@ -160,6 +160,38 @@
             </div>
         </div>
 
+        <?php if (empty($cliente['geocoded_at'])): ?>
+        <?php if ($cliente['geocodifica_fallita'] ?? 0): ?>
+        <div class="card card-outline card-warning" id="card-geo-fallita">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-exclamation-triangle text-warning fa-lg mr-3 flex-shrink-0"></i>
+                    <div class="flex-grow-1">
+                        <strong class="text-warning">Geocodifica fallita</strong><br>
+                        <small class="text-muted">L'indirizzo non è stato trovato. Verifica i dati nel form di modifica oppure riprova.</small>
+                    </div>
+                    <button id="btn-geocodifica" type="button" class="btn btn-sm btn-outline-warning ml-3 flex-shrink-0">
+                        <i class="fas fa-redo mr-1"></i> Riprova
+                    </button>
+                </div>
+                <div id="geo-msg" class="mt-2" style="display:none;"></div>
+            </div>
+        </div>
+        <?php else: ?>
+        <div class="card card-outline card-danger">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-exclamation-triangle text-danger fa-lg mr-3"></i>
+                    <div>
+                        <strong class="text-danger">Coordinate mancanti</strong><br>
+                        <small class="text-muted">Questo cliente non è geocodificato e verrà escluso dall'ottimizzazione dei percorsi. Verifica l'indirizzo e usa il pulsante "Verifica indirizzo" nel form di modifica.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+        <?php endif; ?>
+
         <?php if (!empty($cliente['lat']) && !empty($cliente['lng'])): ?>
         <div class="card card-outline card-secondary">
             <div class="card-header">
@@ -190,6 +222,43 @@
 <?= $this->section('help') ?>
 <?= $this->include('help/clienti/show') ?>
 <?= $this->endSection() ?>
+
+<?php if ($cliente['geocodifica_fallita'] ?? 0): ?>
+<?= $this->section('scripts') ?>
+<script>
+(function () {
+    var btn = document.getElementById('btn-geocodifica');
+    if (! btn) return;
+    btn.addEventListener('click', function () {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> In corso…';
+        fetch('<?= base_url('clienti/' . $cliente['id'] . '/geocodifica') ?>', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: '<?= csrf_token() ?>=<?= csrf_hash() ?>'
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (json) {
+            if (json.esito === 'ok') {
+                location.reload();
+            } else {
+                var msg = document.getElementById('geo-msg');
+                msg.innerHTML = '<small class="text-danger"><i class="fas fa-times-circle mr-1"></i>' +
+                    (json.msg || 'Geocodifica fallita.') + '</small>';
+                msg.style.display = '';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-redo mr-1"></i> Riprova';
+            }
+        })
+        .catch(function () {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-redo mr-1"></i> Riprova';
+        });
+    });
+})();
+</script>
+<?= $this->endSection() ?>
+<?php endif; ?>
 
 <?php if (!empty($cliente['lat']) && !empty($cliente['lng'])): ?>
 <?= $this->section('styles') ?>

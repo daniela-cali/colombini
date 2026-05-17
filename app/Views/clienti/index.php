@@ -80,6 +80,17 @@
                                         <?= esc($c['ragsoc'] ?? '') ?>
                                     <?php endif; ?>
                                 </a>
+                                <?php if (empty($c['geocoded_at'])): ?>
+                                    <?php if ($c['geocodifica_fallita'] ?? 0): ?>
+                                        <span class="badge badge-warning ml-1" title="Geocodifica fallita — indirizzo non trovato">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge badge-danger ml-1" title="Non geocodificato — escluso dall'ottimizzazione">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                        </span>
+                                    <?php endif; ?>
+                                <?php endif; ?>
                                 <?php if ($c['citta'] ?? ''): ?>
                                     <br><small class="text-muted d-lg-none"><?= esc($c['citta']) ?></small>
                                 <?php endif; ?>

@@ -3,7 +3,10 @@
 namespace App\Controllers;
 
 use App\Models\UserModel;
+use App\Models\ClienteModel;
 use App\Models\TipoInterventoModel;
+use App\Services\GeocoderService;
+use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\Shield\Entities\User;
 
 class Impostazioni extends BaseController
@@ -286,5 +289,80 @@ class Impostazioni extends BaseController
         $users->delete($id, true);
 
         return redirect()->to('impostazioni/utenti')->with('success', 'Utente eliminato.');
+    }
+
+    public function geocodifica(): string
+    {
+        $clienti = new ClienteModel();
+
+        $totale    = $clienti->where('stato', 1)->countAllResults();
+        $geocodati = $clienti->where('stato', 1)->whereNotNull('geocoded_at')->countAllResults();
+        $falliti   = $clienti->where('stato', 1)->where('geocoded_at IS NULL')->where('geocodifica_fallita', 1)->countAllResults();
+        $daFare    = $clienti->where('stato', 1)->where('geocoded_at IS NULL')->where('geocodifica_fallita', 0)->countAllResults();
+
+        return view('impostazioni/geocodifica', [
+            'title'      => 'Geocodifica Clienti',
+            'page_title' => 'Geocodifica Clienti',
+            'totale'     => $totale,
+            'geocodati'  => $geocodati,
+            'falliti'    => $falliti,
+            'da_fare'    => $daFare,
+        ]);
+    }
+
+    public function geocodificaStep(): ResponseInterface
+    {
+        $force   = (bool) $this->request->getPost('force');
+        $clienti = new ClienteModel();
+        $geocoder = new GeocoderService();
+
+        $query = $clienti->where('stato', 1)->where('geocoded_at IS NULL');
+        if (! $force) {
+            $query->where('geocodifica_fallita', 0);
+        }
+
+        $cliente = $query->orderBy('id', 'ASC')->first();
+
+        if (! $cliente) {
+            return $this->response->setJSON(['done' => true]);
+        }
+
+        $coords = $geocoder->geocode(
+            $cliente['indirizzo'] ?? '',
+            $cliente['citta']     ?? '',
+            $cliente['cap']       ?? ''
+        );
+
+        $rimanenti = $clienti->where('stato', 1)
+                             ->where('geocoded_at IS NULL')
+                             ->where('geocodifica_fallita', 0)
+                             ->countAllResults();
+
+        if ($coords) {
+            $clienti->update($cliente['id'], [
+                'lat'                 => $coords['lat'],
+                'lng'                 => $coords['lng'],
+                'geocoded_at'         => date('Y-m-d H:i:s'),
+                'geocodifica_fallita' => 0,
+            ]);
+            $esito = 'ok';
+        } else {
+            $clienti->update($cliente['id'], [
+                'geocodifica_fallita' => 1,
+            ]);
+            $esito     = 'fallito';
+            $rimanenti = max(0, $rimanenti - 1);
+        }
+
+        $nomeDisplay = $cliente['tipo'] === 'persona_fisica'
+            ? trim(($cliente['cognome'] ?? '') . ' ' . ($cliente['nome'] ?? ''))
+            : ($cliente['ragsoc'] ?? '');
+
+        return $this->response->setJSON([
+            'done'       => false,
+            'esito'      => $esito,
+            'cliente'    => $nomeDisplay,
+            'rimanenti'  => $rimanenti,
+        ]);
     }
 }

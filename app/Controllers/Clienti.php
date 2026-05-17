@@ -352,6 +352,44 @@ class Clienti extends BaseController
         ]);
     }
 
+    public function geocodificaSingolo(int $id)
+    {
+        $model   = new ClienteModel();
+        $cliente = $model->find($id);
+
+        if (! $cliente) {
+            return $this->response->setJSON(['esito' => 'errore', 'msg' => 'Cliente non trovato.']);
+        }
+
+        if (! ($cliente['indirizzo'] ?? '') || ! ($cliente['citta'] ?? '')) {
+            return $this->response->setJSON(['esito' => 'errore', 'msg' => 'Indirizzo o città mancanti.']);
+        }
+
+        $geo = (new GeocoderService())->geocode(
+            $cliente['indirizzo'],
+            $cliente['citta'],
+            $cliente['cap'] ?? ''
+        );
+
+        if ($geo) {
+            $model->update($id, [
+                'lat'                 => $geo['lat'],
+                'lng'                 => $geo['lng'],
+                'geocoded_at'         => date('Y-m-d H:i:s'),
+                'geocodifica_fallita' => 0,
+            ]);
+            return $this->response->setJSON(['esito' => 'ok']);
+        }
+
+        $model->update($id, [
+            'lat'                 => null,
+            'lng'                 => null,
+            'geocoded_at'         => null,
+            'geocodifica_fallita' => 1,
+        ]);
+        return $this->response->setJSON(['esito' => 'fallito', 'msg' => 'Indirizzo non trovato dal servizio di geocodifica.']);
+    }
+
     private function geocodifica(ClienteModel $model, int $id): void
     {
         $indirizzo = $this->request->getPost('indirizzo');
@@ -367,9 +405,17 @@ class Clienti extends BaseController
 
         if ($geo) {
             $model->update($id, [
-                'lat'         => $geo['lat'],
-                'lng'         => $geo['lng'],
-                'geocoded_at' => date('Y-m-d H:i:s'),
+                'lat'                 => $geo['lat'],
+                'lng'                 => $geo['lng'],
+                'geocoded_at'         => date('Y-m-d H:i:s'),
+                'geocodifica_fallita' => 0,
+            ]);
+        } else {
+            $model->update($id, [
+                'lat'                 => null,
+                'lng'                 => null,
+                'geocoded_at'         => null,
+                'geocodifica_fallita' => 1,
             ]);
         }
     }

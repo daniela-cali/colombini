@@ -9,6 +9,11 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 
 ## [Non rilasciato]
 
+### Aggiunto (branch feature/pianificazione-vrp)
+- **VRP — Competenze tecnici** — tabella `tecnici_competenze` (FK su users e tipi_intervento, livelli: Apprendista / Autonomo / Referente); form inline nella scheda tecnico per assegnare il livello per ogni tipo intervento
+- **VRP — Requisiti veicoli** — colonne `cambio_automatico` e `carico_massimo` su `veicoli`; flag `richiede_cambio_auto` su `users`; form aggiornati per tecnici e veicoli
+- **VRP — Geocodifica clienti (Fase 2)** — colonna `geocodifica_fallita` su `clienti`; badge colorati nell'elenco e scheda clienti (rosso = mai tentato, arancio = fallito); utility in Impostazioni con barra progresso AJAX passo-passo, contatori riepilogo e opzione "Riprova falliti"
+
 ---
 
 ## [0.10.1] — 2026-05-17

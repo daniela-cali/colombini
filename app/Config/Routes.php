@@ -44,6 +44,7 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
         $routes->get('(:num)/edit',         'Clienti::edit/$1');
         $routes->post('(:num)',             'Clienti::update/$1');
         $routes->post('(:num)/elimina',     'Clienti::delete/$1');
+        $routes->post('(:num)/geocodifica',  'Clienti::geocodificaSingolo/$1');
         $routes->get('(:num)/portale',      'Clienti::creaPortale/$1');
         $routes->post('(:num)/portale',     'Clienti::storePortale/$1');
     });
@@ -150,6 +151,9 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
 
         $routes->get('parametri',  'Impostazioni::parametri');
         $routes->post('parametri', 'Impostazioni::salvaParametri');
+
+        $routes->get('geocodifica',       'Impostazioni::geocodifica');
+        $routes->post('geocodifica-step', 'Impostazioni::geocodificaStep');
 
         $routes->group('utenti', function (RouteCollection $routes) {
             $routes->get('/',                   'Impostazioni::utenti');
