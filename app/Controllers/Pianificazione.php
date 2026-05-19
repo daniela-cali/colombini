@@ -213,9 +213,9 @@ class Pianificazione extends BaseController
     private function queryInterventi(): InterventoModel
     {
         return (new InterventoModel())
-            ->select('interventi.id, interventi.tipo_intervento, interventi.luogo_intervento,
-                      interventi.citta, interventi.priorita, interventi.data_pianificata,
-                      interventi.cliente_id,
+            ->select('interventi.id, interventi.tipo_intervento, interventi.descrizione,
+                      interventi.luogo_intervento, interventi.citta, interventi.priorita,
+                      interventi.data_pianificata, interventi.cliente_id,
                       c.ragsoc, c.cognome AS cliente_cognome, c.nome AS cliente_nome, c.tipo AS cliente_tipo')
             ->join('clienti c', 'c.id = interventi.cliente_id AND c.deleted_at IS NULL', 'left');
     }

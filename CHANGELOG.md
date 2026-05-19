@@ -32,6 +32,7 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 - **Doppio ruolo admin+tecnico** — flag `assegnabile_interventi` su `users`: un admin (o staff/operativo) con questo flag attivo compare nelle liste tecnici, può essere assegnato agli interventi e ha accesso alla scheda tecnico (orari, competenze, veicolo)
 
 ### Corretto
+- **Pianificazione — modal pool** — descrizione intervento assente dalla modal: aggiunto `descrizione` alla SELECT della `queryInterventi`
 - **Geocodifica massiva** — loop infinito in modalità "Riprova falliti": aggiunto tracking `after_id` per avanzare sempre per ID crescente anche quando un cliente rimane nello stato fallito
 - **Creazione tecnico** — pausa pranzo non precompilata con i valori di configurazione default; ora viene valorizzata correttamente alla prima apertura
 - **Colore tecnico** — vincolo unicità con validazione CI4 `is_unique`; color picker mostra solo colori ancora liberi
