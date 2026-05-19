@@ -14,7 +14,8 @@ class TecnicoCompetenzaModel extends Model
     protected $useTimestamps = false;
 
     const LIVELLI = [
-        1 => 'Apprendista',
+        0 => 'Non competente',
+        1 => 'Base',
         2 => 'Autonomo',
         3 => 'Referente',
     ];
@@ -34,8 +35,10 @@ class TecnicoCompetenzaModel extends Model
 
         $batch = [];
         foreach ($tipi as $i => $tipoId) {
-            $livello = (int) ($livelli[$i] ?? 2);
-            if ($tipoId && in_array($livello, [1, 2, 3])) {
+            $livelloRaw = $livelli[$i] ?? '';
+            if ($livelloRaw === '' || $livelloRaw === null) continue;
+            $livello = (int) $livelloRaw;
+            if ($tipoId && in_array($livello, [0, 1, 2, 3])) {
                 $batch[] = [
                     'tecnico_id'         => $tecnicoId,
                     'tipo_intervento_id' => (int) $tipoId,

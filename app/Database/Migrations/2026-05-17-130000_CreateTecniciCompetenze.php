@@ -12,7 +12,7 @@ class CreateTecniciCompetenze extends Migration
             'id'                 => ['type' => 'INT', 'unsigned' => true, 'auto_increment' => true],
             'tecnico_id'         => ['type' => 'INT', 'unsigned' => true],
             'tipo_intervento_id' => ['type' => 'INT', 'unsigned' => true],
-            'livello'            => ['type' => 'TINYINT', 'constraint' => 1, 'default' => 2], // 1=apprendista 2=autonomo 3=referente
+            'livello'            => ['type' => 'TINYINT', 'constraint' => 1, 'default' => 2], // 1=base 2=autonomo 3=referente
         ]);
 
         $this->forge->addKey('id', true);

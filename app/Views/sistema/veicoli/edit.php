@@ -29,11 +29,25 @@
                 <?= csrf_field() ?>
                 <div class="card-body">
 
-                    <div class="form-group">
-                        <label>Nome <span class="text-danger">*</span></label>
-                        <input type="text" name="nome" class="form-control"
-                               value="<?= esc(old('nome', $veicolo['nome'])) ?>"
-                               required maxlength="100">
+                    <div class="form-row">
+                        <div class="form-group col-md-8">
+                            <label>Nome <span class="text-danger">*</span></label>
+                            <input type="text" name="nome" class="form-control"
+                                   value="<?= esc(old('nome', $veicolo['nome'])) ?>"
+                                   required maxlength="100">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>Tipologia</label>
+                            <select name="tipo" class="form-control">
+                                <option value="">— Nessuna —</option>
+                                <?php foreach ($tipi as $k => $v): ?>
+                                    <option value="<?= $k ?>"
+                                        <?= old('tipo', $veicolo['tipo']) === $k ? 'selected' : '' ?>>
+                                        <?= esc($v) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="form-group">

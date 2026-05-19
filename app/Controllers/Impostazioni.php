@@ -198,7 +198,7 @@ class Impostazioni extends BaseController
             ->with('success', 'Utente "' . $username . '" creato con successo.');
     }
 
-    public function editUtenteApp(int $id): string
+    public function editUtenteApp(int $id)
     {
         $users = new UserModel();
         $user  = $users->findById($id);
@@ -321,12 +321,16 @@ class Impostazioni extends BaseController
     public function geocodificaStep(): ResponseInterface
     {
         $force   = (bool) $this->request->getPost('force');
+        $afterId = (int)  $this->request->getPost('after_id');
         $clienti = new ClienteModel();
         $geocoder = new GeocoderService();
 
         $query = $clienti->where('stato', 1)->where('geocoded_at IS NULL');
         if (! $force) {
             $query->where('geocodifica_fallita', 0);
+        }
+        if ($afterId) {
+            $query->where('id >', $afterId);
         }
 
         $cliente = $query->orderBy('id', 'ASC')->first();
@@ -371,6 +375,7 @@ class Impostazioni extends BaseController
             'esito'      => $esito,
             'cliente'    => $nomeDisplay,
             'rimanenti'  => $rimanenti,
+            'after_id'   => (int) $cliente['id'],
         ]);
     }
 }

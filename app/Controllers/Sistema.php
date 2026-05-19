@@ -152,6 +152,7 @@ class Sistema extends BaseController
         return view('sistema/veicoli/create', [
             'title'      => 'Nuovo Veicolo',
             'page_title' => 'Nuovo Veicolo',
+            'tipi'       => VeicoloModel::TIPI,
         ]);
     }
 
@@ -173,6 +174,7 @@ class Sistema extends BaseController
         $model = new VeicoloModel();
         $model->insert([
             'nome'              => $this->request->getPost('nome'),
+            'tipo'              => $this->request->getPost('tipo') ?: null,
             'targa'             => strtoupper($this->request->getPost('targa')),
             'cambio_automatico' => (int) ($this->request->getPost('cambio_automatico') ?? 0),
             'carico_massimo'    => $this->request->getPost('carico_massimo') !== '' ? (int) $this->request->getPost('carico_massimo') : null,
@@ -195,6 +197,7 @@ class Sistema extends BaseController
             'title'      => 'Modifica Veicolo',
             'page_title' => 'Modifica Veicolo',
             'veicolo'    => $veicolo,
+            'tipi'       => VeicoloModel::TIPI,
         ]);
     }
 
@@ -222,6 +225,7 @@ class Sistema extends BaseController
 
         $model->update($id, [
             'nome'              => $this->request->getPost('nome'),
+            'tipo'              => $this->request->getPost('tipo') ?: null,
             'targa'             => strtoupper($this->request->getPost('targa')),
             'cambio_automatico' => (int) ($this->request->getPost('cambio_automatico') ?? 0),
             'carico_massimo'    => $this->request->getPost('carico_massimo') !== '' ? (int) $this->request->getPost('carico_massimo') : null,

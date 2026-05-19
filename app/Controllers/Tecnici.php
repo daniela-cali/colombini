@@ -11,14 +11,42 @@ use CodeIgniter\Shield\Entities\User;
 
 class Tecnici extends BaseController
 {
+    private const COLORI_PRESET = [
+        '#93c5fd','#fca5a5','#6ee7b7','#fcd34d','#c4b5fd','#f9a8d4',
+        '#67e8f9','#fdba74','#5eead4','#a5b4fc','#bef264','#cbd5e1',
+    ];
+
+    private function coloriUsati(int $escludiId = 0): array
+    {
+        $q = (new UserModel())->where('ruolo', 'tecnico')->select('colore');
+        if ($escludiId) {
+            $q->where('id !=', $escludiId);
+        }
+        return array_filter(array_column($q->findAll(), 'colore'));
+    }
+
     public function index(): string
     {
         $users   = new UserModel();
         $tecnici = $users->where('ruolo', 'tecnico')->orderBy('cognome', 'ASC')->findAll();
 
+        $rows = db_connect()
+            ->table('tecnici_competenze tc')
+            ->select('tc.tecnico_id, ti.nome')
+            ->join('tipi_intervento ti', 'ti.id = tc.tipo_intervento_id')
+            ->where('tc.livello >', 1)
+            ->orderBy('ti.ordine')
+            ->get()->getResultArray();
+
+        $competenzePerTecnico = [];
+        foreach ($rows as $row) {
+            $competenzePerTecnico[(int) $row['tecnico_id']][] = $row['nome'];
+        }
+
         return view('tecnici/index', [
-            'title'      => 'Tecnici',
-            'page_title' => 'Tecnici',
+            'title'               => 'Tecnici',
+            'page_title'          => 'Tecnici',
+            'competenzePerTecnico' => $competenzePerTecnico,
             'tecnici'    => $tecnici,
         ]);
     }
@@ -26,8 +54,12 @@ class Tecnici extends BaseController
     public function create(): string
     {
         return view('tecnici/create', [
-            'title'      => 'Nuovo Tecnico',
-            'page_title' => 'Nuovo Tecnico',
+            'title'        => 'Nuovo Tecnico',
+            'page_title'   => 'Nuovo Tecnico',
+            'coloriPreset' => self::COLORI_PRESET,
+            'coloriUsati'  => $this->coloriUsati(),
+            'tipiTutti'    => (new TipoInterventoModel())->orderBy('ordine')->findAll(),
+            'livelliLabel' => TecnicoCompetenzaModel::LIVELLI,
         ]);
     }
 
@@ -38,12 +70,14 @@ class Tecnici extends BaseController
             'nome'             => 'required|max_length[100]',
             'cognome'          => 'required|max_length[100]',
             'telefono'         => 'permit_empty|max_length[30]',
+            'colore'           => 'required|is_unique[users.colore]',
             'password'         => 'required|min_length[8]',
             'password_confirm' => 'required|matches[password]',
         ];
 
         $messages = [
             'username'         => ['is_unique' => 'Questo nome utente è già in uso.'],
+            'colore'           => ['is_unique' => 'Questo colore è già usato da un altro tecnico.'],
             'password_confirm' => ['matches'   => 'Le password non coincidono.'],
         ];
 
@@ -66,7 +100,8 @@ class Tecnici extends BaseController
         ]);
 
         $users->save($user);
-        $user = $users->findById($users->getInsertID());
+        $newId = $users->getInsertID();
+        $user  = $users->findById($newId);
 
         $user->createEmailIdentity([
             'email'    => $username . '@gestionale.colombini-snc.it',
@@ -75,7 +110,9 @@ class Tecnici extends BaseController
 
         $user->addGroup('tecnico');
 
-        return redirect()->to('sistema/tecnici')
+        (new TecnicoCompetenzaModel())->salva($newId, $this->request->getPost());
+
+        return redirect()->to('sistema/tecnici/' . $newId)
             ->with('success', 'Tecnico "' . $username . '" creato con successo.');
     }
 
@@ -129,9 +166,11 @@ class Tecnici extends BaseController
         }
 
         return view('tecnici/edit', [
-            'title'      => 'Modifica Tecnico',
-            'page_title' => 'Modifica Tecnico',
-            'tecnico'    => $tecnico,
+            'title'        => 'Modifica Tecnico',
+            'page_title'   => 'Modifica Tecnico',
+            'tecnico'      => $tecnico,
+            'coloriPreset' => self::COLORI_PRESET,
+            'coloriUsati'  => $this->coloriUsati($id),
         ]);
     }
 
@@ -149,6 +188,7 @@ class Tecnici extends BaseController
             'cognome' => 'required|max_length[100]',
             'telefono'=> 'permit_empty|max_length[30]',
             'ruolo'   => 'required|in_list[' . implode(',', UserModel::RUOLI_APP) . ']',
+            'colore'  => 'required|is_unique[users.colore,id,' . $id . ']',
         ];
 
         $password = $this->request->getPost('password');
@@ -158,7 +198,8 @@ class Tecnici extends BaseController
         }
 
         $messages = [
-            'password_confirm' => ['matches' => 'Le password non coincidono.'],
+            'colore'           => ['is_unique' => 'Questo colore è già usato da un altro tecnico.'],
+            'password_confirm' => ['matches'   => 'Le password non coincidono.'],
         ];
 
         if (! $this->validate($rules, $messages)) {

@@ -167,10 +167,11 @@
 <?= $this->section('scripts') ?>
 <script>
 (function () {
-    var running  = false;
+    var running   = false;
     var forceMode = false;
     var processed = 0;
     var total     = parseInt('<?= $da_fare ?>') || 0;
+    var afterId   = 0;
     var stepUrl   = '<?= base_url('impostazioni/geocodifica-step') ?>';
     var csrfName  = '<?= csrf_token() ?>';
     var csrfHash  = '<?= csrf_hash() ?>';
@@ -198,6 +199,7 @@
         var data = new FormData();
         data.append(csrfName, csrfHash);
         if (forceMode) data.append('force', '1');
+        if (afterId)   data.append('after_id', afterId);
 
         fetch(stepUrl, { method: 'POST', body: data })
             .then(function (r) { return r.json(); })
@@ -209,6 +211,7 @@
                     return;
                 }
 
+                if (json.after_id) afterId = json.after_id;
                 processed++;
                 var icon = json.esito === 'ok'
                     ? '<i class="fas fa-check text-success mr-1"></i>'
@@ -237,7 +240,8 @@
             ? parseInt(document.getElementById('stat-falliti').textContent) || 0
             : parseInt(document.getElementById('stat-da-fare').textContent)  || 0;
 
-        running = true;
+        afterId   = 0;
+        running   = true;
         document.getElementById('progress-wrap').style.display = '';
         document.getElementById('log-wrap').style.display = '';
         document.getElementById('msg-done').style.display = 'none';

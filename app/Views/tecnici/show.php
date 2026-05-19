@@ -77,7 +77,7 @@
                             $oraFine     = $o['ora_fine']     ?? $orariDefault['ora_fine'];
                             $pausaInizio = $o['pausa_inizio'] ?? $orariDefault['pausa_inizio'];
                             $pausaFine   = $o['pausa_fine']   ?? $orariDefault['pausa_fine'];
-                            $pausaOn     = !empty($o['pausa_inizio']);
+                            $pausaOn     = $o ? !empty($o['pausa_inizio']) : !empty($orariDefault['pausa_inizio']);
                         ?>
                             <tr>
                                 <td class="text-center align-middle">
@@ -268,10 +268,10 @@
                                         </td>
                                         <td>
                                             <select name="livello[]" class="form-control form-control-sm">
-                                                <option value="0">— non assegnato —</option>
+                                                <option value="">— non configurato —</option>
                                                 <?php foreach ($livelliLabel as $val => $label): ?>
                                                     <option value="<?= $val ?>"
-                                                        <?= ($competenze[$tipo['id']] ?? 0) == $val ? 'selected' : '' ?>>
+                                                        <?= isset($competenze[$tipo['id']]) && (string)$competenze[$tipo['id']] === (string)$val ? 'selected' : '' ?>>
                                                         <?= esc($label) ?>
                                                     </option>
                                                 <?php endforeach; ?>

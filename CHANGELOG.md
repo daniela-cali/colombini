@@ -9,12 +9,36 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 
 ## [Non rilasciato]
 
-### Aggiunto (branch feature/pianificazione-vrp)
+### Aggiunto (branch feature/pianificazione — Pianificazione v.1)
 - **VRP — Competenze tecnici** — tabella `tecnici_competenze` (FK su users e tipi_intervento, livelli: Apprendista / Autonomo / Referente); form inline nella scheda tecnico per assegnare il livello per ogni tipo intervento
 - **VRP — Requisiti veicoli** — colonne `cambio_automatico` e `carico_massimo` su `veicoli`; flag `richiede_cambio_auto` su `users`; form aggiornati per tecnici e veicoli
 - **VRP — Geocodifica clienti (Fase 2)** — colonna `geocodifica_fallita` su `clienti`; badge colorati nell'elenco e scheda clienti (rosso = mai tentato, arancio = fallito); utility in Impostazioni con barra progresso AJAX passo-passo, contatori riepilogo e opzione "Riprova falliti"
 - **VRP — Sezione Viaggi e tabelle DB (Fase 3)** — nuove tabelle `viaggi` e `viaggi_tappe`; colonne `priorita` (urgente/ordinario/programmato), `fissato`, `ora_inizio` su `interventi`; nuovo stato `da_pianificare`; `veicolo_id` opzionale su `users`; controller/views Viaggi con elenco per data, dettaglio tappe, autorizzazione e annullamento viaggio; voce "Viaggi" in sidebar
 - **Geocodifica** — elenco clienti con indirizzo non trovato nella utility, con link diretto alla modifica; redirect automatico alla pagina di provenienza dopo il salvataggio (`_from` hidden field)
+- **VRP — Ottimizzazione automatica percorsi (placeholder)** — controller `Ottimizzazione` + view "prossimamente" che conserva tutta l'infrastruttura ORS/Vroom già sviluppata; `VrpService` e `AssegnazioneService` intatti pronti per il rilascio futuro; voce "Ottimizzazione" in sidebar con badge Beta
+- **Pianificazione manuale** — nuova interfaccia drag & drop: board orizzontale con colonna "Da pianificare" e una colonna per ogni tecnico; badge iniziali colorati; suggerimento tecnici competenti per tipo intervento (livello ≥ Autonomo); selezione data viaggio; salvataggio bozze via JSON POST; `pianificazione.css` separato per gli stili del board
+- **Form creazione intervento** — aggiunti selettori Stato (`da_pianificare` default) e Priorità; competenze nella scheda tecnico già disponibili al momento della creazione
+- **Demo dati** — `demo_clienti.csv` (25 clienti zona Ceriale SV, importabile); `demo_interventi.sql` (15 interventi) e `demo_interventi_2.sql` (15 interventi aggiuntivi) collegati ai clienti demo via subquery su codice
+- **Elenco viaggi — raggruppamento** — sezione Bozze (giallo) e sezione Approvati (verde); contatore tappe e veicolo già visibili in lista; avviso se veicolo mancante; pulsante Stampa giornata PDF (solo se ci sono approvati)
+- **Tipologia veicolo** — campo `tipo` VARCHAR(50) su `veicoli` (Autovettura / Autocarro / Camion); costante `VeicoloModel::TIPI`; migration `2026-05-19-100000_AddTipoToVeicoli`; colonna in elenco veicoli e select nel form
+- **Riapri viaggio** — azione che riporta un viaggio approvato in bozza senza toccare tappe e interventi; il veicolo assegnato viene conservato
+- **Blocco pianificazione su approvati** — il board mostra un badge con link al viaggio per i tecnici con viaggio già approvato; `salva()` rifiuta lato server l'invio per quei tecnici
+- **PDF foglio di viaggio** — stampa per singolo tecnico (`/viaggi/{id}/pdf`): intestazione aziendale, info viaggio, tabella tappe con orari stimati; uso interno, senza spazio firma
+- **PDF riepilogo giornata** — stampa di tutti i viaggi approvati del giorno (`/viaggi/pdf/{data}`): blocco colorato per tecnico + tabella tappe
+- **Helper `date_ita`** — converte date Y-m-d in formato italiano con giorno localizzato (es. "Lunedì 19/05/2026"); usato in tutte le view che mostrano date
+- **Targa veicolo** — visualizzata concatenata al nome in tutto il modulo viaggi
+
+### Corretto
+- **Geocodifica massiva** — loop infinito in modalità "Riprova falliti": aggiunto tracking `after_id` per avanzare sempre per ID crescente anche quando un cliente rimane nello stato fallito
+- **Creazione tecnico** — pausa pranzo non precompilata con i valori di configurazione default; ora viene valorizzata correttamente alla prima apertura
+- **Colore tecnico** — vincolo unicità con validazione CI4 `is_unique`; color picker mostra solo colori ancora liberi
+- **ORS profilo veicolo** — errore "Invalid profile: car." risolto aggiungendo `'profile' => 'driving-car'` ai veicoli in `AssegnazioneService`
+- **`Impostazioni::editUtenteApp`** — rimosso tipo di ritorno `: string` incompatibile con `RedirectResponse`
+- **`Viaggi::show()`** — rimosso `: string` incompatibile con `RedirectResponse`
+- **Approvazione viaggio** — bloccata se nessun veicolo è assegnato; il salvataggio veicolo verifica che l'ID non sia null
+- **Veicolo in bozza ricreata** — quando `salva()` in pianificazione sovrascrive una bozza esistente, il veicolo già assegnato viene conservato
+- **Colori PDF** — accent cambiato da teal `#0d9488` a blu `#2980b9` su rapportino intervento, foglio di viaggio e riepilogo giornata
+- **Rapportino PDF** — nome azienda nascosto quando è presente il logo (solo logo + indirizzo)
 
 ---
 

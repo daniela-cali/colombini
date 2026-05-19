@@ -58,11 +58,13 @@
                         <div class="form-group col-md-3">
                             <label>Colore</label>
                             <?php
-                                $coloriPreset = ['#93c5fd','#fca5a5','#6ee7b7','#fcd34d','#c4b5fd','#f9a8d4','#67e8f9','#fdba74','#5eead4','#a5b4fc','#bef264','#cbd5e1'];
-                                $coloreSelezionato = old('colore', $tecnico->colore ?? '#93c5fd');
+                                // $coloriUsati esclude già questo tecnico: mostra colore attuale + tutti i liberi
+                                $liberi = array_values(array_diff($coloriPreset, $coloriUsati));
+                                $coloreSelezionato = old('colore', $tecnico->colore ?? ($liberi[0] ?? ''));
                             ?>
                             <div class="color-swatches">
-                                <?php foreach ($coloriPreset as $c): ?>
+                                <?php foreach ($coloriPreset as $c):
+                                    if (in_array($c, $coloriUsati)) continue; ?>
                                     <label class="color-swatch<?= $c === $coloreSelezionato ? ' is-selected' : '' ?>"
                                            style="background:<?= $c ?>" title="<?= $c ?>">
                                         <input type="radio" name="colore" value="<?= $c ?>"

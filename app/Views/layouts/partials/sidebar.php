@@ -44,8 +44,20 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="<?= base_url('viaggi') ?>" class="nav-link <?= str_starts_with(uri_string(), 'viaggi') ? 'active' : '' ?>">
+                    <a href="<?= base_url('pianificazione') ?>" class="nav-link <?= str_starts_with(uri_string(), 'pianificazione') ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-calendar-alt"></i>
+                        <p>Pianificazione</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="<?= base_url('ottimizzazione') ?>" class="nav-link <?= str_starts_with(uri_string(), 'ottimizzazione') ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-route"></i>
+                        <p>Ottimizzazione <span class="badge badge-warning badge-sm ml-1" style="font-size:.6rem;vertical-align:middle;">Beta</span></p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="<?= base_url('viaggi') ?>" class="nav-link <?= str_starts_with(uri_string(), 'viaggi') ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-map-marked-alt"></i>
                         <p>Viaggi</p>
                     </a>
                 </li>

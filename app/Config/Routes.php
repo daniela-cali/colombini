@@ -26,11 +26,26 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
     $routes->get('/',         'Dashboard::index');
     $routes->get('dashboard', 'Dashboard::index');
 
+    $routes->group('pianificazione', function (RouteCollection $routes) {
+        $routes->get('/',      'Pianificazione::index');
+        $routes->post('salva', 'Pianificazione::salva');
+    });
+
+    $routes->group('ottimizzazione', function (RouteCollection $routes) {
+        $routes->get('/',       'Ottimizzazione::index');
+        $routes->post('genera', 'Ottimizzazione::genera');
+        $routes->post('salva',  'Ottimizzazione::salva');
+    });
+
     $routes->group('viaggi', function (RouteCollection $routes) {
         $routes->get('/',                   'Viaggi::index');
+        $routes->get('pdf/(:segment)',      'Viaggi::pdfGiornata/$1');
         $routes->get('(:num)',              'Viaggi::show/$1');
+        $routes->get('(:num)/pdf',          'Viaggi::pdfViaggio/$1');
         $routes->post('(:num)/autorizza',   'Viaggi::autorizza/$1');
+        $routes->post('(:num)/riapri',      'Viaggi::riapri/$1');
         $routes->post('(:num)/annulla',     'Viaggi::annulla/$1');
+        $routes->post('(:num)/veicolo',     'Viaggi::assegnaVeicolo/$1');
     });
 
     $routes->group('calendario', function (RouteCollection $routes) {

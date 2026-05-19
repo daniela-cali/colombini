@@ -19,7 +19,7 @@
                        style="color: <?= esc($viaggio['colore'] ?? 'var(--clr-teal)') ?>;"></i>
                 </div>
                 <h4 class="mb-1"><?= esc($viaggio['cognome'] . ' ' . $viaggio['nome']) ?></h4>
-                <p class="text-muted small mb-2"><?= date('l d/m/Y', strtotime($viaggio['data'])) ?></p>
+                <p class="text-muted small mb-2"><?= data_ita($viaggio['data']) ?></p>
                 <?php $s = $stati[$viaggio['stato']] ?? ['label' => $viaggio['stato'], 'badge' => 'badge-secondary']; ?>
                 <span class="badge <?= $s['badge'] ?> px-3 py-1"><?= $s['label'] ?></span>
 
@@ -42,34 +42,78 @@
                    class="btn btn-sm btn-secondary float-left">
                     <i class="fas fa-arrow-left mr-1"></i> Elenco
                 </a>
+                <a href="<?= base_url('viaggi/' . $viaggio['id'] . '/pdf') ?>" target="_blank"
+                   class="btn btn-sm btn-outline-secondary float-left ml-2">
+                    <i class="fas fa-print mr-1"></i> Stampa
+                </a>
                 <?php if ($viaggio['stato'] === 'bozza'): ?>
-                    <form method="post" action="<?= base_url('viaggi/' . $viaggio['id'] . '/autorizza') ?>"
-                          class="float-right" onsubmit="return confirm('Autorizzare questo viaggio?')">
+                    <form method="post" action="<?= base_url('viaggi/' . $viaggio['id'] . '/annulla') ?>"
+                          class="float-right ml-2"
+                          onsubmit="return confirm('Eliminare il viaggio? Gli interventi torneranno in coda.')">
                         <?= csrf_field() ?>
-                        <button type="submit" class="btn btn-sm btn-success">
-                            <i class="fas fa-check mr-1"></i> Autorizza
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-trash mr-1"></i> Elimina
                         </button>
                     </form>
-                <?php elseif (in_array($viaggio['stato'], ['bozza', 'autorizzato'])): ?>
+                    <form method="post" action="<?= base_url('viaggi/' . $viaggio['id'] . '/autorizza') ?>"
+                          class="float-right" onsubmit="return confirm('Approvare questo viaggio?')">
+                        <?= csrf_field() ?>
+                        <button type="submit" class="btn btn-sm btn-success">
+                            <i class="fas fa-check mr-1"></i> Approva
+                        </button>
+                    </form>
+                <?php elseif ($viaggio['stato'] === 'autorizzato'): ?>
                     <form method="post" action="<?= base_url('viaggi/' . $viaggio['id'] . '/annulla') ?>"
-                          class="float-right" onsubmit="return confirm('Annullare il viaggio? Gli interventi torneranno in coda.')">
+                          class="float-right ml-2"
+                          onsubmit="return confirm('Eliminare il viaggio? Gli interventi torneranno in coda.')">
                         <?= csrf_field() ?>
                         <button type="submit" class="btn btn-sm btn-danger">
-                            <i class="fas fa-times mr-1"></i> Annulla
+                            <i class="fas fa-trash mr-1"></i> Elimina
+                        </button>
+                    </form>
+                    <form method="post" action="<?= base_url('viaggi/' . $viaggio['id'] . '/riapri') ?>"
+                          class="float-right"
+                          onsubmit="return confirm('Riportare il viaggio in bozza? Potrà essere modificato dalla pianificazione.')">
+                        <?= csrf_field() ?>
+                        <button type="submit" class="btn btn-sm btn-outline-warning">
+                            <i class="fas fa-lock-open mr-1"></i> Riapri
                         </button>
                     </form>
                 <?php endif; ?>
             </div>
         </div>
 
-        <?php if ($viaggio['stato'] === 'autorizzato'): ?>
-        <div class="card card-outline card-danger">
-            <div class="card-body py-3">
-                <form method="post" action="<?= base_url('viaggi/' . $viaggio['id'] . '/annulla') ?>"
-                      onsubmit="return confirm('Annullare il viaggio? Gli interventi torneranno in coda.')">
+        <?php if (in_array($viaggio['stato'], ['bozza', 'autorizzato'])): ?>
+        <div class="card card-outline card-secondary">
+            <div class="card-header py-2">
+                <h3 class="card-title small">
+                    <i class="fas fa-car mr-1"></i> Veicolo assegnato
+                </h3>
+            </div>
+            <div class="card-body py-2">
+                <form method="post" action="<?= base_url('viaggi/' . $viaggio['id'] . '/veicolo') ?>"
+                      id="form-veicolo">
                     <?= csrf_field() ?>
-                    <button type="submit" class="btn btn-danger btn-sm btn-block">
-                        <i class="fas fa-times mr-1"></i> Annulla viaggio
+                    <select name="veicolo_id" id="sel-veicolo" class="form-control form-control-sm mb-2">
+                        <option value="">— Nessun veicolo —</option>
+                        <?php foreach ($veicoli as $v):
+                            $riservato  = $veicoli_riservati[$v['id']] ?? '';
+                            $impegnato  = in_array($v['id'], $veicoli_impegnati)
+                                          && (int)$viaggio['veicolo_id'] !== (int)$v['id'];
+                        ?>
+                        <option value="<?= $v['id'] ?>"
+                                <?= (int)$viaggio['veicolo_id'] === (int)$v['id'] ? 'selected' : '' ?>
+                                data-riservato="<?= esc($riservato) ?>"
+                                <?= $riservato ? 'style="color:#dc3545;"' : ($impegnato ? 'style="color:#6c757d;"' : '') ?>>
+                            <?= esc($v['nome'] . ($v['targa'] ? ' - ' . $v['targa'] : '')) ?>
+                            <?php if ($v['cambio_automatico']): ?> (aut.)<?php endif; ?>
+                            <?php if ($riservato): ?> ⚠ riservato<?php endif; ?>
+                            <?php if ($impegnato): ?> — già impegnato<?php endif; ?>
+                        </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-primary btn-block">
+                        <i class="fas fa-save mr-1"></i> Salva
                     </button>
                 </form>
             </div>
@@ -117,14 +161,17 @@
                             <tr>
                                 <td class="align-middle text-center">
                                     <span class="badge badge-light"><?= $t['ordine'] ?></span>
-                                    <?php if ($t['posizionato_manualmente']): ?>
-                                        <i class="fas fa-hand-paper text-warning ml-1" title="Posizionato manualmente"></i>
-                                    <?php endif; ?>
                                 </td>
                                 <td class="align-middle">
                                     <strong><?= esc($nomeCliente) ?></strong>
-                                    <?php if ($t['luogo_intervento']): ?>
-                                        <br><small class="text-muted"><?= esc($t['luogo_intervento']) ?></small>
+                                    <?php
+                                        $luogo = array_filter([$t['luogo_intervento'], $t['citta'] ?: $t['cliente_citta']]);
+                                    ?>
+                                    <?php if ($luogo): ?>
+                                        <br><small class="text-muted"><?= esc(implode(' — ', $luogo)) ?></small>
+                                    <?php endif; ?>
+                                    <?php if (!empty($t['descrizione'])): ?>
+                                        <br><small class="text-muted" style="font-style:italic;"><?= esc(mb_strimwidth($t['descrizione'], 0, 80, '…')) ?></small>
                                     <?php endif; ?>
                                     <?php if ($t['ora_arrivo_stimata']): ?>
                                         <br><small class="text-info">
@@ -133,7 +180,10 @@
                                     <?php endif; ?>
                                 </td>
                                 <td class="d-none d-md-table-cell align-middle small text-muted">
-                                    <?= esc($t['tipo_intervento']) ?>
+                                    <?php if (!empty($t['tipo_icona'])): ?>
+                                        <i class="fas <?= esc($t['tipo_icona']) ?> mr-1"></i>
+                                    <?php endif; ?>
+                                    <?= esc($t['tipo_nome'] ?: $t['tipo_intervento']) ?>
                                 </td>
                                 <td class="d-none d-md-table-cell align-middle">
                                     <span class="badge <?= $pr['badge'] ?>"><?= $pr['label'] ?></span>
@@ -165,4 +215,28 @@
 
 <?= $this->section('help') ?>
 <?= $this->include('help/viaggi/show') ?>
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script>
+(function () {
+    var form = document.getElementById('form-veicolo');
+    if (! form) return;
+
+    form.addEventListener('submit', function (e) {
+        var sel      = document.getElementById('sel-veicolo');
+        var opt      = sel.options[sel.selectedIndex];
+        var riservato = opt ? opt.dataset.riservato : '';
+        if (riservato) {
+            var ok = confirm(
+                '⚠ Attenzione\n\n' +
+                riservato + ' ha interventi assegnati oggi e richiede il cambio automatico.\n' +
+                'Questo veicolo è riservato a lui.\n\n' +
+                'Vuoi assegnarlo comunque a un altro tecnico?'
+            );
+            if (! ok) e.preventDefault();
+        }
+    });
+})();
+</script>
 <?= $this->endSection() ?>

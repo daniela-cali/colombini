@@ -30,6 +30,7 @@
                     <thead>
                         <tr>
                             <th>Nome</th>
+                            <th class="d-none d-md-table-cell">Tipologia</th>
                             <th>Targa</th>
                             <th>Stato</th>
                             <th class="text-right">Azioni</th>
@@ -39,6 +40,9 @@
                     <?php foreach ($veicoli as $v): ?>
                         <tr>
                             <td><?= esc($v['nome']) ?></td>
+                            <td class="d-none d-md-table-cell text-muted small">
+                                <?= esc(\App\Models\VeicoloModel::TIPI[$v['tipo']] ?? '—') ?>
+                            </td>
                             <td><code><?= esc($v['targa']) ?></code></td>
                             <td>
                                 <?php if ($v['attivo']): ?>

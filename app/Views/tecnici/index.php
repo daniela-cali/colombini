@@ -34,6 +34,7 @@
                             <th>Nome</th>
                             <th class="d-none d-sm-table-cell">Username</th>
                             <th class="d-none d-md-table-cell">Telefono</th>
+                            <th class="d-none d-lg-table-cell">Competenze</th>
                             <th class="text-right">Azioni</th>
                         </tr>
                     </thead>
@@ -55,6 +56,14 @@
                             </td>
                             <td class="text-muted d-none d-sm-table-cell"><?= esc($t->username) ?></td>
                             <td class="d-none d-md-table-cell"><?= esc($t->telefono ?? '—') ?></td>
+                            <td class="d-none d-lg-table-cell">
+                                <?php $comp = $competenzePerTecnico[$t->id] ?? []; ?>
+                                <?php if ($comp): ?>
+                                    <small class="text-muted"><?= esc(implode(', ', $comp)) ?></small>
+                                <?php else: ?>
+                                    <small class="text-muted">—</small>
+                                <?php endif; ?>
+                            </td>
                             <td class="text-right">
                                 <a href="<?= base_url('sistema/tecnici/' . $t->id) ?>"
                                    class="btn btn-sm btn-outline-primary" title="Scheda">
