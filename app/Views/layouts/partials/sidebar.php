@@ -11,6 +11,7 @@
             $_u        = auth()->user();
             $_username = $_u ? (string) $_u->username : 'Utente';
             $_ruolo    = $_u ? (string) $_u->ruolo    : '';
+            $_isStaff  = $_ruolo !== 'tecnico';
         ?>
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
             <div class="image">
@@ -29,7 +30,7 @@
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
 
-                <!-- Dashboard -->
+                <!-- Cruscotto -->
                 <li class="nav-header">Cruscotto</li>
                 <li class="nav-item">
                     <a href="<?= base_url('/') ?>" class="nav-link <?= (uri_string() === '/') ? 'active' : '' ?>">
@@ -43,24 +44,14 @@
                         <p>Calendario</p>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="<?= base_url('pianificazione') ?>" class="nav-link <?= str_starts_with(uri_string(), 'pianificazione') ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-calendar-alt"></i>
-                        <p>Pianificazione</p>
-                    </a>
-                </li>
+                <?php if ($_isStaff): ?>
                 <li class="nav-item">
                     <a href="<?= base_url('ottimizzazione') ?>" class="nav-link <?= str_starts_with(uri_string(), 'ottimizzazione') ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-route"></i>
                         <p>Ottimizzazione <span class="badge badge-warning badge-sm ml-1" style="font-size:.6rem;vertical-align:middle;">Beta</span></p>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="<?= base_url('viaggi') ?>" class="nav-link <?= str_starts_with(uri_string(), 'viaggi') ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-map-marked-alt"></i>
-                        <p>Viaggi</p>
-                    </a>
-                </li>
+                <?php endif; ?>
 
                 <!-- Anagrafiche -->
                 <li class="nav-header">Anagrafiche</li>
@@ -102,12 +93,29 @@
                         <p>Interventi</p>
                     </a>
                 </li>
+                <?php if ($_isStaff): ?>
+                <li class="nav-item">
+                    <a href="<?= base_url('pianificazione') ?>" class="nav-link <?= str_starts_with(uri_string(), 'pianificazione') ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-calendar-check"></i>
+                        <p>Pianificazione</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="<?= base_url('viaggi') ?>" class="nav-link <?= str_starts_with(uri_string(), 'viaggi') ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-map-marked-alt"></i>
+                        <p>Viaggi</p>
+                    </a>
+                </li>
+
+                <!-- Commerciale -->
+                <li class="nav-header">Commerciale</li>
                 <li class="nav-item">
                     <a href="<?= base_url('preventivi') ?>" class="nav-link <?= str_starts_with(uri_string(), 'preventivi') ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-file-invoice"></i>
                         <p>Preventivi</p>
                     </a>
                 </li>
+                <?php endif; ?>
 
                 <!-- Magazzino -->
                 <li class="nav-header">Magazzino</li>
@@ -118,6 +126,7 @@
                     </a>
                 </li>
 
+                <?php if ($_isStaff): ?>
                 <!-- Report -->
                 <li class="nav-header">Report</li>
                 <li class="nav-item">
@@ -168,6 +177,7 @@
                         </li>
                     </ul>
                 </li>
+                <?php endif; ?>
 
             </ul>
         </nav>

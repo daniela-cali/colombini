@@ -27,6 +27,8 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 - **PDF riepilogo giornata** — stampa di tutti i viaggi approvati del giorno (`/viaggi/pdf/{data}`): blocco colorato per tecnico + tabella tappe
 - **Helper `date_ita`** — converte date Y-m-d in formato italiano con giorno localizzato (es. "Lunedì 19/05/2026"); usato in tutte le view che mostrano date
 - **Targa veicolo** — visualizzata concatenata al nome in tutto il modulo viaggi
+- **Restrizioni accesso tecnici** — filtro `solo-staff` applicato alle route pianificazione, ottimizzazione, viaggi, preventivi, report e configurazione (sistema + impostazioni): i tecnici vengono reindirizzati in dashboard
+- **Sidebar per ruolo** — i tecnici vedono solo le sezioni accessibili (Dashboard, Calendario, Clienti, Impianti, Interventi, Magazzino); riorganizzazione sezioni: Pianificazione e Viaggi sotto Assistenza, Preventivi in nuova sezione Commerciale
 - **Doppio ruolo admin+tecnico** — flag `assegnabile_interventi` su `users`: un admin (o staff/operativo) con questo flag attivo compare nelle liste tecnici, può essere assegnato agli interventi e ha accesso alla scheda tecnico (orari, competenze, veicolo)
 
 ### Corretto

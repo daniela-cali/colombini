@@ -26,18 +26,18 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
     $routes->get('/',         'Dashboard::index');
     $routes->get('dashboard', 'Dashboard::index');
 
-    $routes->group('pianificazione', function (RouteCollection $routes) {
+    $routes->group('pianificazione', ['filter' => 'solo-staff'], function (RouteCollection $routes) {
         $routes->get('/',      'Pianificazione::index');
         $routes->post('salva', 'Pianificazione::salva');
     });
 
-    $routes->group('ottimizzazione', function (RouteCollection $routes) {
+    $routes->group('ottimizzazione', ['filter' => 'solo-staff'], function (RouteCollection $routes) {
         $routes->get('/',       'Ottimizzazione::index');
         $routes->post('genera', 'Ottimizzazione::genera');
         $routes->post('salva',  'Ottimizzazione::salva');
     });
 
-    $routes->group('viaggi', function (RouteCollection $routes) {
+    $routes->group('viaggi', ['filter' => 'solo-staff'], function (RouteCollection $routes) {
         $routes->get('/',                   'Viaggi::index');
         $routes->get('pdf/(:segment)',      'Viaggi::pdfGiornata/$1');
         $routes->get('(:num)',              'Viaggi::show/$1');
@@ -72,7 +72,7 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
     });
 
     // ── Sistema (configurazione) ──────────────────────────────────────────────
-    $routes->group('sistema', function (RouteCollection $routes) {
+    $routes->group('sistema', ['filter' => 'solo-staff'], function (RouteCollection $routes) {
 
         $routes->group('tecnici', function (RouteCollection $routes) {
             $routes->get('/',               'Tecnici::index');
@@ -132,7 +132,7 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
         $routes->post('(:num)/invia-email', 'Interventi::inviaEmail/$1');
     });
 
-    $routes->group('preventivi', function (RouteCollection $routes) {
+    $routes->group('preventivi', ['filter' => 'solo-staff'], function (RouteCollection $routes) {
         $routes->get('/',               'Preventivi::index');
         $routes->get('new',             'Preventivi::create');
         $routes->post('/',              'Preventivi::store');
@@ -152,7 +152,7 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
         $routes->post('(:num)/elimina', 'Prodotti::delete/$1');
     });
 
-    $routes->group('report', function (RouteCollection $routes) {
+    $routes->group('report', ['filter' => 'solo-staff'], function (RouteCollection $routes) {
         $routes->get('/',           'Report::index');
         $routes->get('interventi',  'Report::interventi');
         $routes->get('clienti',     'Report::clienti');
@@ -167,7 +167,7 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
         $routes->post('versione-vista',  'Profilo::aggiornaVersioneVista');
     });
 
-    $routes->group('impostazioni', function (RouteCollection $routes) {
+    $routes->group('impostazioni', ['filter' => 'solo-staff'], function (RouteCollection $routes) {
         $routes->get('/',  'Impostazioni::index');
         $routes->post('/', 'Impostazioni::update');
 

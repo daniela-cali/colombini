@@ -20,6 +20,7 @@ use CodeIgniter\Shield\Filters\PermissionFilter;
 use CodeIgniter\Shield\Filters\ForcePasswordResetFilter;
 use CodeIgniter\Shield\Filters\ChainAuth;
 use App\Filters\AdminAreaFilter;
+use App\Filters\SoloStaffFilter;
 
 class Filters extends BaseFilters
 {
@@ -34,6 +35,7 @@ class Filters extends BaseFilters
      */
     public array $aliases = [
         'admin-area'    => AdminAreaFilter::class,
+        'solo-staff'    => SoloStaffFilter::class,
         'auth'          => SessionAuth::class,
         'tokens'        => TokenAuth::class,
         'auth-rates'    => AuthRates::class,
