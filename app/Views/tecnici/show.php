@@ -77,7 +77,7 @@
                             $oraFine     = $o['ora_fine']     ?? $orariDefault['ora_fine'];
                             $pausaInizio = $o['pausa_inizio'] ?? $orariDefault['pausa_inizio'];
                             $pausaFine   = $o['pausa_fine']   ?? $orariDefault['pausa_fine'];
-                            $pausaOn     = !empty($o['pausa_inizio']);
+                            $pausaOn     = $o ? !empty($o['pausa_inizio']) : !empty($orariDefault['pausa_inizio']);
                         ?>
                             <tr>
                                 <td class="text-center align-middle">
@@ -236,6 +236,64 @@
     </div>
 
 </div>
+
+<!-- Competenze per tipo intervento -->
+<div class="row mt-2">
+    <div class="col-12">
+        <div class="card card-outline card-info">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fas fa-star mr-1"></i> Competenze per tipo intervento</h3>
+            </div>
+            <form method="post" action="<?= base_url('sistema/tecnici/' . $tecnico->id . '/competenze') ?>">
+                <?= csrf_field() ?>
+                <div class="card-body">
+                    <?php if (empty($tipiTutti)): ?>
+                        <p class="text-muted mb-0">Nessun tipo intervento configurato.</p>
+                    <?php else: ?>
+                        <div class="table-responsive">
+                            <table class="table table-sm mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Tipo intervento</th>
+                                        <th style="width:220px;">Livello competenza</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <?php foreach ($tipiTutti as $i => $tipo): ?>
+                                    <tr>
+                                        <td>
+                                            <i class="fas <?= esc($tipo['icona'] ?? 'fa-tools') ?> mr-1 text-muted"></i>
+                                            <?= esc($tipo['nome']) ?>
+                                            <input type="hidden" name="tipo_intervento_id[]" value="<?= $tipo['id'] ?>">
+                                        </td>
+                                        <td>
+                                            <select name="livello[]" class="form-control form-control-sm">
+                                                <option value="">— non configurato —</option>
+                                                <?php foreach ($livelliLabel as $val => $label): ?>
+                                                    <option value="<?= $val ?>"
+                                                        <?= isset($competenze[$tipo['id']]) && (string)$competenze[$tipo['id']] === (string)$val ? 'selected' : '' ?>>
+                                                        <?= esc($label) ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <div class="card-footer clearfix">
+                    <button type="submit" class="btn btn-info btn-sm float-right">
+                        <i class="fas fa-save mr-1"></i> Salva competenze
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>

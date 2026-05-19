@@ -3,6 +3,8 @@
 ## Preferenze generali
 - Rispondere sempre in italiano, anche dopo compattazioni del contesto.
 - Se dei file sono stati dimenticati nell'ultimo commit, usare `git commit --amend --no-edit` invece di un nuovo commit separato (commit atomici e puliti).
+- Le preferenze e regole di progetto vanno sempre in questo file `CLAUDE.md` (non nel sistema di memoria), così possono essere pushate e condivise.
+- **Review del codice**: creare i file direttamente con Write/Edit e lasciare che l'utente approvi i diff nell'IDE. Non mostrare preview del codice in chat prima di scrivere i file.
 
 ## AdminLTE 3 — Layout card
 In AdminLTE 3, non usare `d-flex justify-content-between` su `.card-header` e `.card-footer` (il flex annidato non funziona come atteso).
@@ -23,6 +25,9 @@ In AdminLTE 3, non usare `d-flex justify-content-between` su `.card-header` e `.
     <button type="submit" class="btn btn-primary float-right">Salva</button>
 </div>
 ```
+
+## View Help
+Per ogni nuova view creare sempre il corrispondente file help in `app/Views/help/<sezione>/<nome_view>.php`, seguendo il pattern delle help esistenti: titoletti `<h5>` con icona FontAwesome, paragrafi `<p>`, eventuale `.badge-tip` per suggerimenti. La view principale include il file con `<?= $this->include('help/<sezione>/<nome_view>') ?>` dentro la sezione `help`.
 
 ## Changelog
 Prima di ogni commit aggiornare `CHANGELOG.md` seguendo il pattern markdown esistente e includerlo nella stessa commit.

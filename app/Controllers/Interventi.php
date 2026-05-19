@@ -92,6 +92,8 @@ class Interventi extends BaseController
             'tipi'             => TipoInterventoModel::comeLista(),
             'tecnico_id_pre'   => $tecnico_id_pre,
             'richiesta_id_pre' => $richiesta_id_pre,
+            'stati'            => InterventoModel::STATI,
+            'priorita'         => InterventoModel::PRIORITA,
         ]);
     }
 
@@ -134,7 +136,8 @@ class Interventi extends BaseController
             'data_pianificata' => $dataPianificata ?: null,
             'descrizione'      => $this->request->getPost('descrizione') ?: null,
             'note_interne'     => $this->request->getPost('note_interne') ?: null,
-            'stato'            => 'pianificato',
+            'stato'            => $this->request->getPost('stato') ?: 'da_pianificare',
+            'priorita'         => $this->request->getPost('priorita') ?: 'ordinario',
         ]);
 
         if ($richiestaId) {

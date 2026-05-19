@@ -1,0 +1,26 @@
+codice;tipo;ragsoc;cognome;nome;indirizzo;citta;cap;provincia;telefono;email;note;stato
+DEMO001;societa;Hotel Riviera Palace;;;Via Brennero 12;Alassio;17021;SV;0182 640211;info@rivierapalace.it;Hotel con piscina olimpionica;1
+DEMO002;societa;Residence Le Terrazze;;;Viale Hanbury 45;Alassio;17021;SV;0182 641500;admin@leterrazze.it;Residence con piscina condominiale;1
+DEMO003;societa;Camping Baia delle Sirene;;;Via Aurelia 317;Finale Ligure;17024;SV;019 681255;info@baiadellesirine.it;Camping con area piscine e acquascivoli;1
+DEMO004;persona_fisica;;Ferretti;Marco;Via Roma 8;Finale Ligure;17024;SV;347 1234501;m.ferretti@email.it;;1
+DEMO005;societa;Hotel Savoy;;;Via Mazzini 1;Loano;17025;SV;019 669200;info@hotelsavoy-loano.it;Hotel 4 stelle con spa e piscina;1
+DEMO006;persona_fisica;;Amoroso;Giuliana;Via della Resistenza 23;Loano;17025;SV;333 9876543;g.amoroso@email.it;;1
+DEMO007;societa;Piscina Comunale Pietra Ligure;;;Via Aldo Moro 5;Pietra Ligure;17027;SV;019 615444;piscina@comunepietraligure.it;Impianto natatorio comunale;1
+DEMO008;persona_fisica;;Zunino;Sergio;Via Matteotti 14;Pietra Ligure;17027;SV;349 5554433;s.zunino@email.it;;1
+DEMO009;societa;Hotel Nazionale;;;Via Paleocapa 24;Savona;17100;SV;019 820911;prenotazioni@hotelnazionale-sv.it;Hotel nel centro storico con piscina sul tetto;1
+DEMO010;persona_fisica;;Parodi;Cristina;Corso Italia 77;Savona;17100;SV;320 7778899;c.parodi@email.it;;1
+DEMO011;societa;Agriturismo Cascina dei Fichi;;;Via Pieve 3;Cairo Montenotte;17014;SV;019 504122;info@cascinadelfichi.it;Agriturismo con piscina naturale;1
+DEMO012;persona_fisica;;Bovio;Luca;Via San Giovanni 19;Cairo Montenotte;17014;SV;338 2223344;l.bovio@email.it;;1
+DEMO013;societa;Camping La Pineta;;;Via Nino Bixio 100;Spotorno;17028;SV;019 745028;info@campinglapineta-spotorno.it;Camping con piscine e parco acquatico;1
+DEMO014;persona_fisica;;Delfino;Roberta;Via Aurelia 56;Noli;17026;SV;347 6665544;r.delfino@email.it;;1
+DEMO015;societa;Hotel Baia del Sole;;;Lungomare C. Colombo 10;Celle Ligure;17015;SV;019 990106;info@baiadelsole-celle.it;Hotel fronte mare con piscina olimpionica;1
+DEMO016;persona_fisica;;Gaggero;Matteo;Via Colla 7;Celle Ligure;17015;SV;328 1112233;m.gaggero@email.it;;1
+DEMO017;societa;Hotel Bel Sit;;;Via Roma 51;Andora;17051;SV;0182 687010;info@hotelbelsit.it;Hotel con piscina riscaldata;1
+DEMO018;persona_fisica;;Molinari;Elisa;Via Nazionale 33;Andora;17051;SV;335 4445566;e.molinari@email.it;;1
+DEMO019;societa;Country Club Albenga;;;Via Dalmazia 2;Albenga;17031;SV;0182 541800;segreteria@countryclubalbenga.it;Tennis e piscina, manutenzione stagionale;1
+DEMO020;persona_fisica;;Bianco;Fabrizio;Corso Dante 18;Albenga;17031;SV;393 8887766;f.bianco@email.it;;1
+DEMO021;societa;Hotel Splendid;;;Via Dante Alighieri 7;Laigueglia;17053;SV;0182 690325;info@hotelsplendid-laigueglia.it;Hotel boutique con rooftop pool;1
+DEMO022;persona_fisica;;Trucco;Valeria;Via San Matteo 4;Laigueglia;17053;SV;347 3332211;v.trucco@email.it;;1
+DEMO023;societa;Residence Poggio Ligure;;;Via G. Marconi 88;Vado Ligure;17047;SV;019 8821350;amministrazione@poggioligure.it;Complesso residenziale con due piscine;1
+DEMO024;persona_fisica;;Sciaccaluga;Davide;Via Piave 12;Vado Ligure;17047;SV;329 0001122;d.sciaccaluga@email.it;;1
+DEMO025;societa;Hotel Varazze Palace;;;Via Cilea 3;Varazze;17019;SV;019 932288;info@varazzepalaace.it;Hotel con piscina panoramica sul mare;1

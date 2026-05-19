@@ -7,10 +7,10 @@
 body { font-family: DejaVu Sans, sans-serif; font-size: 11px; color: #1f2937; padding: 24px 28px; }
 
 /* Header */
-table.header { width: 100%; border-bottom: 2px solid #0d9488; margin-bottom: 18px; padding-bottom: 12px; }
+table.header { width: 100%; border-bottom: 2px solid #2980b9; margin-bottom: 18px; padding-bottom: 12px; }
 .company-name { font-size: 15px; font-weight: bold; color: #1f2937; }
 .company-info { color: #6b7280; font-size: 10px; margin-top: 3px; }
-.doc-title { font-size: 17px; font-weight: bold; color: #0d9488; text-align: right; }
+.doc-title { font-size: 17px; font-weight: bold; color: #2980b9; text-align: right; }
 .doc-subtitle { font-size: 10px; color: #6b7280; text-align: right; margin-top: 3px; }
 
 /* Sezioni */
@@ -51,8 +51,9 @@ table.firme td { width: 50%; padding: 0 20px; text-align: center; }
         <?php if ($azienda['logo']): ?>
         <img src="<?= $azienda['logo'] ?>" alt="<?= esc($azienda['nome']) ?>"
              style="max-height:44px;max-width:180px;margin-bottom:4px;display:block;">
-        <?php endif; ?>
+        <?php else: ?>
         <div class="company-name"><?= esc($azienda['nome'] ?: 'Colombini Piscine') ?></div>
+        <?php endif; ?>
         <div class="company-info">
             <?php
                 $riga = array_filter([$azienda['indirizzo'], trim(($azienda['cap'] ?? '') . ' ' . ($azienda['citta'] ?? ''))]);

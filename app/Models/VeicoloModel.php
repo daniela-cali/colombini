@@ -9,7 +9,13 @@ class VeicoloModel extends Model
     protected $table      = 'veicoli';
     protected $primaryKey = 'id';
 
-    protected $allowedFields = ['nome', 'targa', 'attivo'];
+    protected $allowedFields = ['nome', 'tipo', 'targa', 'cambio_automatico', 'carico_massimo', 'attivo'];
+
+    public const TIPI = [
+        'autovettura' => 'Autovettura',
+        'autocarro'   => 'Autocarro',
+        'camion'      => 'Camion',
+    ];
 
     protected $useTimestamps = true;
 

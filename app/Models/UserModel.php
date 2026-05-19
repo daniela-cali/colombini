@@ -28,5 +28,7 @@ class UserModel extends ShieldUserModel
         'colore',
         'ruolo',
         'ultima_versione_vista',
+        'richiede_cambio_auto',
+        'veicolo_id',
     ];
 }

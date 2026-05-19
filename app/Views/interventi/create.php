@@ -69,10 +69,32 @@
                         </div>
 
                         <!-- Stato -->
-                        <div class="form-group col-md-6">
+                        <div class="form-group col-md-3">
                             <label>Stato</label>
                             <select name="stato" class="form-control">
-                                <option value="pianificato" selected>Pianificato</option>
+                                <?php
+                                    $statiCreazione = ['da_pianificare', 'pianificato'];
+                                    $statoDefault   = old('stato', 'da_pianificare');
+                                    foreach ($statiCreazione as $sk):
+                                        $sv = $stati[$sk] ?? null;
+                                        if (! $sv) continue;
+                                ?>
+                                    <option value="<?= $sk ?>" <?= $statoDefault === $sk ? 'selected' : '' ?>>
+                                        <?= esc($sv['label']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <!-- Priorità -->
+                        <div class="form-group col-md-3">
+                            <label>Priorità</label>
+                            <select name="priorita" class="form-control">
+                                <?php foreach ($priorita as $pk => $pv): ?>
+                                    <option value="<?= $pk ?>" <?= old('priorita', 'ordinario') === $pk ? 'selected' : '' ?>>
+                                        <?= esc($pv['label']) ?>
+                                    </option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
                     </div>

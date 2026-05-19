@@ -26,6 +26,28 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
     $routes->get('/',         'Dashboard::index');
     $routes->get('dashboard', 'Dashboard::index');
 
+    $routes->group('pianificazione', function (RouteCollection $routes) {
+        $routes->get('/',      'Pianificazione::index');
+        $routes->post('salva', 'Pianificazione::salva');
+    });
+
+    $routes->group('ottimizzazione', function (RouteCollection $routes) {
+        $routes->get('/',       'Ottimizzazione::index');
+        $routes->post('genera', 'Ottimizzazione::genera');
+        $routes->post('salva',  'Ottimizzazione::salva');
+    });
+
+    $routes->group('viaggi', function (RouteCollection $routes) {
+        $routes->get('/',                   'Viaggi::index');
+        $routes->get('pdf/(:segment)',      'Viaggi::pdfGiornata/$1');
+        $routes->get('(:num)',              'Viaggi::show/$1');
+        $routes->get('(:num)/pdf',          'Viaggi::pdfViaggio/$1');
+        $routes->post('(:num)/autorizza',   'Viaggi::autorizza/$1');
+        $routes->post('(:num)/riapri',      'Viaggi::riapri/$1');
+        $routes->post('(:num)/annulla',     'Viaggi::annulla/$1');
+        $routes->post('(:num)/veicolo',     'Viaggi::assegnaVeicolo/$1');
+    });
+
     $routes->group('calendario', function (RouteCollection $routes) {
         $routes->get('/',       'Calendario::index');
         $routes->get('eventi',  'Calendario::eventi');
@@ -44,6 +66,7 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
         $routes->get('(:num)/edit',         'Clienti::edit/$1');
         $routes->post('(:num)',             'Clienti::update/$1');
         $routes->post('(:num)/elimina',     'Clienti::delete/$1');
+        $routes->post('(:num)/geocodifica',  'Clienti::geocodificaSingolo/$1');
         $routes->get('(:num)/portale',      'Clienti::creaPortale/$1');
         $routes->post('(:num)/portale',     'Clienti::storePortale/$1');
     });
@@ -59,7 +82,8 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
             $routes->get('(:num)/edit',     'Tecnici::edit/$1');
             $routes->post('(:num)',         'Tecnici::update/$1');
             $routes->post('(:num)/elimina', 'Tecnici::delete/$1');
-            $routes->post('(:num)/orari',   'Tecnici::orariUpdate/$1');
+            $routes->post('(:num)/orari',       'Tecnici::orariUpdate/$1');
+            $routes->post('(:num)/competenze', 'Tecnici::competenzeUpdate/$1');
         });
 
         $routes->group('tipi-intervento', function (RouteCollection $routes) {
@@ -149,6 +173,9 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
 
         $routes->get('parametri',  'Impostazioni::parametri');
         $routes->post('parametri', 'Impostazioni::salvaParametri');
+
+        $routes->get('geocodifica',       'Impostazioni::geocodifica');
+        $routes->post('geocodifica-step', 'Impostazioni::geocodificaStep');
 
         $routes->group('utenti', function (RouteCollection $routes) {
             $routes->get('/',                   'Impostazioni::utenti');

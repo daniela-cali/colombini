@@ -34,6 +34,7 @@ class ClienteModel extends Model
         'lat',
         'lng',
         'geocoded_at',
+        'geocodifica_fallita',
     ];
 
     public function generaCodiceInterno(): string

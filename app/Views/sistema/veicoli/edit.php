@@ -29,11 +29,25 @@
                 <?= csrf_field() ?>
                 <div class="card-body">
 
-                    <div class="form-group">
-                        <label>Nome <span class="text-danger">*</span></label>
-                        <input type="text" name="nome" class="form-control"
-                               value="<?= esc(old('nome', $veicolo['nome'])) ?>"
-                               required maxlength="100">
+                    <div class="form-row">
+                        <div class="form-group col-md-8">
+                            <label>Nome <span class="text-danger">*</span></label>
+                            <input type="text" name="nome" class="form-control"
+                                   value="<?= esc(old('nome', $veicolo['nome'])) ?>"
+                                   required maxlength="100">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>Tipologia</label>
+                            <select name="tipo" class="form-control">
+                                <option value="">— Nessuna —</option>
+                                <?php foreach ($tipi as $k => $v): ?>
+                                    <option value="<?= $k ?>"
+                                        <?= old('tipo', $veicolo['tipo']) === $k ? 'selected' : '' ?>>
+                                        <?= esc($v) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -42,6 +56,24 @@
                                value="<?= esc(old('targa', $veicolo['targa'])) ?>"
                                required maxlength="20"
                                style="text-transform:uppercase;">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Carico massimo (kg)</label>
+                            <input type="number" name="carico_massimo" class="form-control"
+                                   value="<?= esc(old('carico_massimo', $veicolo['carico_massimo'])) ?>"
+                                   min="0" placeholder="Lascia vuoto se non rilevante">
+                        </div>
+                        <div class="form-group col-md-6 d-flex align-items-end pb-2">
+                            <div class="custom-control custom-switch">
+                                <input type="hidden" name="cambio_automatico" value="0">
+                                <input type="checkbox" class="custom-control-input" id="cambio_automatico"
+                                       name="cambio_automatico" value="1"
+                                       <?= old('cambio_automatico', $veicolo['cambio_automatico']) ? 'checked' : '' ?>>
+                                <label class="custom-control-label" for="cambio_automatico">Cambio automatico</label>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group">
