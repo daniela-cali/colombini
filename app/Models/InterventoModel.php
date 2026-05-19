@@ -78,7 +78,7 @@ class InterventoModel extends Model
                 SUM(i.stato NOT IN ('annullato','completato'))                        AS aperti
             FROM users u
             LEFT JOIN interventi i ON i.tecnico_id = u.id AND i.deleted_at IS NULL
-            WHERE u.ruolo = 'tecnico'
+            WHERE (u.ruolo = 'tecnico' OR u.assegnabile_interventi = 1)
             GROUP BY u.id, u.nome, u.cognome
             ORDER BY u.cognome, u.nome
         ")->getResultArray();

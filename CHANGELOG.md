@@ -27,6 +27,7 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 - **PDF riepilogo giornata** — stampa di tutti i viaggi approvati del giorno (`/viaggi/pdf/{data}`): blocco colorato per tecnico + tabella tappe
 - **Helper `date_ita`** — converte date Y-m-d in formato italiano con giorno localizzato (es. "Lunedì 19/05/2026"); usato in tutte le view che mostrano date
 - **Targa veicolo** — visualizzata concatenata al nome in tutto il modulo viaggi
+- **Doppio ruolo admin+tecnico** — flag `assegnabile_interventi` su `users`: un admin (o staff/operativo) con questo flag attivo compare nelle liste tecnici, può essere assegnato agli interventi e ha accesso alla scheda tecnico (orari, competenze, veicolo)
 
 ### Corretto
 - **Geocodifica massiva** — loop infinito in modalità "Riprova falliti": aggiunto tracking `after_id` per avanzare sempre per ID crescente anche quando un cliente rimane nello stato fallito

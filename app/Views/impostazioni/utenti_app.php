@@ -65,12 +65,13 @@
                                     <?php endif; ?>
                                 </td>
                                 <td class="text-right align-middle">
-                                    <?php if ($u->ruolo === 'tecnico'): ?>
+                                    <?php if ($u->ruolo === 'tecnico' || $u->assegnabile_interventi): ?>
                                         <a href="<?= base_url('sistema/tecnici/' . $u->id) ?>"
-                                           class="btn btn-sm btn-outline-primary" title="Scheda tecnico">
+                                           class="btn btn-sm btn-outline-primary mr-1" title="Scheda tecnico">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                    <?php else: ?>
+                                    <?php endif; ?>
+                                    <?php if ($u->ruolo !== 'tecnico'): ?>
                                         <a href="<?= base_url('impostazioni/utenti-app/' . $u->id . '/edit') ?>"
                                            class="btn btn-sm btn-outline-secondary mr-1" title="Modifica">
                                             <i class="fas fa-edit"></i>

@@ -17,7 +17,7 @@ class Pianificazione extends BaseController
         $data = $this->request->getGet('data') ?? date('Y-m-d');
 
         $tecnici = (new UserModel())
-            ->where('ruolo', 'tecnico')
+            ->whereAssegnabile()
             ->orderBy('cognome')
             ->findAll();
 

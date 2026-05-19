@@ -242,9 +242,10 @@ class Impostazioni extends BaseController
         $nuovoRuolo = $this->request->getPost('ruolo');
 
         $users->update($id, [
-            'nome'    => $this->request->getPost('nome'),
-            'cognome' => $this->request->getPost('cognome'),
-            'ruolo'   => $nuovoRuolo,
+            'nome'                   => $this->request->getPost('nome'),
+            'cognome'                => $this->request->getPost('cognome'),
+            'ruolo'                  => $nuovoRuolo,
+            'assegnabile_interventi' => $nuovoRuolo === 'tecnico' ? 0 : (int) $this->request->getPost('assegnabile_interventi'),
         ]);
 
         // aggiorna il gruppo Shield se il ruolo è cambiato

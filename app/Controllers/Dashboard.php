@@ -49,7 +49,7 @@ class Dashboard extends BaseController
             ],
             'ultime_richieste'  => $richiesteModel->ultime(6),
             'ultimi_interventi' => $interventiModel->conDettagli(6),
-            'tecnici'           => $usersModel->where('ruolo', 'tecnico')->orderBy('cognome')->findAll(),
+            'tecnici'           => $usersModel->whereAssegnabile()->orderBy('cognome')->findAll(),
             'riepilogo_tecnici' => $interventiModel->riepilogoPerTecnico(),
             'tipi'              => TipoInterventoModel::comeLista(),
             'icone'             => array_column(TipoInterventoModel::comeListaCompleta(), 'icona', 'codice'),

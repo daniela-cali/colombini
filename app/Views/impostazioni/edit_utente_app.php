@@ -1,5 +1,9 @@
 <?= $this->extend('layouts/admin') ?>
 
+<?= $this->section('help') ?>
+<?= $this->include('help/impostazioni/edit_utente_app') ?>
+<?= $this->endSection() ?>
+
 <?= $this->section('breadcrumb') ?>
     <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Home</a></li>
     <li class="breadcrumb-item"><a href="<?= base_url('impostazioni') ?>">Impostazioni</a></li>
@@ -63,6 +67,28 @@
                         </select>
                     </div>
 
+                    <div class="form-group">
+                        <?php if ($utente->ruolo === 'tecnico'): ?>
+                            <div class="text-muted small">
+                                <i class="fas fa-info-circle mr-1"></i>
+                                I tecnici sono sempre assegnabili agli interventi.
+                            </div>
+                        <?php else: ?>
+                            <div class="custom-control custom-switch">
+                                <input type="hidden" name="assegnabile_interventi" value="0">
+                                <input type="checkbox" class="custom-control-input" id="assegnabile_interventi"
+                                       name="assegnabile_interventi" value="1"
+                                       <?= old('assegnabile_interventi', $utente->assegnabile_interventi) ? 'checked' : '' ?>>
+                                <label class="custom-control-label" for="assegnabile_interventi">
+                                    Assegnabile agli interventi
+                                </label>
+                                <small class="form-text text-muted">
+                                    Questo utente compare nelle liste tecnici e può essere assegnato agli interventi.
+                                </small>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+
                     <hr>
                     <p class="text-muted small">Lascia vuoto per non modificare la password.</p>
 
@@ -94,3 +120,4 @@
     </div>
 </div>
 <?= $this->endSection() ?>
+

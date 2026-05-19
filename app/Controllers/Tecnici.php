@@ -18,7 +18,7 @@ class Tecnici extends BaseController
 
     private function coloriUsati(int $escludiId = 0): array
     {
-        $q = (new UserModel())->where('ruolo', 'tecnico')->select('colore');
+        $q = (new UserModel())->whereAssegnabile()->select('colore');
         if ($escludiId) {
             $q->where('id !=', $escludiId);
         }
@@ -28,7 +28,7 @@ class Tecnici extends BaseController
     public function index(): string
     {
         $users   = new UserModel();
-        $tecnici = $users->where('ruolo', 'tecnico')->orderBy('cognome', 'ASC')->findAll();
+        $tecnici = $users->whereAssegnabile()->orderBy('cognome', 'ASC')->findAll();
 
         $rows = db_connect()
             ->table('tecnici_competenze tc')
@@ -121,7 +121,7 @@ class Tecnici extends BaseController
         $users   = new UserModel();
         $tecnico = $users->find($id);
 
-        if (! $tecnico || $tecnico->ruolo !== 'tecnico') {
+        if (! $tecnico || ($tecnico->ruolo !== 'tecnico' && ! $tecnico->assegnabile_interventi)) {
             return redirect()->to('sistema/tecnici')->with('error', 'Tecnico non trovato.');
         }
 
@@ -161,7 +161,7 @@ class Tecnici extends BaseController
         $users   = new UserModel();
         $tecnico = $users->find($id);
 
-        if (! $tecnico || $tecnico->ruolo !== 'tecnico') {
+        if (! $tecnico || ($tecnico->ruolo !== 'tecnico' && ! $tecnico->assegnabile_interventi)) {
             return redirect()->to('sistema/tecnici')->with('error', 'Tecnico non trovato.');
         }
 
@@ -179,7 +179,7 @@ class Tecnici extends BaseController
         $users   = new UserModel();
         $tecnico = $users->find($id);
 
-        if (! $tecnico || $tecnico->ruolo !== 'tecnico') {
+        if (! $tecnico || ($tecnico->ruolo !== 'tecnico' && ! $tecnico->assegnabile_interventi)) {
             return redirect()->to('sistema/tecnici')->with('error', 'Tecnico non trovato.');
         }
 
@@ -235,7 +235,7 @@ class Tecnici extends BaseController
         $users   = new UserModel();
         $tecnico = $users->find($id);
 
-        if (! $tecnico || $tecnico->ruolo !== 'tecnico') {
+        if (! $tecnico || ($tecnico->ruolo !== 'tecnico' && ! $tecnico->assegnabile_interventi)) {
             return redirect()->to('sistema/tecnici')->with('error', 'Tecnico non trovato.');
         }
 
@@ -250,7 +250,7 @@ class Tecnici extends BaseController
         $users   = new UserModel();
         $tecnico = $users->find($id);
 
-        if (! $tecnico || $tecnico->ruolo !== 'tecnico') {
+        if (! $tecnico || ($tecnico->ruolo !== 'tecnico' && ! $tecnico->assegnabile_interventi)) {
             return redirect()->to('sistema/tecnici')->with('error', 'Tecnico non trovato.');
         }
 
@@ -265,7 +265,7 @@ class Tecnici extends BaseController
         $users   = new UserModel();
         $tecnico = $users->find($id);
 
-        if (! $tecnico || $tecnico->ruolo !== 'tecnico') {
+        if (! $tecnico || ($tecnico->ruolo !== 'tecnico' && ! $tecnico->assegnabile_interventi)) {
             return redirect()->to('sistema/tecnici')->with('error', 'Tecnico non trovato.');
         }
 

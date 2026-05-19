@@ -27,8 +27,17 @@ class UserModel extends ShieldUserModel
         'telefono',
         'colore',
         'ruolo',
+        'assegnabile_interventi',
         'ultima_versione_vista',
         'richiede_cambio_auto',
         'veicolo_id',
     ];
+
+    public function whereAssegnabile(): static
+    {
+        return $this->groupStart()
+            ->where('ruolo', 'tecnico')
+            ->orWhere('assegnabile_interventi', 1)
+            ->groupEnd();
+    }
 }

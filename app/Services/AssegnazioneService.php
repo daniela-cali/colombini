@@ -74,7 +74,10 @@ class AssegnazioneService
             ->join('users u', 'u.id = o.tecnico_id')
             ->where('o.giorno', $giorno)
             ->where('o.attivo', 1)
-            ->where('u.ruolo', 'tecnico')
+            ->groupStart()
+                ->where('u.ruolo', 'tecnico')
+                ->orWhere('u.assegnabile_interventi', 1)
+            ->groupEnd()
             ->get()->getResultArray();
     }
 

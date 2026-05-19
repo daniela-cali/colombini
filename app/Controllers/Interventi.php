@@ -86,7 +86,7 @@ class Interventi extends BaseController
         return view('interventi/create', [
             'title'            => 'Nuovo Intervento',
             'page_title'       => 'Nuovo Intervento',
-            'tecnici'          => $users->where('ruolo', 'tecnico')->orderBy('cognome')->findAll(),
+            'tecnici'          => $users->whereAssegnabile()->orderBy('cognome')->findAll(),
             'clienti'          => $clienti->where('stato', 1)->orderBy('ragsoc, cognome')->findAll(),
             'richieste'        => $richiesteList,
             'tipi'             => TipoInterventoModel::comeLista(),
@@ -213,7 +213,7 @@ class Interventi extends BaseController
             'title'      => 'Modifica Intervento #' . $id,
             'page_title' => 'Modifica Intervento',
             'intervento' => $intervento,
-            'tecnici'    => $users->where('ruolo', 'tecnico')->orderBy('cognome')->findAll(),
+            'tecnici'    => $users->whereAssegnabile()->orderBy('cognome')->findAll(),
             'clienti'    => $clientiList,
             'richieste'  => $richiesteAperte,
             'tipi'       => TipoInterventoModel::comeLista(),
