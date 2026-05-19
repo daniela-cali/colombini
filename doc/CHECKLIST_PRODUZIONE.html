@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Checklist Messa in Produzione — Colombini SNC</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; color: #1f2937; padding: 32px 48px; max-width: 900px; margin: auto; }
+
+  h1 { font-size: 20px; color: #2980b9; border-bottom: 3px solid #2980b9; padding-bottom: 8px; margin-bottom: 6px; }
+  .subtitle { color: #6b7280; font-size: 11px; margin-bottom: 28px; }
+
+  h2 { font-size: 14px; font-weight: bold; color: #fff; background: #2980b9; padding: 6px 12px; border-radius: 4px; margin: 24px 0 10px; page-break-after: avoid; }
+
+  h3 { font-size: 12px; font-weight: bold; color: #2980b9; margin: 14px 0 6px 0; }
+
+  ul { list-style: none; padding-left: 0; }
+  li { display: flex; align-items: flex-start; gap: 8px; padding: 4px 0; border-bottom: 1px solid #f3f4f6; line-height: 1.5; }
+  li:last-child { border-bottom: none; }
+
+  .cb { width: 14px; height: 14px; border: 2px solid #9ca3af; border-radius: 3px; flex-shrink: 0; margin-top: 2px; }
+
+  code { background: #f3f4f6; padding: 1px 5px; border-radius: 3px; font-family: 'Cascadia Code', 'Consolas', monospace; font-size: 11px; color: #1e40af; }
+
+  pre { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 4px; padding: 10px 14px; font-family: 'Cascadia Code', 'Consolas', monospace; font-size: 11px; color: #1e40af; margin: 6px 0 6px 22px; white-space: pre-wrap; line-height: 1.6; }
+
+  .note { background: #eff6ff; border-left: 3px solid #2980b9; padding: 8px 12px; border-radius: 0 4px 4px 0; margin-top: 20px; font-size: 12px; color: #1e40af; }
+
+  .footer { text-align: center; color: #9ca3af; font-size: 10px; margin-top: 32px; border-top: 1px solid #e5e7eb; padding-top: 10px; }
+
+  @media print {
+    body { padding: 20px 32px; }
+    h2 { page-break-after: avoid; }
+    pre { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Checklist messa in produzione — Colombini SNC</h1>
+<div class="subtitle">Da completare prima del go-live sulla VPS &nbsp;|&nbsp; Progetto colombini-snc.it</div>
+
+<!-- 1 -->
+<h2>1. File .env sul server</h2>
+<ul>
+  <li><div class="cb"></div><span><code>CI_ENVIRONMENT = production</code> (non <code>development</code>)</span></li>
+  <li><div class="cb"></div><span><code>app.baseURL = 'https://colombini-snc.it'</code> (con HTTPS, senza slash finale)</span></li>
+  <li><div class="cb"></div><span><code>database.default.username</code> — <strong>non usare root</strong>, creare un utente dedicato (vedi sezione DB)</span></li>
+  <li><div class="cb"></div><span><code>database.default.password</code> — password robusta (≥ 20 caratteri, caratteri speciali)</span></li>
+  <li><div class="cb"></div><span><code>encryption.key</code> — generare con <code>php spark key:generate</code> e incollarla nel file</span></li>
+  <li><div class="cb"></div><span><code>email.SMTPUser / email.SMTPPass</code> — aggiornare con credenziali <code>@colombini-snc.it</code></span></li>
+  <li><div class="cb"></div><span><code>ORS_API_KEY</code> — verificare che la chiave OpenRouteService sia valida e non scaduta</span></li>
+  <li><div class="cb"></div><span>Il file <code>.env</code> non è nella root pubblica (<code>public/</code>) ma nella root del progetto — verificare</span></li>
+  <li><div class="cb"></div><span>Permessi del file: <code>chmod 600 .env</code> (leggibile solo dall'utente web)</span></li>
+  <li><div class="cb"></div><span><code>app.forceGlobalSecureRequests = true</code> (forza HTTPS internamente a CI4)</span></li>
+</ul>
+
+<!-- 2 -->
+<h2>2. Database MariaDB</h2>
+<ul>
+  <li><div class="cb"></div><span>Creare un utente dedicato (non root):
+    <pre>CREATE USER 'colombini_app'@'localhost' IDENTIFIED BY 'PasswordRobusta!';
+GRANT SELECT, INSERT, UPDATE, DELETE ON colombini.* TO 'colombini_app'@'localhost';
+FLUSH PRIVILEGES;</pre>
+  </span></li>
+  <li><div class="cb"></div><span>Verificare che <code>root</code> non abbia accesso remoto:
+    <pre>SELECT host, user FROM mysql.user WHERE user = 'root';
+-- deve mostrare solo 'localhost', non '%'</pre>
+  </span></li>
+  <li><div class="cb"></div><span>Porta 3306 non esposta su IP pubblico — verificare con:
+    <pre>netstat -tlnp | grep 3306
+-- deve mostrare 127.0.0.1:3306, non 0.0.0.0:3306</pre>
+  </span></li>
+  <li><div class="cb"></div><span>Backup automatico configurato (cron giornaliero con <code>mysqldump</code>)</span></li>
+</ul>
+
+<!-- 3 -->
+<h2>3. File system e permessi</h2>
+<ul>
+  <li><div class="cb"></div><span>Cartella <code>writable/</code> scrivibile dal web server:
+    <pre>chmod -R 775 writable/
+chown -R www-data:www-data writable/</pre>
+  </span></li>
+  <li><div class="cb"></div><span>Cartella <code>public/uploads/</code> stessa cosa:
+    <pre>chmod -R 775 public/uploads/
+chown -R www-data:www-data public/uploads/</pre>
+  </span></li>
+  <li><div class="cb"></div><span>Le cartelle <code>app/</code>, <code>system/</code>, <code>.env</code>, <code>composer.json</code> non accessibili via browser — il document root del virtualhost punta a <code>public/</code></span></li>
+  <li><div class="cb"></div><span><code>public/uploads/</code> non permette l'esecuzione di PHP (configurare Nginx/Apache — vedi sezione web server)</span></li>
+  <li><div class="cb"></div><span>Rimuovere i file di test dalla root del progetto: <code>demo_clienti.csv</code>, <code>demo_interventi.sql</code>, <code>demo_interventi_2.sql</code></span></li>
+</ul>
+
+<!-- 4 -->
+<h2>4. Web server</h2>
+<h3>Se Nginx</h3>
+<ul>
+  <li><div class="cb"></div><span><code>root</code> punta a <code>/var/www/colombini/public</code></span></li>
+  <li><div class="cb"></div><span>Blocco esecuzione PHP in uploads:
+    <pre>location ~* /uploads/.*\.php$ {
+    deny all;
+}</pre>
+  </span></li>
+  <li><div class="cb"></div><span>Header di sicurezza:
+    <pre>add_header X-Frame-Options "SAMEORIGIN";
+add_header X-Content-Type-Options "nosniff";
+add_header X-XSS-Protection "1; mode=block";
+add_header Referrer-Policy "strict-origin-when-cross-origin";</pre>
+  </span></li>
+  <li><div class="cb"></div><span>Directory listing disabilitato: <code>autoindex off;</code></span></li>
+</ul>
+<h3>Se Apache</h3>
+<ul>
+  <li><div class="cb"></div><span><code>DocumentRoot</code> punta a <code>/var/www/colombini/public</code></span></li>
+  <li><div class="cb"></div><span><code>.htaccess</code> presente in <code>public/</code> (CI4 lo include di default)</span></li>
+  <li><div class="cb"></div><span><code>Options -Indexes</code> nel virtualhost (disabilita directory listing)</span></li>
+  <li><div class="cb"></div><span>Blocco esecuzione PHP in uploads:
+    <pre>&lt;Directory /var/www/colombini/public/uploads&gt;
+    php_flag engine off
+&lt;/Directory&gt;</pre>
+  </span></li>
+</ul>
+
+<!-- 5 -->
+<h2>5. HTTPS / SSL</h2>
+<ul>
+  <li><div class="cb"></div><span>Certificato SSL installato con Certbot (Let's Encrypt — gratuito):
+    <pre>certbot --nginx -d colombini-snc.it -d www.colombini-snc.it</pre>
+  </span></li>
+  <li><div class="cb"></div><span>Redirect automatico HTTP → HTTPS configurato</span></li>
+  <li><div class="cb"></div><span>Rinnovo automatico funzionante: <code>certbot renew --dry-run</code></span></li>
+</ul>
+
+<!-- 6 -->
+<h2>6. CodeIgniter 4 — configurazione produzione</h2>
+<ul>
+  <li><div class="cb"></div><span><code>CI_ENVIRONMENT = production</code> — disabilita le pagine di errore dettagliate (Whoops)</span></li>
+  <li><div class="cb"></div><span>Verificare <code>app/Config/App.php</code>: <code>$indexPage = ''</code></span></li>
+  <li><div class="cb"></div><span>I log di errore vanno in <code>writable/logs/</code> e non sono accessibili via browser</span></li>
+  <li><div class="cb"></div><span>Eseguire <code>php spark migrate</code> dopo ogni deploy</span></li>
+</ul>
+
+<!-- 7 -->
+<h2>7. Email</h2>
+<ul>
+  <li><div class="cb"></div><span>Mittente configurato con indirizzo <code>@colombini-snc.it</code> (es. <code>noreply@colombini-snc.it</code>)</span></li>
+  <li><div class="cb"></div><span>Testare l'invio email dal pannello impostazioni dopo il deploy</span></li>
+  <li><div class="cb"></div><span>Record SPF del dominio include il server SMTP usato (evita spam)</span></li>
+</ul>
+
+<!-- 8 -->
+<h2>8. Accesso SSH alla VPS</h2>
+<ul>
+  <li><div class="cb"></div><span>Accesso SSH solo con chiave (disabilitare login con password): in <code>/etc/ssh/sshd_config</code> → <code>PasswordAuthentication no</code></span></li>
+  <li><div class="cb"></div><span>Cambiare porta SSH default (22) se possibile</span></li>
+  <li><div class="cb"></div><span>Firewall configurato (solo porte necessarie):
+    <pre>ufw allow 80/tcp
+ufw allow 443/tcp
+ufw allow &lt;porta-ssh&gt;/tcp
+ufw enable</pre>
+  </span></li>
+</ul>
+
+<!-- 9 -->
+<h2>9. Verifica finale</h2>
+<ul>
+  <li><div class="cb"></div><span>Aprire <code>https://colombini-snc.it</code> in incognito — nessun errore CI4 visibile</span></li>
+  <li><div class="cb"></div><span>Tentare di accedere a <code>https://colombini-snc.it/.env</code> — deve rispondere 403 o 404</span></li>
+  <li><div class="cb"></div><span>Tentare di accedere a <code>https://colombini-snc.it/app/</code> — deve rispondere 403 o 404</span></li>
+  <li><div class="cb"></div><span>Testare login, creazione intervento, pianificazione, stampa PDF</span></li>
+  <li><div class="cb"></div><span>Verificare che il logo aziendale sia presente in <code>public/uploads/</code></span></li>
+  <li><div class="cb"></div><span>Controllare <code>writable/logs/</code> — nessun errore dopo i primi accessi</span></li>
+</ul>
+
+<div class="note">
+  Quando sei pronta per il go-live, puoi condividere l'accesso SSH e verifico tutto insieme a te punto per punto.
+</div>
+
+<div class="footer">Colombini SNC — colombini-snc.it &nbsp;|&nbsp; Generato il 19/05/2026</div>
+
+</body>
+</html>
