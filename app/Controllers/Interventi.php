@@ -423,7 +423,16 @@ class Interventi extends BaseController
         if ($inviato) {
             return redirect()->back()->with('success', 'Rapportino inviato a ' . esc($emailDest) . '.');
         }
-        return redirect()->back()->with('error', 'Errore nell\'invio email. Verifica la configurazione SMTP nelle impostazioni.');
+
+        $debug = $mailer->printDebugger(['headers']);
+        $errMsg = 'Errore nell\'invio email.';
+        if (str_contains($debug, 'fsockopen') || str_contains($debug, 'Unable to connect')) {
+            $errMsg .= ' Impossibile raggiungere il server SMTP — verifica la connettività di rete o il firewall.';
+        } else {
+            $errMsg .= ' Verifica la configurazione SMTP nelle impostazioni.';
+        }
+        log_message('error', 'inviaEmail #' . $id . ' debug: ' . $debug);
+        return redirect()->back()->with('error', $errMsg);
     }
 
     private function _datiRapportino(int $id): ?array

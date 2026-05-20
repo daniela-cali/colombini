@@ -1,7 +1,7 @@
 <table cellpadding="0" cellspacing="0" border="0"
-       style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#374151;max-width:380px;background:#ffffff;border-top:3px solid #388fc0;">
+       style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#374151;max-width:380px;background-color:#ffffff !important;border-top:3px solid #388fc0;">
     <tr>
-        <td style="padding:12px 16px 14px 16px;">
+        <td style="padding:12px 16px 14px 16px;background-color:#ffffff !important;color:#374151 !important;">
 
             <?php if ($logoSrc): ?>
             <img src="<?= $logoSrc ?>" alt="<?= esc($aziendaNome) ?>"

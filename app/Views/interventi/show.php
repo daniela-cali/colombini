@@ -226,7 +226,7 @@
 <div class="modal fade" id="modalEmail" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form method="post" action="<?= base_url('interventi/' . $intervento['id'] . '/invia-email') ?>">
+            <form method="post" action="<?= base_url('interventi/' . $intervento['id'] . '/invia-email') ?>" id="form-invia-email">
                 <?= csrf_field() ?>
                 <div class="modal-header" style="background:var(--clr-teal);color:#fff;">
                     <h5 class="modal-title">
@@ -247,7 +247,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Annulla</button>
-                    <button type="submit" class="btn btn-info btn-sm">
+                    <button type="submit" id="btn-invia-email" class="btn btn-info btn-sm">
                         <i class="fas fa-paper-plane mr-1"></i> Invia
                     </button>
                 </div>
@@ -327,6 +327,19 @@
 </script>
 <?= $this->endSection() ?>
 <?php endif; ?>
+
+<?= $this->section('scripts') ?>
+<script>
+document.getElementById('form-invia-email').addEventListener('submit', function () {
+    var overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;';
+    overlay.innerHTML = '<div class="spinner-border text-light" style="width:3rem;height:3rem;" role="status"></div>'
+                      + '<span style="color:#fff;font-size:1rem;font-weight:500;">Invio email in corso&hellip;</span>';
+    document.body.appendChild(overlay);
+    document.getElementById('btn-invia-email').disabled = true;
+});
+</script>
+<?= $this->endSection() ?>
 
 <?= $this->section('help') ?>
 <?= $this->include('help/interventi/show') ?>
