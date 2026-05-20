@@ -32,7 +32,7 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 - **Doppio ruolo admin+tecnico** — flag `assegnabile_interventi` su `users`: un admin (o staff/operativo) con questo flag attivo compare nelle liste tecnici, può essere assegnato agli interventi e ha accesso alla scheda tecnico (orari, competenze, veicolo)
 
 ### Corretto
-- **Firma email** — sfondo trasparente illeggibile in dark mode: aggiunto `background-color:#ffffff !important` su tabella e cella
+- **Firma email** — sfondo trasparente illeggibile in dark mode: template HTML completo con `bgcolor` su body e tabella wrapper, `color-scheme: light only` per forzare tema chiaro nei client che lo supportano
 - **Invio email — messaggio errore** — errore generico sostituito con messaggio specifico per problemi di connettività SMTP vs configurazione
 - **Invio email — overlay attesa** — aggiunto spinner a schermo intero durante l'invio per evitare doppi click
 - **Pianificazione — modal pool** — descrizione intervento assente dalla modal: aggiunto `descrizione` alla SELECT della `queryInterventi`

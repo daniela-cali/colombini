@@ -409,12 +409,11 @@ class Interventi extends BaseController
 
         $mailer->setMailType('html');
         $mailer->setSubject('Rapportino intervento #' . $id . ' - ' . $dati['nomeCliente'] . ' - ' . $aziendaNome);
-        $mailer->setMessage(
-            '<p>Gentile ' . htmlspecialchars($dati['nomeCliente'], ENT_QUOTES, 'UTF-8') . ',</p>' .
-            '<p>in allegato il rapportino relativo all\'intervento #' . $id . '.</p>' .
-            '<p>Cordiali saluti,</p>' .
-            $firma
-        );
+        $mailer->setMessage(view('email/rapportino', [
+            'nomeCliente'  => $dati['nomeCliente'],
+            'interventoId' => $id,
+            'firma'        => $firma,
+        ], ['debug' => false]));
         $mailer->attach($tmpFile, 'attachment', 'rapportino-' . $id . '.pdf');
 
         $inviato = $mailer->send(false);
