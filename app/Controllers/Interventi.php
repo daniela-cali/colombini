@@ -306,10 +306,23 @@ class Interventi extends BaseController
             'stato'              => 'completato',
             'data_completamento' => date('Y-m-d H:i:s'),
         ];
+
         $note = trim($this->request->getPost('note_chiusura') ?? '');
         if ($note !== '') {
             $data['note_chiusura'] = $note;
         }
+
+        $firmaBase64  = $this->request->getPost('firma_tecnico_data');
+        $presaVisione = (bool) $this->request->getPost('presa_visione_tecnico');
+
+        if ($firmaBase64 && str_starts_with($firmaBase64, 'data:image/png;base64,')) {
+            $data['firma_tecnico']    = $firmaBase64;
+            $data['firma_tecnico_at'] = date('Y-m-d H:i:s');
+        } elseif ($presaVisione) {
+            $data['firma_tecnico']    = 'presa_visione';
+            $data['firma_tecnico_at'] = date('Y-m-d H:i:s');
+        }
+
         $model->update($id, $data);
         $from = $this->request->getPost('from') ?: 'interventi/' . $id;
         return redirect()->to($from)->with('success', 'Intervento chiuso.');
@@ -341,6 +354,9 @@ class Interventi extends BaseController
         if (! $dati) {
             return redirect()->to('interventi')->with('error', 'Intervento non trovato.');
         }
+        if ($dati['intervento']['stato'] !== 'completato') {
+            return redirect()->to('interventi/' . $id)->with('error', 'Il rapportino è disponibile solo per gli interventi completati.');
+        }
         $html = view('interventi/pdf_rapportino', $dati);
 
         $opt = new Options();
@@ -362,6 +378,9 @@ class Interventi extends BaseController
         $dati = $this->_datiRapportino($id);
         if (! $dati) {
             return redirect()->back()->with('error', 'Intervento non trovato.');
+        }
+        if ($dati['intervento']['stato'] !== 'completato') {
+            return redirect()->back()->with('error', 'Il rapportino è disponibile solo per gli interventi completati.');
         }
 
         $emailCliente = $dati['intervento']['cliente_email'] ?? '';
@@ -432,6 +451,36 @@ class Interventi extends BaseController
         }
         log_message('error', 'inviaEmail #' . $id . ' debug: ' . $debug);
         return redirect()->back()->with('error', $errMsg);
+    }
+
+    public function salvaFirma(int $id)
+    {
+        $model     = new InterventoModel();
+        $intervento = $model->find($id);
+
+        if (! $intervento || $intervento['stato'] !== 'completato') {
+            return redirect()->to('interventi/' . $id)->with('error', 'Firma non consentita per questo intervento.');
+        }
+
+        $firmaBase64  = $this->request->getPost('firma_data');
+        $presaVisione = (bool) $this->request->getPost('presa_visione');
+
+        if ($firmaBase64 && str_starts_with($firmaBase64, 'data:image/png;base64,')) {
+            $valore  = $firmaBase64;
+            $success = 'Firma raccolta correttamente.';
+        } elseif ($presaVisione) {
+            $valore  = 'presa_visione';
+            $success = 'Presa visione registrata.';
+        } else {
+            return redirect()->to('interventi/' . $id)->with('error', 'Firma non valida.');
+        }
+
+        $model->update($id, [
+            'firma_cliente' => $valore,
+            'firma_at'      => date('Y-m-d H:i:s'),
+        ]);
+
+        return redirect()->to('interventi/' . $id)->with('success', $success);
     }
 
     private function _datiRapportino(int $id): ?array

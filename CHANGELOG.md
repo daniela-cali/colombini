@@ -31,6 +31,11 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 - **Sidebar per ruolo** — i tecnici vedono solo le sezioni accessibili (Dashboard, Calendario, Clienti, Impianti, Interventi, Magazzino); riorganizzazione sezioni: Pianificazione e Viaggi sotto Assistenza, Preventivi in nuova sezione Commerciale
 - **Doppio ruolo admin+tecnico** — flag `assegnabile_interventi` su `users`: un admin (o staff/operativo) con questo flag attivo compare nelle liste tecnici, può essere assegnato agli interventi e ha accesso alla scheda tecnico (orari, competenze, veicolo)
 
+### Aggiunto (continued)
+- **Firma touch cliente** — raccolta firma digitale al completamento dell'intervento: canvas con signature_pad (dito/stilo), salvataggio base64 PNG nel DB (`firma_cliente` + `firma_at`); anteprima firma nella scheda intervento; firma incorporata nel PDF rapportino
+- **Firma touch tecnico** — il tecnico può firmare (o dichiarare presa visione) direttamente nella modal di chiusura intervento; firma salvata in `firma_tecnico` + `firma_tecnico_at`; visualizzata in scheda e PDF accanto alla firma cliente
+- **Presa visione** — fallback testuale per entrambe le firme: se il canvas non viene usato è disponibile una checkbox "presa visione" che registra la conferma senza immagine
+
 ### Corretto
 - **Firma email** — sfondo trasparente illeggibile in dark mode: template HTML completo con `bgcolor` su body e tabella wrapper, `color-scheme: light only` per forzare tema chiaro nei client che lo supportano
 - **Invio email — messaggio errore** — errore generico sostituito con messaggio specifico per problemi di connettività SMTP vs configurazione

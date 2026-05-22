@@ -37,6 +37,7 @@ table.dettagli tr:last-child td { border-bottom: none; }
 table.firme { width: 100%; margin-top: 44px; }
 table.firme td { width: 50%; padding: 0 20px; text-align: center; }
 .firma-line { border-top: 1px solid #9ca3af; padding-top: 6px; font-size: 10px; color: #6b7280; }
+.firma-img { max-width: 180px; max-height: 70px; display: block; margin: 0 auto 6px; }
 
 /* Footer */
 .footer { border-top: 1px solid #e5e7eb; margin-top: 28px; padding-top: 7px;
@@ -100,8 +101,26 @@ table.firme td { width: 50%; padding: 0 20px; text-align: center; }
 
 <!-- Firme -->
 <table class="firme"><tr>
-    <td><div class="firma-line">Firma Tecnico — <?= esc($nomeTecnico) ?></div></td>
-    <td><div class="firma-line">Firma Cliente — <?= esc($nomeCliente) ?></div></td>
+    <td>
+        <?php if ($intervento['firma_tecnico']): ?>
+            <?php if (str_starts_with($intervento['firma_tecnico'], 'data:image/png;base64,')): ?>
+                <img src="<?= $intervento['firma_tecnico'] ?>" alt="Firma tecnico" class="firma-img">
+            <?php else: ?>
+                <div style="font-size:9px;color:#6b7280;margin-bottom:6px;">✓ Presa visione</div>
+            <?php endif; ?>
+        <?php endif; ?>
+        <div class="firma-line">Firma Tecnico — <?= esc($nomeTecnico) ?></div>
+    </td>
+    <td>
+        <?php if ($intervento['firma_cliente']): ?>
+            <?php if (str_starts_with($intervento['firma_cliente'], 'data:image/png;base64,')): ?>
+                <img src="<?= $intervento['firma_cliente'] ?>" alt="Firma cliente" class="firma-img">
+            <?php else: ?>
+                <div style="font-size:9px;color:#6b7280;margin-bottom:6px;">✓ Presa visione</div>
+            <?php endif; ?>
+        <?php endif; ?>
+        <div class="firma-line">Firma Cliente — <?= esc($nomeCliente) ?></div>
+    </td>
 </tr></table>
 
 <div class="footer">
