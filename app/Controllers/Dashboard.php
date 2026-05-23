@@ -63,7 +63,8 @@ class Dashboard extends BaseController
         $interventiModel = new InterventoModel();
         $id = $utente->id;
 
-        $interventi = $interventiModel->perTecnico($id);
+        $interventiMiei = $interventiModel->conDettagli(0, $id);
+        $tuttiAperti    = $interventiModel->conDettagli();
 
         $mese = date('Y-m');
         $cPianificati      = 0;
@@ -71,7 +72,7 @@ class Dashboard extends BaseController
         $cCompletatiMese   = 0;
         $cTotaleCompletati = 0;
 
-        foreach ($interventi as $inv) {
+        foreach ($interventiMiei as $inv) {
             if ($inv['stato'] === 'pianificato') $cPianificati++;
             if ($inv['stato'] === 'in_corso')    $cInCorso++;
             if ($inv['stato'] === 'completato') {
@@ -80,18 +81,23 @@ class Dashboard extends BaseController
             }
         }
 
-        $prossimi = array_filter($interventi, fn($i) =>
-            in_array($i['stato'], ['pianificato', 'in_corso'])
+        $prossimi = array_filter($tuttiAperti, fn($i) =>
+            in_array($i['stato'], ['da_pianificare', 'pianificato', 'in_corso'])
+            && (empty($i['tecnico_id']) || (int) $i['tecnico_id'] === $id)
         );
-        usort($prossimi, fn($a, $b) =>
-            strcmp($a['data_pianificata'] ?? '', $b['data_pianificata'] ?? '')
-        );
+        usort($prossimi, function ($a, $b) {
+            $aNonAssegnato = empty($a['tecnico_id']) ? 0 : 1;
+            $bNonAssegnato = empty($b['tecnico_id']) ? 0 : 1;
+            if ($aNonAssegnato !== $bNonAssegnato) {
+                return $aNonAssegnato - $bNonAssegnato;
+            }
+            return strcmp($a['data_pianificata'] ?? '', $b['data_pianificata'] ?? '');
+        });
 
         return view('dashboard/tecnico', [
             'title'            => 'La mia agenda',
             'page_title'       => 'La mia agenda',
             'tecnico'          => $utente,
-            'interventi'       => $interventi,
             'prossimi'         => array_slice($prossimi, 0, 10),
             'stats' => [
                 'pianificati'       => $cPianificati,

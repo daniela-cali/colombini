@@ -2,7 +2,8 @@
 
 <?= $this->section('breadcrumb') ?>
     <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Home</a></li>
-    <li class="breadcrumb-item active">Interventi</li>
+    <li class="breadcrumb-item"><a href="<?= base_url('interventi') ?>">Interventi</a></li>
+    <li class="breadcrumb-item active">I miei interventi</li>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
@@ -49,6 +50,7 @@ function _rigaIntervento(array $inv, array $tipi, array $icone, array $stati): v
 ?>
     <tr>
         <td class="d-none d-md-table-cell text-muted small"><?= $inv['id'] ?></td>
+        <td class="d-none d-lg-table-cell"><?= $cliente ?></td>
         <td>
             <i class="fas <?= esc($icone[$inv['tipo_intervento']] ?? 'fa-tools') ?> mr-1 text-muted"></i><strong><?= esc($tipi[$inv['tipo_intervento']] ?? $inv['tipo_intervento']) ?></strong>
             <?php if ($inv['luogo_intervento']): ?>
@@ -58,7 +60,6 @@ function _rigaIntervento(array $inv, array $tipi, array $icone, array $stati): v
                 <br><small class="text-muted"><?= esc(mb_strimwidth($inv['descrizione'], 0, 80, '…')) ?></small>
             <?php endif; ?>
         </td>
-        <td class="d-none d-lg-table-cell"><?= $cliente ?></td>
         <td class="small">
             <?php if ($inv['data_pianificata']): ?>
                 <?= date('d/m/Y H:i', strtotime($inv['data_pianificata'])) ?>
@@ -85,8 +86,8 @@ function _tabellaGruppo(array $interventi, array $tipi, array $icone, array $sta
             <thead class="thead-light">
                 <tr>
                     <th class="d-none d-md-table-cell" style="width:40px">#</th>
-                    <th>Tipo</th>
                     <th class="d-none d-lg-table-cell">Cliente</th>
+                    <th>Tipo</th>
                     <th>Data pianificata</th>
                     <th>Stato</th>
                     <th style="width:50px"></th>

@@ -26,16 +26,21 @@ class ViaggioModel extends Model
         'completato'  => ['label' => 'Completato', 'badge' => 'badge-success'],
     ];
 
-    public function perData(string $data): array
+    public function perData(string $data, ?int $tecnicoId = null): array
     {
-        return $this->select('viaggi.*, u.nome, u.cognome, u.colore,
+        $q = $this->select('viaggi.*, u.nome, u.cognome, u.colore,
                               v.nome AS veicolo_nome, v.targa AS veicolo_targa,
                               (SELECT COUNT(*) FROM viaggi_tappe vt WHERE vt.viaggio_id = viaggi.id) AS tappe_count')
                     ->join('users u', 'u.id = viaggi.tecnico_id')
                     ->join('veicoli v', 'v.id = viaggi.veicolo_id', 'left')
                     ->where('viaggi.data', $data)
-                    ->orderBy('u.cognome')
-                    ->findAll();
+                    ->orderBy('u.cognome');
+
+        if ($tecnicoId) {
+            $q->where('viaggi.tecnico_id', $tecnicoId);
+        }
+
+        return $q->findAll();
     }
 
     public function conTappe(int $id): ?array

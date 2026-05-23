@@ -7,42 +7,46 @@
 <?= $this->section('content') ?>
 
 <!-- Widgets contatori -->
+<?php
+    $tid = auth()->user()->id;
+    $urlBase = base_url('interventi?tecnico_id=' . $tid . '&stato=');
+?>
 <div class="row">
     <div class="col-6 col-lg-3">
-        <div class="info-box">
+        <a href="<?= $urlBase . 'pianificato' ?>" class="info-box" style="text-decoration:none;color:inherit;">
             <span class="info-box-icon bg-secondary"><i class="fas fa-calendar-alt"></i></span>
             <div class="info-box-content">
                 <span class="info-box-text">Pianificati</span>
                 <span class="info-box-number"><?= $stats['pianificati'] ?></span>
             </div>
-        </div>
+        </a>
     </div>
     <div class="col-6 col-lg-3">
-        <div class="info-box">
+        <a href="<?= $urlBase . 'in_corso' ?>" class="info-box" style="text-decoration:none;color:inherit;">
             <span class="info-box-icon bg-warning"><i class="fas fa-spinner"></i></span>
             <div class="info-box-content">
                 <span class="info-box-text">In corso</span>
                 <span class="info-box-number"><?= $stats['in_corso'] ?></span>
             </div>
-        </div>
+        </a>
     </div>
     <div class="col-6 col-lg-3">
-        <div class="info-box">
+        <a href="<?= $urlBase . 'completato' ?>" class="info-box" style="text-decoration:none;color:inherit;">
             <span class="info-box-icon bg-success"><i class="fas fa-check-circle"></i></span>
             <div class="info-box-content">
                 <span class="info-box-text">Completati questo mese</span>
                 <span class="info-box-number"><?= $stats['completati_mese'] ?></span>
             </div>
-        </div>
+        </a>
     </div>
     <div class="col-6 col-lg-3">
-        <div class="info-box">
+        <a href="<?= $urlBase . 'completato' ?>" class="info-box" style="text-decoration:none;color:inherit;">
             <span class="info-box-icon bg-primary"><i class="fas fa-tools"></i></span>
             <div class="info-box-content">
                 <span class="info-box-text">Totale completati</span>
                 <span class="info-box-number"><?= $stats['totale_completati'] ?></span>
             </div>
-        </div>
+        </a>
     </div>
 </div>
 
@@ -55,9 +59,9 @@
                     <i class="fas fa-calendar-check mr-1"></i> Prossimi interventi
                 </h3>
                 <div class="card-tools">
-                    <a href="<?= base_url('interventi?tecnico_id=' . $tecnico->id) ?>"
-                       class="btn btn-sm btn-outline-primary">
-                        Tutti i miei interventi
+                    <a href="<?= base_url('interventi?tecnico_id=' . auth()->user()->id) ?>"
+                       class="btn btn-sm btn-outline-light">
+                        <i class="fas fa-list mr-1"></i> Tutti i miei interventi
                     </a>
                 </div>
             </div>
@@ -77,6 +81,7 @@
                                     <th>Cliente</th>
                                     <th class="d-none d-md-table-cell">Luogo</th>
                                     <th>Stato</th>
+                                    <th class="d-none d-md-table-cell">Assegnato</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -87,6 +92,7 @@
                                     ?: trim(($inv['cliente_cognome'] ?? '') . ' ' . ($inv['cliente_nome'] ?? ''));
                             ?>
                                 <tr>
+                                    <!-- Data Pianificata -->
                                     <td class="align-middle text-nowrap">
                                         <?php if ($inv['data_pianificata']):
                                             $ts = strtotime($inv['data_pianificata']);
@@ -101,19 +107,40 @@
                                             <span class="text-muted">—</span>
                                         <?php endif; ?>
                                     </td>
+                                    <!-- Tipo intervento -->
                                     <td class="align-middle">
                                         <i class="fas <?= esc($icone[$inv['tipo_intervento']] ?? 'fa-tools') ?> mr-1 text-muted"></i><?= esc($tipi[$inv['tipo_intervento']] ?? $inv['tipo_intervento']) ?>
                                     </td>
+                                    <!-- Cliente -->
                                     <td class="align-middle">
                                         <?= $cliente ? esc($cliente) : '<span class="text-muted">—</span>' ?>
                                     </td>
+                                    <!-- Luogo intervento -->
                                     <td class="d-none d-md-table-cell align-middle text-muted small">
                                         <?= esc($inv['luogo_intervento'] ?? '—') ?>
                                     </td>
+                                    <!-- Stato -->
                                     <td class="align-middle">
                                         <span class="badge <?= $s['badge'] ?>"><?= $s['label'] ?></span>
                                     </td>
-                                    <td class="align-middle text-right">
+                                    <!-- Assegnato -->
+                                    <td class="d-none d-md-table-cell align-middle">
+                                    <?php if ($inv['stato'] == 'pianificato'): ?>
+                                        <?= $inv['tecnico_id'] == auth()->user()->id ? 'A te' : esc($inv['tecnico_nome']). ' ' . esc($inv['tecnico_cognome']) ?>
+                                    <?php else: ?>
+                                        Non ancora assegnato
+                                    <?php endif; ?>
+                                    </td>
+                                    <td class="align-middle text-right text-nowrap">
+                                        <?php if ($inv['stato'] === 'da_pianificare' && empty($inv['tecnico_id'])): ?>
+                                        <form method="post" action="<?= base_url('interventi/' . $inv['id'] . '/assegna') ?>" class="d-inline">
+                                            <?= csrf_field() ?>
+                                            <input type="hidden" name="tecnico_id" value="<?= auth()->user()->id ?>">
+                                            <button type="submit" class="btn btn-xs btn-success" title="Assegna a me">
+                                                <i class="fas fa-hand-pointer"></i>
+                                            </button>
+                                        </form>
+                                        <?php endif; ?>
                                         <a href="<?= base_url('interventi/' . $inv['id']) ?>"
                                            class="btn btn-xs btn-outline-primary">
                                             <i class="fas fa-eye"></i>

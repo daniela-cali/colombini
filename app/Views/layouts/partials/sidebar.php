@@ -2,8 +2,7 @@
 
     <a href="<?= base_url('/') ?>" class="brand-link">
         <i class="fas fa-water ml-3 mr-2" style="color: var(--clr-teal); font-size:1.4rem;"></i>
-        <span class="brand-text font-weight-bold">Colombini</span>
-        <small class="brand-text text-sm ml-1" style="opacity:.7;">Piscine</small>
+        <span class="brand-text font-weight-bold">Colombini Snc</span>
     </a>
 
     <div class="sidebar">
