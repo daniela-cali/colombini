@@ -61,6 +61,7 @@ class Dashboard extends BaseController
     private function dashboardTecnico(\CodeIgniter\Shield\Entities\User $utente): string
     {
         $interventiModel = new InterventoModel();
+        $clientiModel    = new ClienteModel();
         $id = $utente->id;
 
         $interventiMiei = $interventiModel->conDettagli(0, $id);
@@ -108,6 +109,7 @@ class Dashboard extends BaseController
             'tipi'             => TipoInterventoModel::comeLista(),
             'icone'            => array_column(TipoInterventoModel::comeListaCompleta(), 'icona', 'codice'),
             'stati'            => InterventoModel::STATI,
+            'clienti'          => $clientiModel->where('stato', 1)->orderBy('ragsoc')->orderBy('cognome')->findAll(),
         ]);
     }
 }
