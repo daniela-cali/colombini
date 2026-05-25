@@ -30,11 +30,14 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 - **Restrizioni accesso tecnici** — filtro `solo-staff` applicato alle route pianificazione, ottimizzazione, viaggi, preventivi, report e configurazione (sistema + impostazioni): i tecnici vengono reindirizzati in dashboard
 - **Sidebar per ruolo** — i tecnici vedono solo le sezioni accessibili (Dashboard, Calendario, Clienti, Impianti, Interventi, Magazzino); riorganizzazione sezioni: Pianificazione e Viaggi sotto Assistenza, Preventivi in nuova sezione Commerciale
 - **Doppio ruolo admin+tecnico** — flag `assegnabile_interventi` su `users`: un admin (o staff/operativo) con questo flag attivo compare nelle liste tecnici, può essere assegnato agli interventi e ha accesso alla scheda tecnico (orari, competenze, veicolo)
-
-### Aggiunto (continued)
 - **Firma touch cliente** — raccolta firma digitale al completamento dell'intervento: canvas con signature_pad (dito/stilo), salvataggio base64 PNG nel DB (`firma_cliente` + `firma_at`); anteprima firma nella scheda intervento; firma incorporata nel PDF rapportino
 - **Firma touch tecnico** — il tecnico può firmare (o dichiarare presa visione) direttamente nella modal di chiusura intervento; firma salvata in `firma_tecnico` + `firma_tecnico_at`; visualizzata in scheda e PDF accanto alla firma cliente
 - **Presa visione** — fallback testuale per entrambe le firme: se il canvas non viene usato è disponibile una checkbox "presa visione" che registra la conferma senza immagine
+- **Dashboard tecnico — info-box cliccabili** — ogni widget filtra la pagina interventi per stato e tecnico; contatori calcolati sui soli interventi del tecnico loggato
+- **Dashboard tecnico — interventi da assegnare** — gli interventi `da_pianificare` non assegnati appaiono in cima alla tabella con pulsante "Assegna a me"
+- **Dashboard tecnico — pulsante "Tutti i miei interventi"** — link diretto all'elenco filtrato per tecnico
+- **Viaggi — filtro automatico per tecnico** — se l'utente è tecnico, la pagina viaggi mostra solo i propri viaggi
+- **Elenco interventi — colonna Cliente prima di Tipo** — riordinamento colonne per leggibilità immediata
 
 ### Corretto
 - **Firma email** — sfondo trasparente illeggibile in dark mode: template HTML completo con `bgcolor` su body e tabella wrapper, `color-scheme: light only` per forzare tema chiaro nei client che lo supportano

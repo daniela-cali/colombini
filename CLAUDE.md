@@ -33,6 +33,12 @@ Per ogni nuova view creare sempre il corrispondente file help in `app/Views/help
 Prima di ogni commit aggiornare `CHANGELOG.md` seguendo il pattern markdown esistente e includerlo nella stessa commit.
 Il sistema confronta `CHANGELOG.md` con il campo `users.ultima_versione_vista` per mostrare le novità all'avvio dell'applicazione.
 
+## Ripristino diff VSCode (Claude Code)
+Se il diff delle modifiche smette di apparire nell'IDE VSCode:
+1. Verificare che `~/.claude/settings.json` abbia `"defaultMode": "default"` (non `"acceptEdits"`)
+2. Eseguire `Ctrl+Shift+P` → **Developer: Reload Window** per ricaricare l'estensione
+3. Se non basta, aprire una nuova sessione di Claude Code
+
 ## Dominio aziendale
 Il dominio aziendale è **colombini-snc.it**.
 Usare per email admin (es. admin@colombini-snc.it), baseURL in produzione e qualsiasi riferimento al dominio.

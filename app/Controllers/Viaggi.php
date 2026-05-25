@@ -15,12 +15,15 @@ class Viaggi extends BaseController
     {
         $data   = $this->request->getGet('data') ?? date('Y-m-d');
         $model  = new ViaggioModel();
+        $utente = auth()->user();
+
+        $tecnicoFiltro = ($utente->ruolo === 'tecnico') ? $utente->id : null;
 
         return view('viaggi/index', [
             'title'      => 'Viaggi',
             'page_title' => 'Viaggi',
             'data'       => $data,
-            'viaggi'     => $model->perData($data),
+            'viaggi'     => $model->perData($data, $tecnicoFiltro),
             'stati'      => ViaggioModel::STATI,
         ]);
     }

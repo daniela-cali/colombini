@@ -15,7 +15,10 @@ class Interventi extends BaseController
     public function index(): string
     {
         $model      = new InterventoModel();
-        $interventi = $model->conDettagli();
+        /*Elvis operator: se vero, restituisce il valore stesso, altrimenti null */
+        $tecnicoFiltro = (int) $this->request->getGet('tecnico_id') ?: null;
+        $statoFiltro = (string) $this->request->getGet('stato') ?: null;
+        $interventi = $model->conDettagli(0, $tecnicoFiltro, $statoFiltro);
         $tipi       = TipoInterventoModel::comeLista();
         $icone      = array_column(TipoInterventoModel::comeListaCompleta(), 'icona', 'codice');
 
@@ -46,6 +49,7 @@ class Interventi extends BaseController
         // Ordina ogni gruppo per data_pianificata ASC (prima i più vicini)
         foreach ($perTecnico as &$gruppo) {
             usort($gruppo['interventi'], fn($a, $b) =>
+                /* Se data_pianificata è null mette come fallback '9999-99-99' in modo da finire in fondo */
                 strcmp($a['data_pianificata'] ?? '9999-99-99', $b['data_pianificata'] ?? '9999-99-99')
             );
         }

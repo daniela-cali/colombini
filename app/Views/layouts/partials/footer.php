@@ -1,7 +1,7 @@
 <footer class="main-footer">
     <strong>
         <i class="fas fa-water mr-1" style="color: var(--clr-teal);"></i>
-        Colombini Piscine &amp; Impianti
+        Colombini Snc Piscine &amp; Impianti
     </strong>
     &mdash; Gestione Assistenza
     <div class="float-right d-none d-sm-inline-block">
