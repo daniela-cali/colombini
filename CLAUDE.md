@@ -5,6 +5,7 @@
 - Se dei file sono stati dimenticati nell'ultimo commit, usare `git commit --amend --no-edit` invece di un nuovo commit separato (commit atomici e puliti).
 - Le preferenze e regole di progetto vanno sempre in questo file `CLAUDE.md` (non nel sistema di memoria), così possono essere pushate e condivise.
 - **Review del codice**: creare i file direttamente con Write/Edit e lasciare che l'utente approvi i diff nell'IDE. Non mostrare preview del codice in chat prima di scrivere i file.
+- **Branch Git**: non aprire un branch per ogni piccola modifica. Suggerire attivamente quando NON serve un branch (es. modifiche contenute su una o due view/controller). Usare un branch solo per feature significative o rischiose.
 
 ## AdminLTE 3 — Layout card
 In AdminLTE 3, non usare `d-flex justify-content-between` su `.card-header` e `.card-footer` (il flex annidato non funziona come atteso).

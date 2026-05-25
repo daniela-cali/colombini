@@ -59,6 +59,9 @@
                     <i class="fas fa-calendar-check mr-1"></i> Prossimi interventi
                 </h3>
                 <div class="card-tools">
+                    <button type="button" class="btn btn-sm btn-success mr-1" data-toggle="modal" data-target="#modalNuovoIntervento">
+                        <i class="fas fa-plus mr-1"></i> Nuovo intervento
+                    </button>
                     <a href="<?= base_url('interventi?tecnico_id=' . auth()->user()->id) ?>"
                        class="btn btn-sm btn-outline-light">
                         <i class="fas fa-list mr-1"></i> Tutti i miei interventi
@@ -167,6 +170,57 @@
                     <strong>Interventi nelle vicinanze</strong> — disponibile nella prossima versione.
                 </p>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Nuovo Intervento Rapido -->
+<div class="modal fade" id="modalNuovoIntervento" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success">
+                <h5 class="modal-title text-white"><i class="fas fa-plus mr-1"></i> Nuovo intervento rapido</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+            </div>
+            <form method="post" action="<?= base_url('interventi') ?>">
+                <?= csrf_field() ?>
+                <input type="hidden" name="tecnico_id" value="<?= auth()->user()->id ?>">
+                <input type="hidden" name="stato" value="pianificato">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Tipo di intervento <span class="text-danger">*</span></label>
+                        <select name="tipo_intervento" class="form-control" required>
+                            <option value="">— Seleziona —</option>
+                            <?php foreach ($tipi as $key => $label): ?>
+                                <option value="<?= $key ?>"><?= esc($label) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Cliente</label>
+                        <select name="cliente_id" class="form-control">
+                            <option value="">— Nessuno —</option>
+                            <?php foreach ($clienti as $c): ?>
+                                <option value="<?= $c['id'] ?>">
+                                    <?= esc($c['tipo'] === 'persona_fisica'
+                                        ? trim(($c['cognome'] ?? '') . ' ' . ($c['nome'] ?? ''))
+                                        : ($c['ragsoc'] ?? '')) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-group mb-0">
+                        <label>Data e ora <small class="text-muted">(opzionale)</small></label>
+                        <input type="datetime-local" name="data_pianificata" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-arrow-right mr-1"></i> Crea e vai alla scheda
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
