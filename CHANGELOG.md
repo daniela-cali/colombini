@@ -38,6 +38,8 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 - **Dashboard tecnico — pulsante "Tutti i miei interventi"** — link diretto all'elenco filtrato per tecnico
 - **Viaggi — filtro automatico per tecnico** — se l'utente è tecnico, la pagina viaggi mostra solo i propri viaggi
 - **Elenco interventi — colonna Cliente prima di Tipo** — riordinamento colonne per leggibilità immediata
+- **Intervento rapido dalla dashboard tecnico** — pulsante "Nuovo intervento" apre modal con cliente, tipo e data opzionale; pre-compila tecnico loggato e stato pianificato; redirect diretto alla scheda dopo il salvataggio
+- **Tecnico consigliato** — nel form di creazione intervento, selezionando tipo e cliente appare un badge con il tecnico che ha gestito più spesso quella combinazione (fallback su tipo solo se nessun dato per cliente)
 
 ### Corretto
 - **Firma email** — sfondo trasparente illeggibile in dark mode: template HTML completo con `bgcolor` su body e tabella wrapper, `color-scheme: light only` per forzare tema chiaro nei client che lo supportano

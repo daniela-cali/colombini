@@ -122,4 +122,25 @@ class InterventoModel extends Model
             ->orderBy('interventi.data_pianificata', 'ASC')
             ->findAll();
     }
+
+    public function tecnicoConsigliato(string $tipo, int $clienteId = 0): ?array
+    {
+        $base = fn() => db_connect()->table('interventi i')
+            ->select('i.tecnico_id, u.nome, u.cognome, COUNT(*) AS cnt')
+            ->join('users u', 'u.id = i.tecnico_id')
+            ->where('i.stato', 'completato')
+            ->where('i.tecnico_id IS NOT NULL', null, false)
+            ->where('i.deleted_at IS NULL', null, false)
+            ->where('i.tipo_intervento', $tipo)
+            ->groupBy('i.tecnico_id, u.nome, u.cognome')
+            ->orderBy('cnt', 'DESC')
+            ->limit(1);
+
+        if ($clienteId) {
+            $row = $base()->where('i.cliente_id', $clienteId)->get()->getRowArray();
+            if ($row) return $row;
+        }
+
+        return $base()->get()->getRowArray() ?: null;
+    }
 }

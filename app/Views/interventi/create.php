@@ -145,7 +145,7 @@
                         <!-- Tecnico -->
                         <div class="form-group col-md-6">
                             <label>Tecnico assegnato</label>
-                            <select name="tecnico_id" class="form-control">
+                            <select name="tecnico_id" id="tecnico_id" class="form-control">
                                 <option value="">— Non assegnato —</option>
                                 <?php foreach ($tecnici as $t): ?>
                                     <option value="<?= $t->id ?>"
@@ -155,6 +155,7 @@
                                     </option>
                                 <?php endforeach; ?>
                             </select>
+                            <div id="tecnico-consigliato" class="mt-1"></div>
                         </div>
                     </div>
 
@@ -255,6 +256,36 @@ document.getElementById('btn-geo').addEventListener('click', function () {
         })
         .finally(function () { btn.disabled = false; });
 });
+
+(function () {
+    var selTipo    = document.getElementById('tipo_intervento');
+    var selCliente = document.getElementById('cliente_id');
+    var selTecnico = document.getElementById('tecnico_id');
+    var badge      = document.getElementById('tecnico-consigliato');
+
+    function aggiornaSuggerimento() {
+        var tipo      = selTipo.value;
+        var clienteId = selCliente ? selCliente.value : '';
+        badge.innerHTML = '';
+        if (!tipo) return;
+
+        fetch('<?= base_url('interventi/api/tecnico-consigliato') ?>?tipo_intervento=' + encodeURIComponent(tipo) + '&cliente_id=' + encodeURIComponent(clienteId))
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (!data.tecnico) return;
+                var t = data.tecnico;
+                badge.innerHTML =
+                    '<div class="alert alert-info py-1 px-2 mb-0 small">' +
+                    '<i class="fas fa-lightbulb mr-1"></i>Consigliato: <strong>' + t.cognome + ' ' + t.nome + '</strong>' +
+                    ' <span class="text-muted">(' + t.cnt + ' interventi simili)</span>' +
+                    ' <a href="#" class="ml-2" onclick="document.getElementById(\'tecnico_id\').value=\'' + t.tecnico_id + '\';this.parentElement.remove();return false;">Usa questo</a>' +
+                    '</div>';
+            });
+    }
+
+    selTipo.addEventListener('change', aggiornaSuggerimento);
+    if (selCliente) selCliente.addEventListener('change', aggiornaSuggerimento);
+})();
 </script>
 <?= $this->endSection() ?>
 

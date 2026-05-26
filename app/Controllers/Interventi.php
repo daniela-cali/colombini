@@ -487,6 +487,17 @@ class Interventi extends BaseController
         return redirect()->to('interventi/' . $id)->with('success', $success);
     }
 
+    public function apiTecnicoConsigliato()
+    {
+        $tipo      = $this->request->getGet('tipo_intervento') ?? '';
+        $clienteId = (int) ($this->request->getGet('cliente_id') ?? 0);
+
+        $model   = new InterventoModel();
+        $tecnico = $model->tecnicoConsigliato($tipo, $clienteId);
+
+        return $this->response->setJSON(['tecnico' => $tecnico]);
+    }
+
     private function _datiRapportino(int $id): ?array
     {
         $model      = new InterventoModel();

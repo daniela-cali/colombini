@@ -131,6 +131,7 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
         $routes->get('(:num)/pdf',         'Interventi::pdf/$1');
         $routes->post('(:num)/invia-email', 'Interventi::inviaEmail/$1');
         $routes->post('(:num)/firma',       'Interventi::salvaFirma/$1');
+        $routes->get('api/tecnico-consigliato', 'Interventi::apiTecnicoConsigliato');
     });
 
     $routes->group('preventivi', ['filter' => 'solo-staff'], function (RouteCollection $routes) {
