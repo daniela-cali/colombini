@@ -132,6 +132,9 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
         $routes->post('(:num)/invia-email', 'Interventi::inviaEmail/$1');
         $routes->post('(:num)/firma',       'Interventi::salvaFirma/$1');
         $routes->get('api/tecnico-consigliato', 'Interventi::apiTecnicoConsigliato');
+        $routes->get('api/orario-suggerito',    'Interventi::apiOrarioSuggerito');
+        $routes->post('(:num)/pianifica',              'Interventi::pianificaRapido/$1');
+        $routes->post('(:num)/annulla-pianificazione', 'Interventi::annullaPianificazione/$1');
     });
 
     $routes->group('preventivi', ['filter' => 'solo-staff'], function (RouteCollection $routes) {

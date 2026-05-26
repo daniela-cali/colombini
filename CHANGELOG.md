@@ -9,6 +9,16 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 
 ## [Non rilasciato]
 
+### Aggiunto (branch feature/pianificazione-rapida)
+- **Dashboard admin — Quaderni** — sezione "Da pianificare" raggruppata per tipo intervento con card collassabili; badge contatore per gruppo; pulsante "Pianifica" per ogni intervento con modal inline (data/ora, tecnico, suggerimento API); link "altri N" per tipi con molti interventi
+- **Dashboard admin — widget cliccabili** — i 4 info-box (da pianificare, pianificati, in corso, completati mese) sono link diretti all'elenco interventi filtrato per stato
+- **Dashboard admin — richieste portale** — sezione compatta in fondo con badge "N nuove" e tabella delle ultime 5 richieste
+- **Sidebar — Quaderni e Richieste** — nuove voci sotto Assistenza (solo staff); Richieste mostra badge con contatore nuove in tempo reale
+- **Pianificazione rapida — zona giornata** — la pagina pianificazione sostituisce le colonne per tecnico con un'unica zona "Giornata del [data]"; barra settimanale con contatori interventi per giorno
+- **Pianificazione rapida — assegna al drag** — trascinando un intervento nella giornata si apre un modal: tecnico consigliato via API, data/ora precompilata con orario stimato; salvataggio immediato via `POST /interventi/{id}/pianifica`
+- **Pianificazione rapida — orario suggerito** — nuova API `GET /interventi/api/orario-suggerito`: calcola l'orario libero successivo per il tecnico selezionato tenendo conto di orari di lavoro (`tecnici_orari`), durate stimate dei tipi intervento (`durata_default`) e pausa pranzo; si aggiorna dinamicamente al cambio tecnico nel modal
+- **Pianificazione rapida — annulla pianificazione** — bottone X sulle card già pianificate nella giornata; chiama `POST /interventi/{id}/annulla-pianificazione` che riporta lo stato a `da_pianificare`
+
 ### Aggiunto (branch feature/pianificazione — Pianificazione v.1)
 - **VRP — Competenze tecnici** — tabella `tecnici_competenze` (FK su users e tipi_intervento, livelli: Apprendista / Autonomo / Referente); form inline nella scheda tecnico per assegnare il livello per ogni tipo intervento
 - **VRP — Requisiti veicoli** — colonne `cambio_automatico` e `carico_massimo` su `veicoli`; flag `richiede_cambio_auto` su `users`; form aggiornati per tecnici e veicoli

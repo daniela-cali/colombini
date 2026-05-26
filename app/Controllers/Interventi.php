@@ -7,6 +7,7 @@ use App\Models\InterventoModel;
 use App\Models\TipoInterventoModel;
 use App\Models\UserModel;
 use App\Models\RichiestaModel;
+use CodeIgniter\HTTP\ResponseInterface;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
@@ -487,6 +488,49 @@ class Interventi extends BaseController
         return redirect()->to('interventi/' . $id)->with('success', $success);
     }
 
+    public function pianificaRapido(int $id)
+    {
+        $model     = new InterventoModel();
+        $intervento = $model->find($id);
+
+        if (! $intervento || $intervento['stato'] !== 'da_pianificare') {
+            return $this->response->setStatusCode(400)->setJSON(['ok' => false, 'msg' => 'Intervento non valido.']);
+        }
+
+        $dataPianificata = $this->request->getPost('data_pianificata');
+        $tecnicoId       = $this->request->getPost('tecnico_id') ?: null;
+
+        if (! $dataPianificata) {
+            return $this->response->setStatusCode(400)->setJSON(['ok' => false, 'msg' => 'Data mancante.']);
+        }
+
+        $model->update($id, [
+            'stato'            => 'pianificato',
+            'data_pianificata' => date('Y-m-d H:i:s', strtotime($dataPianificata)),
+            'tecnico_id'       => $tecnicoId,
+        ]);
+
+        return $this->response->setJSON(['ok' => true, 'csrf' => csrf_hash()]);
+    }
+
+    public function annullaPianificazione(int $id): ResponseInterface
+    {
+        $model     = new InterventoModel();
+        $intervento = $model->find($id);
+
+        if (! $intervento || in_array($intervento['stato'], ['completato', 'annullato'])) {
+            return $this->response->setStatusCode(400)->setJSON(['ok' => false, 'msg' => 'Impossibile annullare la pianificazione.']);
+        }
+
+        $model->update($id, [
+            'stato'            => 'da_pianificare',
+            'tecnico_id'       => null,
+            'data_pianificata' => null,
+        ]);
+
+        return $this->response->setJSON(['ok' => true, 'csrf' => csrf_hash()]);
+    }
+
     public function apiTecnicoConsigliato()
     {
         $tipo      = $this->request->getGet('tipo_intervento') ?? '';
@@ -496,6 +540,67 @@ class Interventi extends BaseController
         $tecnico = $model->tecnicoConsigliato($tipo, $clienteId);
 
         return $this->response->setJSON(['tecnico' => $tecnico]);
+    }
+
+    public function apiOrarioSuggerito(): ResponseInterface
+    {
+        $tecnicoId = (int) ($this->request->getGet('tecnico_id') ?? 0);
+        $data      = $this->request->getGet('data') ?? date('Y-m-d');
+
+        $db          = db_connect();
+        $oraInizio   = '08:00';
+        $pausaInizio = null;
+        $pausaFine   = null;
+
+        if ($tecnicoId) {
+            $giorno = (int) date('N', strtotime($data)); // 1=Lun, 7=Dom
+            $orario = $db->table('tecnici_orari')
+                ->where('tecnico_id', $tecnicoId)
+                ->where('giorno', $giorno)
+                ->where('attivo', 1)
+                ->get()->getRowArray();
+
+            if ($orario) {
+                $oraInizio   = substr($orario['ora_inizio'], 0, 5);
+                $pausaInizio = $orario['pausa_inizio'] ? substr($orario['pausa_inizio'], 0, 5) : null;
+                $pausaFine   = $orario['pausa_fine']   ? substr($orario['pausa_fine'],   0, 5) : null;
+            }
+
+            $esistenti = $db->table('interventi i')
+                ->select('i.data_pianificata, COALESCE(tp.durata_default, 60) AS durata')
+                ->join('tipi_intervento tp', 'tp.codice = i.tipo_intervento', 'left')
+                ->whereIn('i.stato', ['pianificato', 'in_corso'])
+                ->where('i.tecnico_id', $tecnicoId)
+                ->where('DATE(i.data_pianificata)', $data)
+                ->where('i.deleted_at IS NULL', null, false)
+                ->orderBy('i.data_pianificata', 'ASC')
+                ->get()->getResultArray();
+        } else {
+            $esistenti = [];
+        }
+
+        $tSuggerito = strtotime($data . ' ' . $oraInizio . ':00');
+
+        foreach ($esistenti as $inv) {
+            $tFine = strtotime($inv['data_pianificata']) + ((int) $inv['durata'] * 60);
+            if ($tFine > $tSuggerito) {
+                $tSuggerito = $tFine;
+            }
+        }
+
+        // Se cade nella pausa, sposta dopo la fine pausa
+        if ($pausaInizio && $pausaFine) {
+            $tPausaIn  = strtotime($data . ' ' . $pausaInizio . ':00');
+            $tPausaOut = strtotime($data . ' ' . $pausaFine . ':00');
+            if ($tSuggerito >= $tPausaIn && $tSuggerito < $tPausaOut) {
+                $tSuggerito = $tPausaOut;
+            }
+        }
+
+        return $this->response->setJSON([
+            'ora'    => date('H:i', $tSuggerito),
+            'n_prev' => count($esistenti),
+        ]);
     }
 
     private function _datiRapportino(int $id): ?array

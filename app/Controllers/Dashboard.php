@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Models\ClienteModel;
 use App\Models\InterventoModel;
 use App\Models\TipoInterventoModel;
 use App\Models\RichiestaModel;
@@ -23,38 +22,41 @@ class Dashboard extends BaseController
 
     private function dashboardAdmin(): string
     {
-        $clientiModel    = new ClienteModel();
         $interventiModel = new InterventoModel();
-        $richiesteModel  = new RichiestaModel();
-        $usersModel      = new UserModel();
 
-        $interventiAperti = $interventiModel
-            ->whereIn('stato', ['pianificato', 'in_corso'])
-            ->countAllResults();
+        $daPianificare = $interventiModel->conDettagli(0, null, 'da_pianificare');
+        $quaderni = [];
+        foreach ($daPianificare as $inv) {
+            $quaderni[$inv['tipo_intervento']][] = $inv;
+        }
 
-        $interventiMese = $interventiModel
-            ->where('stato', 'completato')
-            ->where('MONTH(data_completamento)', date('n'))
-            ->where('YEAR(data_completamento)', date('Y'))
-            ->countAllResults();
+        $mese = date('n');
+        $anno = date('Y');
+
+        $richiesteModel   = new RichiestaModel();
+        $nuoveRichieste   = $richiesteModel->where('stato', 'nuova')->countAllResults();
+        $ultime_richieste = $richiesteModel->ultime(5);
 
         return view('dashboard/index', [
             'title'      => 'Dashboard',
             'page_title' => 'Dashboard',
             'stats' => [
-                'clienti'           => $clientiModel->where('stato', 1)->countAllResults(),
-                'impianti'          => 0,
-                'interventi_aperti' => $interventiAperti,
-                'interventi_mese'   => $interventiMese,
+                'da_pianificare'  => $interventiModel->where('stato', 'da_pianificare')->countAllResults(),
+                'pianificati'     => $interventiModel->where('stato', 'pianificato')->countAllResults(),
+                'in_corso'        => $interventiModel->where('stato', 'in_corso')->countAllResults(),
+                'completati_mese' => $interventiModel->where('stato', 'completato')
+                    ->where('MONTH(data_completamento)', $mese)
+                    ->where('YEAR(data_completamento)', $anno)
+                    ->countAllResults(),
             ],
-            'ultime_richieste'  => $richiesteModel->ultime(6),
-            'ultimi_interventi' => $interventiModel->conDettagli(6),
-            'tecnici'           => $usersModel->whereAssegnabile()->orderBy('cognome')->findAll(),
-            'riepilogo_tecnici' => $interventiModel->riepilogoPerTecnico(),
-            'tipi'              => TipoInterventoModel::comeLista(),
-            'icone'             => array_column(TipoInterventoModel::comeListaCompleta(), 'icona', 'codice'),
-            'stati_intervento'  => InterventoModel::STATI,
-            'stati_richiesta'   => RichiestaModel::STATI,
+            'quaderni'         => $quaderni,
+            'tipi'             => TipoInterventoModel::comeLista(),
+            'icone'            => array_column(TipoInterventoModel::comeListaCompleta(), 'icona', 'codice'),
+            'stati'            => InterventoModel::STATI,
+            'tecnici'          => (new UserModel())->whereAssegnabile()->orderBy('cognome')->findAll(),
+            'nuove_richieste'  => $nuoveRichieste,
+            'ultime_richieste' => $ultime_richieste,
+            'stati_richiesta'  => RichiestaModel::STATI,
         ]);
     }
 
