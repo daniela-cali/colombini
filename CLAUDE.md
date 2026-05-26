@@ -40,6 +40,20 @@ Se il diff delle modifiche smette di apparire nell'IDE VSCode:
 2. Eseguire `Ctrl+Shift+P` → **Developer: Reload Window** per ricaricare l'estensione
 3. Se non basta, aprire una nuova sessione di Claude Code
 
+## Query database — CodeIgniter 4
+Usare sempre il **Query Builder** di CI4 (`$db->table(...)` o il model builder). Evitare query raw (`$db->query(...)`) anche per JOIN complessi: usare la stringa di condizione nel terzo parametro di `->join()` con `$db->escape()` per i valori dinamici.
+
+```php
+// JOIN con condizioni multiple — Query Builder
+$db->table('users u')
+   ->join('tecnici_competenze tc',
+          'tc.tecnico_id = u.id AND tc.tipo_intervento_id = ' . $tipoId . ' AND tc.livello >= 1',
+          'inner')
+   ->join('interventi i',
+          'i.tecnico_id = u.id AND DATE(i.data_pianificata) = ' . $db->escape($data),
+          'left');
+```
+
 ## Dominio aziendale
 Il dominio aziendale è **colombini-snc.it**.
 Usare per email admin (es. admin@colombini-snc.it), baseURL in produzione e qualsiasi riferimento al dominio.

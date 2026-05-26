@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\ClienteModel;
 use App\Models\InterventoModel;
 use App\Models\TipoInterventoModel;
 use App\Models\RichiestaModel;
@@ -67,7 +68,6 @@ class Dashboard extends BaseController
         $id = $utente->id;
 
         $interventiMiei = $interventiModel->conDettagli(0, $id);
-        $tuttiAperti    = $interventiModel->conDettagli();
 
         $mese = date('Y-m');
         $cPianificati      = 0;
@@ -84,24 +84,26 @@ class Dashboard extends BaseController
             }
         }
 
-        $prossimi = array_filter($tuttiAperti, fn($i) =>
+        $prossimi = array_filter($interventiMiei, fn($i) =>
             in_array($i['stato'], ['da_pianificare', 'pianificato', 'in_corso'])
-            && (empty($i['tecnico_id']) || (int) $i['tecnico_id'] === $id)
         );
-        usort($prossimi, function ($a, $b) {
-            $aNonAssegnato = empty($a['tecnico_id']) ? 0 : 1;
-            $bNonAssegnato = empty($b['tecnico_id']) ? 0 : 1;
-            if ($aNonAssegnato !== $bNonAssegnato) {
-                return $aNonAssegnato - $bNonAssegnato;
-            }
-            return strcmp($a['data_pianificata'] ?? '', $b['data_pianificata'] ?? '');
-        });
+        usort($prossimi, fn($a, $b) =>
+            strcmp($a['data_pianificata'] ?? '', $b['data_pianificata'] ?? '')
+        );
+
+        $prossimiPerGiorno = [];
+        foreach (array_slice($prossimi, 0, 30) as $inv) {
+            $giorno = $inv['data_pianificata']
+                ? date('Y-m-d', strtotime($inv['data_pianificata']))
+                : 'senza_data';
+            $prossimiPerGiorno[$giorno][] = $inv;
+        }
 
         return view('dashboard/tecnico', [
             'title'            => 'La mia agenda',
             'page_title'       => 'La mia agenda',
             'tecnico'          => $utente,
-            'prossimi'         => array_slice($prossimi, 0, 10),
+            'prossimiPerGiorno'=> $prossimiPerGiorno,
             'stats' => [
                 'pianificati'       => $cPianificati,
                 'in_corso'          => $cInCorso,

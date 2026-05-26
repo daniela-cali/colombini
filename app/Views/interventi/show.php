@@ -1,9 +1,13 @@
 <?= $this->extend('layouts/admin') ?>
 
 <?= $this->section('breadcrumb') ?>
+    <?php $from = service('request')->getGet('from'); ?>
     <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Home</a></li>
-    <?php if (service('request')->getGet('from') === 'calendario'): ?>
+    <?php if ($from === 'calendario'): ?>
         <li class="breadcrumb-item"><a href="<?= base_url('calendario') ?>">Calendario</a></li>
+    <?php elseif ($from && str_starts_with($from, 'clienti/')): ?>
+        <li class="breadcrumb-item"><a href="<?= base_url('clienti') ?>">Clienti</a></li>
+        <li class="breadcrumb-item"><a href="<?= base_url($from) ?>">Scheda cliente</a></li>
     <?php else: ?>
         <li class="breadcrumb-item"><a href="<?= base_url('interventi') ?>">Interventi</a></li>
     <?php endif; ?>
@@ -201,8 +205,11 @@
             </div>
             <div class="card-footer">
                 <div class="d-flex flex-wrap justify-content-between align-items-center">
-                    <a href="<?= base_url('interventi') ?>" class="btn btn-secondary btn-sm mb-1">
-                        <i class="fas fa-arrow-left mr-1"></i> Elenco
+                    <?php $from = service('request')->getGet('from'); ?>
+                    <a href="<?= ($from && str_starts_with($from, 'clienti/')) ? base_url($from) : base_url('interventi') ?>"
+                       class="btn btn-secondary btn-sm mb-1">
+                        <i class="fas fa-arrow-left mr-1"></i>
+                        <?= ($from && str_starts_with($from, 'clienti/')) ? 'Scheda cliente' : 'Elenco' ?>
                     </a>
                     <div>
                         <a href="<?= base_url('interventi/' . $intervento['id'] . '/edit') ?>"

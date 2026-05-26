@@ -17,9 +17,10 @@ class Interventi extends BaseController
     {
         $model      = new InterventoModel();
         /*Elvis operator: se vero, restituisce il valore stesso, altrimenti null */
-        $tecnicoFiltro = (int) $this->request->getGet('tecnico_id') ?: null;
-        $statoFiltro = (string) $this->request->getGet('stato') ?: null;
-        $interventi = $model->conDettagli(0, $tecnicoFiltro, $statoFiltro);
+        $tecnicoFiltro    = (int) $this->request->getGet('tecnico_id') ?: null;
+        $statoFiltro      = (string) $this->request->getGet('stato') ?: null;
+        $mostraCompletati = (bool) $this->request->getGet('mostra_completati');
+        $interventi       = $model->conDettagli(0, $tecnicoFiltro, $statoFiltro, !$mostraCompletati && !$statoFiltro);
         $tipi       = TipoInterventoModel::comeLista();
         $icone      = array_column(TipoInterventoModel::comeListaCompleta(), 'icona', 'codice');
 
@@ -62,13 +63,15 @@ class Interventi extends BaseController
         );
 
         return view('interventi/index', [
-            'title'        => 'Interventi',
-            'page_title'   => 'Interventi',
-            'perTecnico'   => $perTecnico,
-            'nonAssegnati' => $nonAssegnati,
-            'tipi'         => $tipi,
-            'icone'        => $icone,
-            'stati'        => InterventoModel::STATI,
+            'title'            => 'Interventi',
+            'page_title'       => 'Interventi',
+            'perTecnico'       => $perTecnico,
+            'nonAssegnati'     => $nonAssegnati,
+            'tipi'             => $tipi,
+            'icone'            => $icone,
+            'stati'            => InterventoModel::STATI,
+            'mostraCompletati' => $mostraCompletati,
+            'statoFiltro'      => $statoFiltro,
         ]);
     }
 
@@ -531,15 +534,22 @@ class Interventi extends BaseController
         return $this->response->setJSON(['ok' => true, 'csrf' => csrf_hash()]);
     }
 
-    public function apiTecnicoConsigliato()
+    public function apiTecnicoConsigliato(): ResponseInterface
     {
         $tipo      = $this->request->getGet('tipo_intervento') ?? '';
         $clienteId = (int) ($this->request->getGet('cliente_id') ?? 0);
+        $data      = $this->request->getGet('data') ?? '';
 
         $model   = new InterventoModel();
         $tecnico = $model->tecnicoConsigliato($tipo, $clienteId);
+        $source  = 'storico';
 
-        return $this->response->setJSON(['tecnico' => $tecnico]);
+        if (!$tecnico && $data) {
+            $tecnico = $model->tecnicoMenoOccupato($tipo, $data);
+            $source  = 'disponibilita';
+        }
+
+        return $this->response->setJSON(['tecnico' => $tecnico, 'source' => $source]);
     }
 
     public function apiOrarioSuggerito(): ResponseInterface

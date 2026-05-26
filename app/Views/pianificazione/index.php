@@ -11,9 +11,14 @@
 
 <?= $this->section('content') ?>
 <?php
-// Closure: card nel pool (piena, con tecnici consigliati)
+$prevSett   = date('Y-m-d', strtotime($lunedi . ' -7 days'));
+$nextSett   = date('Y-m-d', strtotime($lunedi . ' +7 days'));
+$oggi       = date('Y-m-d');
+$giorniNomi = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'];
+
+// --- Closure: card nel pool ---
 $renderPoolCard = function (array $i) use ($tipiPerCodice, $priorita, $tecnici, $competenzePerTecnico): void {
-    $tipoInfo = $tipiPerCodice[$i['tipo_intervento']] ?? ['id' => 0, 'nome' => $i['tipo_intervento'], 'icona' => 'fa-wrench'];
+    $tipoInfo = $tipiPerCodice[$i['tipo_intervento']] ?? ['id' => 0, 'nome' => $i['tipo_intervento'], 'icona' => 'fa-wrench', 'durata_default' => 60];
     $priInfo  = $priorita[$i['priorita']] ?? ['label' => $i['priorita'], 'badge' => 'badge-secondary'];
     $nomeCliente = '';
     if (!empty($i['cliente_tipo'])) {
@@ -32,10 +37,13 @@ $renderPoolCard = function (array $i) use ($tipiPerCodice, $priorita, $tecnici, 
     $citta        = $i['citta'] ?? '';
     $luogoDisplay = $citta ?: $luogo;
     ?>
-    <div class="intervention-card <?= esc($i['priorita']) ?>" data-id="<?= $i['id'] ?>"
+    <div class="intervention-card <?= esc($i['priorita']) ?>"
+         draggable="true"
+         data-id="<?= $i['id'] ?>"
          data-modal="1"
          data-tc="<?= esc($i['tipo_intervento']) ?>"
          data-cid="<?= (int)($i['cliente_id'] ?? 0) ?>"
+         data-durata="<?= (int)$tipoInfo['durata_default'] ?>"
          data-mc="<?= htmlspecialchars($nomeCliente, ENT_QUOTES) ?>"
          data-mt="<?= htmlspecialchars($tipoInfo['nome'], ENT_QUOTES) ?>"
          data-mi="<?= htmlspecialchars($tipoInfo['icona'], ENT_QUOTES) ?>"
@@ -82,9 +90,9 @@ $renderPoolCard = function (array $i) use ($tipiPerCodice, $priorita, $tecnici, 
     <?php
 };
 
-// Closure: card nella giornata (già pianificata, con ora + badge tecnico + X)
-$renderGiornataCard = function (array $i) use ($tipiPerCodice, $priorita): void {
-    $tipoInfo = $tipiPerCodice[$i['tipo_intervento']] ?? ['id' => 0, 'nome' => $i['tipo_intervento'], 'icona' => 'fa-wrench'];
+// --- Closure: card nel giorno (griglia settimanale) ---
+$renderDayCard = function (array $i) use ($tipiPerCodice, $priorita): void {
+    $tipoInfo = $tipiPerCodice[$i['tipo_intervento']] ?? ['id' => 0, 'nome' => $i['tipo_intervento'], 'icona' => 'fa-wrench', 'durata_default' => 60];
     $priInfo  = $priorita[$i['priorita']] ?? ['label' => $i['priorita'], 'badge' => 'badge-secondary'];
     $nomeCliente = '';
     if (!empty($i['cliente_tipo'])) {
@@ -92,9 +100,9 @@ $renderGiornataCard = function (array $i) use ($tipiPerCodice, $priorita): void 
             ? trim(($i['cliente_cognome'] ?? '') . ' ' . ($i['cliente_nome'] ?? ''))
             : ($i['ragsoc'] ?? '');
     }
-    $descr     = $i['descrizione'] ?? '';
     $luogo     = $i['luogo_intervento'] ?? '';
     $citta     = $i['citta'] ?? '';
+    $descr     = $i['descrizione'] ?? '';
     $ora       = $i['data_pianificata'] ? date('H:i', strtotime($i['data_pianificata'])) : '';
     $tecNome   = trim(($i['tecnico_cognome'] ?? '') . ' ' . ($i['tecnico_nome'] ?? ''));
     $tecColore = $i['tecnico_colore'] ?? '#6c757d';
@@ -103,7 +111,8 @@ $renderGiornataCard = function (array $i) use ($tipiPerCodice, $priorita): void 
         : '';
     $canRevert = ($i['stato'] === 'pianificato');
     ?>
-    <div class="intervention-card <?= esc($i['priorita']) ?>" data-id="<?= $i['id'] ?>"
+    <div class="intervention-card <?= esc($i['priorita']) ?> mb-1"
+         data-id="<?= $i['id'] ?>"
          data-saved="1"
          data-modal="1"
          data-tc="<?= esc($i['tipo_intervento']) ?>"
@@ -117,37 +126,32 @@ $renderGiornataCard = function (array $i) use ($tipiPerCodice, $priorita): void 
          data-mci="<?= htmlspecialchars($citta, ENT_QUOTES) ?>"
          data-md="<?= htmlspecialchars($descr, ENT_QUOTES) ?>"
          data-link="<?= base_url('interventi/' . $i['id']) ?>">
-        <div class="d-flex align-items-center justify-content-between mb-1">
+        <div class="d-flex justify-content-between align-items-start mb-1">
             <div class="d-flex align-items-center" style="gap:.3rem;">
-                <span class="badge <?= esc($priInfo['badge']) ?>" style="font-size:.65rem;"><?= esc($priInfo['label']) ?></span>
+                <span class="badge <?= esc($priInfo['badge']) ?>" style="font-size:.6rem;"><?= esc($priInfo['label']) ?></span>
                 <small class="text-muted" title="<?= esc($tipoInfo['nome']) ?>">
                     <i class="fas <?= esc($tipoInfo['icona']) ?>"></i>
                 </small>
             </div>
-            <div class="d-flex align-items-center giornata-header-tools" style="gap:.3rem;">
-                <?php if ($ora): ?>
-                    <small class="text-muted giornata-ora"><?= esc($ora) ?></small>
-                <?php endif; ?>
-                <?php if ($canRevert): ?>
-                    <button type="button" class="btn btn-xs btn-link text-danger p-0 btn-rimuovi-giornata"
-                            title="Rimuovi dalla pianificazione" style="line-height:1;">
-                        <i class="fas fa-times"></i>
-                    </button>
-                <?php endif; ?>
-            </div>
+            <?php if ($canRevert): ?>
+                <button type="button" class="btn btn-xs btn-link text-danger p-0 btn-rimuovi-giornata"
+                        title="Rimuovi dalla pianificazione" style="line-height:1;">
+                    <i class="fas fa-times"></i>
+                </button>
+            <?php endif; ?>
         </div>
-        <div class="font-weight-bold small mb-1 text-truncate">
-            <?= $nomeCliente ? esc($nomeCliente) : '<em class="text-muted">Senza cliente</em>' ?>
+        <div class="small font-weight-bold text-truncate">
+            <?= $nomeCliente ? esc($nomeCliente) : '<em class="text-muted">—</em>' ?>
         </div>
         <?php if ($citta || $luogo): ?>
-        <div class="small text-muted mb-1">
+        <div class="small text-muted text-truncate" style="font-size:.7rem;">
             <i class="fas fa-map-marker-alt mr-1"></i><?= esc($citta ?: $luogo) ?>
         </div>
         <?php endif; ?>
         <?php if ($tecNome): ?>
-        <div class="d-flex align-items-center mt-1 giornata-tech-row" style="gap:.25rem;">
-            <span class="tech-dot" style="background:<?= esc($tecColore) ?>"><?= esc($tecIni) ?></span>
-            <small class="text-muted"><?= esc(trim($i['tecnico_cognome'] ?? '')) ?></small>
+        <div class="d-flex align-items-center mt-1" style="gap:.25rem;">
+            <span class="tech-dot" style="background:<?= esc($tecColore) ?>;width:16px;height:16px;font-size:.45rem;"><?= esc($tecIni) ?></span>
+            <small class="text-muted" style="font-size:.68rem;"><?= esc($tecNome) ?></small>
         </div>
         <?php endif; ?>
     </div>
@@ -157,44 +161,30 @@ $renderGiornataCard = function (array $i) use ($tipiPerCodice, $priorita): void 
 
 <!-- Toolbar -->
 <div class="card card-outline card-primary mb-3">
-    <div class="card-header">
+    <div class="card-header py-2">
         <h3 class="card-title">
-            <i class="fas fa-calendar-alt mr-1"></i> Pianificazione
+            <i class="fas fa-calendar-week mr-1"></i>
+            Settimana del <?= date('d/m/Y', strtotime($lunedi)) ?>
         </h3>
-        <div class="card-tools d-flex align-items-center">
-            <label class="mb-0 mr-2 small text-muted">Data:</label>
-            <input type="date" id="data-viaggio" class="form-control form-control-sm" style="width:155px;"
+        <div class="card-tools d-flex align-items-center" style="gap:.4rem;">
+            <a href="<?= base_url('pianificazione?data=' . $prevSett) ?>" class="btn btn-sm btn-outline-secondary"
+               title="Settimana precedente"><i class="fas fa-chevron-left"></i></a>
+            <input type="date" id="data-sel" class="form-control form-control-sm" style="width:145px;"
                    value="<?= esc($data) ?>"
                    onchange="window.location.href='<?= base_url('pianificazione') ?>?data='+this.value">
+            <a href="<?= base_url('pianificazione?data=' . $nextSett) ?>" class="btn btn-sm btn-outline-secondary"
+               title="Settimana successiva"><i class="fas fa-chevron-right"></i></a>
+            <a href="<?= base_url('pianificazione?data=' . $oggi) ?>" class="btn btn-sm btn-outline-primary">Oggi</a>
         </div>
     </div>
-    <div class="card-body py-2">
-        <!-- Barra settimanale -->
-        <?php $giorniBrevi = ['Lun','Mar','Mer','Gio','Ven','Sab','Dom']; ?>
-        <div class="d-flex mb-2" style="gap:4px;">
-            <?php foreach ($settimana as $idx => $g):
-                $isOggi        = $g['data'] === date('Y-m-d');
-                $isSelezionato = $g['data'] === $data;
-                $isWeekend     = $idx >= 5;
-                $btnClass      = $isSelezionato ? 'btn-primary' : ($isOggi ? 'btn-outline-primary' : 'btn-outline-secondary');
-            ?>
-            <a href="<?= base_url('pianificazione?data=' . $g['data']) ?>"
-               class="btn btn-sm <?= $btnClass ?> flex-fill text-center p-1<?= $isWeekend ? ' opacity-50' : '' ?>"
-               style="min-width:0;<?= $isWeekend ? 'opacity:.5;' : '' ?>">
-                <div style="font-size:.65rem;"><?= $giorniBrevi[$idx] ?></div>
-                <div style="font-size:.7rem;"><?= date('d/m', strtotime($g['data'])) ?></div>
-                <?php if ($g['count'] > 0): ?>
-                    <span class="badge badge-<?= $isSelezionato ? 'light' : 'primary' ?> mt-1"
-                          style="font-size:.6rem;"><?= $g['count'] ?></span>
-                <?php endif; ?>
-            </a>
-            <?php endforeach; ?>
+    <div id="alert-salva-wrap" style="display:none;">
+        <div class="card-body py-1 px-2">
+            <div id="alert-salva" class="alert py-2 mb-0"></div>
         </div>
-        <div id="alert-salva" class="alert py-2 mb-0" style="display:none;"></div>
     </div>
 </div>
 
-<!-- Layout pianificazione -->
+<!-- Layout -->
 <div class="planning-layout">
 
     <!-- Pool sidebar -->
@@ -203,7 +193,7 @@ $renderGiornataCard = function (array $i) use ($tipiPerCodice, $priorita): void 
             <div class="card-header py-2">
                 <h3 class="card-title">
                     <i class="fas fa-inbox mr-1 text-primary"></i> Da pianificare
-                    <span class="badge badge-primary ml-1" id="pool-count"><?= count($interventi) ?></span>
+                    <span class="badge badge-primary ml-1"><?= count($interventi) ?></span>
                 </h3>
             </div>
             <div class="card-body p-2">
@@ -225,10 +215,9 @@ $renderGiornataCard = function (array $i) use ($tipiPerCodice, $priorita): void 
                                 <i class="fas <?= esc($tipoInfo['icona']) ?> mr-1 text-muted"></i>
                                 <?= esc($tipoInfo['nome']) ?>
                             </span>
-                            <span class="badge badge-secondary pool-tipo-count"><?= count($invPerTipo) ?></span>
+                            <span class="badge badge-secondary"><?= count($invPerTipo) ?></span>
                         </a>
-                        <div class="collapse show sortable-zone pool-zone" id="<?= $collapseId ?>"
-                             data-tipo="<?= esc($tipo) ?>">
+                        <div class="collapse show pool-zone" id="<?= $collapseId ?>">
                             <?php foreach ($invPerTipo as $i): $renderPoolCard($i); endforeach; ?>
                         </div>
                     </div>
@@ -238,33 +227,31 @@ $renderGiornataCard = function (array $i) use ($tipiPerCodice, $priorita): void 
         </div>
     </div>
 
-    <!-- Giornata -->
-    <div class="giornata-panel">
-        <div class="card card-outline card-success">
-            <div class="card-header py-2">
-                <h3 class="card-title">
-                    <i class="fas fa-calendar-day mr-1 text-success"></i>
-                    Giornata del <?= date('d/m/Y', strtotime($data)) ?>
-                    <span class="badge badge-success ml-1" id="giornata-count"><?= count($giornataInterventi) ?></span>
-                </h3>
-                <div class="card-tools">
-                    <small class="text-muted d-none d-md-inline">
-                        <i class="fas fa-arrow-left mr-1"></i>Trascina gli interventi qui
-                    </small>
-                </div>
-            </div>
-            <div class="card-body p-2">
-                <div class="sortable-zone giornata-drop-zone" id="giornata-zone">
-                    <?php if (empty($giornataInterventi)): ?>
-                    <div id="giornata-empty" class="giornata-empty">
-                        <i class="fas fa-calendar-day fa-2x mb-2" style="opacity:.2;"></i>
-                        <span>Nessun intervento pianificato per questa giornata</span>
+    <!-- Griglia settimanale -->
+    <div class="week-panel">
+        <div class="week-grid-wrap">
+            <div class="week-grid">
+                <?php foreach ($settimana as $idx => $g):
+                    $isOggi    = $g['data'] === $oggi;
+                    $isWeekend = $idx >= 5;
+                    $colClass  = 'day-col' . ($isOggi ? ' oggi' : '') . ($isWeekend ? ' weekend' : '');
+                ?>
+                <div class="<?= $colClass ?>">
+                    <div class="day-header">
+                        <div class="font-weight-bold"><?= $giorniNomi[$idx] ?></div>
+                        <div style="font-size:.72rem;"><?= date('d/m', strtotime($g['data'])) ?></div>
+                        <?php if ($g['count'] > 0): ?>
+                            <span class="badge badge-success mt-1" style="font-size:.58rem;"><?= $g['count'] ?></span>
+                        <?php endif; ?>
                     </div>
-                    <?php else: ?>
-                    <div id="giornata-empty" class="drop-empty" style="display:none;"></div>
-                    <?php foreach ($giornataInterventi as $i): $renderGiornataCard($i); endforeach; ?>
-                    <?php endif; ?>
+                    <div class="day-drop-zone" data-date="<?= $g['data'] ?>">
+                        <?php foreach ($giornataPerGiorno[$g['data']] ?? [] as $i): $renderDayCard($i); endforeach; ?>
+                        <div class="day-empty<?= empty($giornataPerGiorno[$g['data']]) ? '' : ' d-none' ?>">
+                            <i class="fas fa-arrow-down"></i><br>Trascina qui
+                        </div>
+                    </div>
                 </div>
+                <?php endforeach; ?>
             </div>
         </div>
     </div>
@@ -276,7 +263,7 @@ $renderGiornataCard = function (array $i) use ($tipiPerCodice, $priorita): void 
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header py-2">
-                <h5 class="modal-title d-flex align-items-center gap-2">
+                <h5 class="modal-title d-flex align-items-center">
                     <span id="mi-badge" class="badge mr-2"></span>
                     <i id="mi-icona" class="fas fa-wrench mr-1"></i>
                     <span id="mi-tipo"></span>
@@ -290,7 +277,7 @@ $renderGiornataCard = function (array $i) use ($tipiPerCodice, $priorita): void 
                     <dt class="small text-muted" id="mi-luogo-label" style="display:none;">Luogo</dt>
                     <dd id="mi-luogo" class="mb-2" style="display:none;"></dd>
                     <dt class="small text-muted" id="mi-descr-label" style="display:none;">Descrizione</dt>
-                    <dd id="mi-descr" class="mb-0 text-sm" style="display:none;"></dd>
+                    <dd id="mi-descr" class="mb-0" style="display:none;"></dd>
                 </dl>
             </div>
             <div class="modal-footer py-2">
@@ -303,30 +290,24 @@ $renderGiornataCard = function (array $i) use ($tipiPerCodice, $priorita): void 
     </div>
 </div>
 
-<!-- Modal assegna tecnico (al drag nella giornata) -->
+<!-- Modal assegna tecnico (al drop su giorno) -->
 <div class="modal fade" id="modal-assegna" tabindex="-1" data-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-success py-2">
                 <h5 class="modal-title text-white">
-                    <i class="fas fa-calendar-plus mr-1"></i> Pianifica intervento
+                    <i class="fas fa-calendar-day mr-1"></i>
+                    Pianifica — <span id="assegna-giorno" class="font-weight-bold"></span>
                 </h5>
             </div>
             <div class="modal-body">
                 <p class="mb-0 font-weight-bold" id="assegna-cliente"></p>
-                <p class="small text-muted mb-3" id="assegna-tipo"></p>
-                <div class="form-group">
-                    <label class="small">Data e ora <span class="text-danger">*</span></label>
-                    <input type="datetime-local" id="assegna-data" class="form-control form-control-sm" required>
-                    <small id="assegna-orario-note" class="text-muted" style="display:none;"></small>
-                </div>
+                <p class="small text-muted mb-1" id="assegna-tipo"></p>
+                <p class="small text-muted fst-italic mb-3" id="assegna-descr" style="display:none;"></p>
                 <div class="form-group mb-0">
-                    <label class="small">Tecnico</label>
+                    <label class="small">Tecnico <span class="text-muted font-weight-normal">(opzionale)</span></label>
                     <select id="assegna-tecnico" class="form-control form-control-sm">
                         <option value="">— Non assegnato —</option>
-                        <?php foreach ($tecnici as $t): ?>
-                            <option value="<?= $t->id ?>"><?= esc($t->cognome . ' ' . $t->nome) ?></option>
-                        <?php endforeach; ?>
                     </select>
                     <div id="assegna-suggerimento" class="mt-1"></div>
                 </div>
@@ -348,145 +329,190 @@ $renderGiornataCard = function (array $i) use ($tipiPerCodice, $priorita): void 
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 <script>
 (function () {
-    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    var alertEl   = document.getElementById('alert-salva');
+    var csrfToken   = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    var oraInizio   = '<?= esc($oraInizio) ?>';
+    var alertWrapEl = document.getElementById('alert-salva-wrap');
+    var alertEl     = document.getElementById('alert-salva');
+    var dragging    = false;
+    var dragCard    = null;
+    var pendingDate = null;
 
-    var pendingCard   = null;
-    var pendingSource = null;
-    var dragging      = false;
+    var giorniIt = ['', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'];
 
-    var giornataEl = document.getElementById('giornata-zone');
+    // Dati competenze per popolare il select tecnico
+    var tecnici              = <?= json_encode(array_map(fn($t) => ['id' => $t->id, 'nome' => $t->nome, 'cognome' => $t->cognome], $tecnici)) ?>;
+    var competenzePerTecnico = <?= json_encode($competenzePerTecnico) ?>;
+    var tipiPerCodice        = <?= json_encode(array_map(fn($t) => ['id' => $t['id']], $tipiPerCodice)) ?>;
+    var livelliNomi          = {1: 'Base', 2: 'Autonomo', 3: 'Referente'};
 
-    // Pool zones
-    document.querySelectorAll('.pool-zone').forEach(function (el) {
-        Sortable.create(el, {
-            group:      { name: 'board', pull: true, put: true },
-            animation:  150,
-            ghostClass: 'sortable-ghost',
-            onStart:    function () { dragging = true; },
-            onEnd:      function () { setTimeout(function () { dragging = false; }, 100); },
+    function buildTecnicoSelect(tipoCode) {
+        var tipoId    = (tipiPerCodice[tipoCode] || {}).id || 0;
+        var qualificati = [], base = [], altri = [];
+
+        tecnici.forEach(function (t) {
+            var livello = ((competenzePerTecnico[t.id] || {})[tipoId]) || 0;
+            if      (livello >= 2) qualificati.push({t: t, livello: livello});
+            else if (livello === 1) base.push({t: t, livello: livello});
+            else                    altri.push({t: t});
+        });
+
+        var html = '<option value="">— Non assegnato —</option>';
+
+        if (qualificati.length) {
+            html += '<optgroup label="Autonomi / Referenti">';
+            qualificati.forEach(function (item) {
+                html += '<option value="' + item.t.id + '">'
+                      + item.t.cognome + ' ' + item.t.nome
+                      + ' — ' + livelliNomi[item.livello] + '</option>';
+            });
+            html += '</optgroup>';
+        }
+        if (base.length) {
+            html += '<optgroup label="Base">';
+            base.forEach(function (item) {
+                html += '<option value="' + item.t.id + '">'
+                      + item.t.cognome + ' ' + item.t.nome + ' — Base</option>';
+            });
+            html += '</optgroup>';
+        }
+        if (altri.length) {
+            html += '<optgroup label="Non competenti">';
+            altri.forEach(function (item) {
+                html += '<option value="' + item.t.id + '" style="color:#adb5bd;">'
+                      + item.t.cognome + ' ' + item.t.nome + '</option>';
+            });
+            html += '</optgroup>';
+        }
+
+        assegnaTecnicoEl.innerHTML = html;
+    }
+
+    // --- Drag dal pool ---
+    document.querySelectorAll('.pool-zone .intervention-card').forEach(function (card) {
+        card.addEventListener('dragstart', function (e) {
+            dragging = true;
+            dragCard = card;
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', card.dataset.id);
+            setTimeout(function () { card.classList.add('dragging'); }, 0);
+        });
+        card.addEventListener('dragend', function () {
+            card.classList.remove('dragging');
+            dragging = false;
         });
     });
 
-    // Giornata zone: riceve card dal pool, non le restituisce via drag
-    Sortable.create(giornataEl, {
-        group:      { name: 'board', pull: false, put: true },
-        animation:  150,
-        ghostClass: 'sortable-ghost',
-        onStart:    function () { dragging = true; },
-        onEnd:      function () { setTimeout(function () { dragging = false; }, 100); },
-        onAdd:      function (evt) {
-            var card = evt.item;
-            if (card.dataset.saved === '1') return;
-            pendingCard   = card;
-            pendingSource = evt.from;
-            showModalAssegna(card);
-        },
+    // --- Drop sulle colonne dei giorni ---
+    document.querySelectorAll('.day-drop-zone').forEach(function (zone) {
+        zone.addEventListener('dragenter', function (e) {
+            if (!dragCard) return;
+            e.preventDefault();
+            zone.classList.add('drag-over');
+        });
+        zone.addEventListener('dragover', function (e) {
+            if (!dragCard) return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        });
+        zone.addEventListener('dragleave', function (e) {
+            if (!zone.contains(e.relatedTarget)) {
+                zone.classList.remove('drag-over');
+            }
+        });
+        zone.addEventListener('drop', function (e) {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+            if (!dragCard) return;
+            pendingDate = zone.dataset.date;
+            showModalAssegna(dragCard, pendingDate);
+        });
     });
 
     // --- Modal assegna ---
     var $modalAssegna    = $('#modal-assegna');
-    var assegnaDataEl    = document.getElementById('assegna-data');
     var assegnaTecnicoEl = document.getElementById('assegna-tecnico');
     var assegnaSuggEl    = document.getElementById('assegna-suggerimento');
-    var assegnaOraNote   = document.getElementById('assegna-orario-note');
 
-    function aggiornaOrarioSuggerito(tecnicoId) {
-        var dataViaggio = document.getElementById('data-viaggio').value;
-        fetch('<?= base_url('interventi/api/orario-suggerito') ?>?tecnico_id='
-              + encodeURIComponent(tecnicoId || 0) + '&data=' + encodeURIComponent(dataViaggio))
-            .then(function (r) { return r.json(); })
-            .then(function (data) {
-                assegnaDataEl.value = dataViaggio + 'T' + data.ora;
-                if (data.n_prev > 0) {
-                    assegnaOraNote.textContent = 'Stimato dopo ' + data.n_prev
-                        + ' intervento' + (data.n_prev > 1 ? 'i' : '') + ' già pianificato'
-                        + (data.n_prev > 1 ? 'i' : '') + ' (' + data.ora + ')';
-                    assegnaOraNote.style.display = '';
-                } else {
-                    assegnaOraNote.style.display = 'none';
-                }
-            });
-    }
+    function showModalAssegna(card, dateStr) {
+        var d    = new Date(dateStr + 'T12:00:00');
+        var dow  = d.getDay() === 0 ? 7 : d.getDay();
+        var label = giorniIt[dow] + ' ' +
+                    String(d.getDate()).padStart(2, '0') + '/' +
+                    String(d.getMonth() + 1).padStart(2, '0');
 
-    assegnaTecnicoEl.addEventListener('change', function () {
-        aggiornaOrarioSuggerito(this.value || 0);
-    });
-
-    function showModalAssegna(card) {
-        var dataViaggio = document.getElementById('data-viaggio').value;
-        assegnaDataEl.value     = dataViaggio + 'T08:00';
-        assegnaTecnicoEl.value  = '';
-        assegnaSuggEl.innerHTML = '';
-        assegnaOraNote.style.display = 'none';
-        assegnaDataEl.classList.remove('is-invalid');
-
+        document.getElementById('assegna-giorno').textContent  = label;
         document.getElementById('assegna-cliente').textContent = card.dataset.mc || '—';
         document.getElementById('assegna-tipo').textContent    = card.dataset.mt || '';
-
-        // Orario suggerito senza tecnico (usa ora inizio generica)
-        aggiornaOrarioSuggerito(0);
+        var descrEl = document.getElementById('assegna-descr');
+        descrEl.textContent   = card.dataset.md || '';
+        descrEl.style.display = card.dataset.md ? '' : 'none';
+        buildTecnicoSelect(card.dataset.tc || '');
+        assegnaSuggEl.innerHTML = '';
 
         var tipo      = card.dataset.tc  || '';
         var clienteId = card.dataset.cid || 0;
         if (tipo) {
-            fetch('<?= base_url('interventi/api/tecnico-consigliato') ?>?tipo_intervento='
-                  + encodeURIComponent(tipo) + '&cliente_id=' + encodeURIComponent(clienteId))
-                .then(function (r) { return r.json(); })
-                .then(function (data) {
-                    if (!data.tecnico) return;
-                    var t = data.tecnico;
+            var apiUrl = '<?= base_url('interventi/api/tecnico-consigliato') ?>'
+                       + '?tipo_intervento=' + encodeURIComponent(tipo)
+                       + '&cliente_id='      + encodeURIComponent(clienteId)
+                       + '&data='            + encodeURIComponent(dateStr);
+
+            fetch(apiUrl)
+                .then(function (risposta) {
+                    return risposta.json();
+                })
+                .then(function (json) {
+                    if (!json.tecnico) return;
+
+                    var t      = json.tecnico;
+                    var isStorico = (json.source === 'storico');
+                    var etichetta = isStorico ? 'Consigliato'   : 'Meno occupato';
+                    var icona     = isStorico ? 'fa-lightbulb'  : 'fa-user-clock';
+                    var dettaglio = isStorico
+                        ? '(' + t.cnt + ' int. simili)'
+                        : '(' + t.cnt + ' int. oggi)';
+
                     assegnaSuggEl.innerHTML =
-                        '<div class="alert alert-info py-1 px-2 mb-0 small">' +
-                        '<i class="fas fa-lightbulb mr-1"></i>Consigliato: <strong>' +
-                        t.cognome + ' ' + t.nome + '</strong>' +
-                        ' <span class="text-muted">(' + t.cnt + ' int. simili)</span>' +
-                        ' <a href="#" class="ml-2" onclick="var s=document.getElementById(\'assegna-tecnico\');' +
-                        's.value=\'' + t.tecnico_id + '\';s.dispatchEvent(new Event(\'change\'));' +
-                        'this.parentElement.remove();return false;">Usa questo</a>' +
-                        '</div>';
-                });
+                        '<div class="alert alert-info py-1 px-2 mb-0 small">'
+                        + '<i class="fas ' + icona + ' mr-1"></i>'
+                        + etichetta + ': <strong>' + t.cognome + ' ' + t.nome + '</strong> '
+                        + '<span class="text-muted">' + dettaglio + '</span>'
+                        + ' <a href="#" class="ml-2"'
+                        + ' onclick="document.getElementById(\'assegna-tecnico\').value=\'' + t.tecnico_id + '\';'
+                        + 'this.parentElement.remove();return false;">Usa questo</a>'
+                        + '</div>';
+                })
+                .catch(function () {});
         }
 
         $modalAssegna.modal('show');
     }
 
-    // Chiusura modal (qualsiasi modo) → ripristina card nel pool
     $modalAssegna.on('hide.bs.modal', function () {
-        if (pendingCard && pendingSource) {
-            pendingSource.appendChild(pendingCard);
-            pendingCard   = null;
-            pendingSource = null;
-            updateUI();
-        }
+        dragCard    = null;
+        pendingDate = null;
     });
 
     document.getElementById('btn-assegna-annulla').addEventListener('click', function () {
         $modalAssegna.modal('hide');
     });
 
-    // Conferma pianifica → AJAX
+    // Conferma → AJAX pianifica
     document.getElementById('btn-assegna-conferma').addEventListener('click', function () {
-        var card = pendingCard;
-        if (!card) return;
+        if (!dragCard || !pendingDate) return;
 
-        var dataPianificata = assegnaDataEl.value;
-        if (!dataPianificata) {
-            assegnaDataEl.classList.add('is-invalid');
-            return;
-        }
-        assegnaDataEl.classList.remove('is-invalid');
+        var card       = dragCard;
+        var tecnicoId  = assegnaTecnicoEl.value || '';
+        var dataPianif = pendingDate + 'T' + oraInizio;
+        var btnConf    = this;
 
-        var tecnicoId = assegnaTecnicoEl.value || '';
-        var btnConf   = this;
         btnConf.disabled  = true;
         btnConf.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Salvo…';
 
         var formData = new FormData();
-        formData.append('data_pianificata', dataPianificata);
+        formData.append('data_pianificata', dataPianif);
         if (tecnicoId) formData.append('tecnico_id', tecnicoId);
 
         fetch('<?= base_url('interventi/') ?>' + card.dataset.id + '/pianifica', {
@@ -496,137 +522,52 @@ $renderGiornataCard = function (array $i) use ($tipiPerCodice, $priorita): void 
         })
         .then(function (r) { return r.json(); })
         .then(function (json) {
-            btnConf.disabled  = false;
-            btnConf.innerHTML = '<i class="fas fa-check mr-1"></i> Pianifica';
             if (json.ok) {
-                csrfToken  = json.csrf || csrfToken;
-                card.dataset.saved = '1';
-                decoraCardGiornata(card, tecnicoId, dataPianificata);
-                pendingCard   = null;
-                pendingSource = null;
+                dragCard    = null;
+                pendingDate = null;
                 $modalAssegna.modal('hide');
-                updateUI();
-            } else {
-                showAlert('danger', '<i class="fas fa-times-circle mr-1"></i>' + (json.msg || 'Errore durante il salvataggio.'));
-            }
-        })
-        .catch(function () {
-            btnConf.disabled  = false;
-            btnConf.innerHTML = '<i class="fas fa-check mr-1"></i> Pianifica';
-            showAlert('danger', '<i class="fas fa-times-circle mr-1"></i> Errore di rete.');
-        });
-    });
-
-    // Mappa tecnico_id → dati per badge
-    var tecniciMap = {
-        <?php foreach ($tecnici as $t): ?>
-        '<?= $t->id ?>': { nome: '<?= addslashes(esc($t->nome)) ?>', cognome: '<?= addslashes(esc($t->cognome)) ?>', colore: '<?= addslashes(esc($t->colore ?? '#6c757d')) ?>' },
-        <?php endforeach; ?>
-    };
-
-    function decoraCardGiornata(card, tecnicoId, dataPianificata) {
-        var ora = dataPianificata ? dataPianificata.split('T')[1].substring(0, 5) : '';
-
-        // Header-tools: aggiungi ora + bottone X
-        var headerTools = card.querySelector('.giornata-header-tools');
-        if (!headerTools) {
-            headerTools = document.createElement('div');
-            headerTools.className = 'd-flex align-items-center giornata-header-tools';
-            headerTools.style.gap = '.3rem';
-            var firstRow = card.querySelector('.d-flex');
-            if (firstRow) firstRow.appendChild(headerTools);
-        }
-
-        if (ora && !headerTools.querySelector('.giornata-ora')) {
-            var oraEl = document.createElement('small');
-            oraEl.className   = 'text-muted giornata-ora';
-            oraEl.textContent = ora;
-            headerTools.appendChild(oraEl);
-        }
-
-        if (!headerTools.querySelector('.btn-rimuovi-giornata')) {
-            var btnX = document.createElement('button');
-            btnX.type      = 'button';
-            btnX.className = 'btn btn-xs btn-link text-danger p-0 btn-rimuovi-giornata';
-            btnX.title     = 'Rimuovi dalla pianificazione';
-            btnX.style.lineHeight = '1';
-            btnX.innerHTML = '<i class="fas fa-times"></i>';
-            btnX.addEventListener('click', rimuoviCardHandler);
-            headerTools.appendChild(btnX);
-        }
-
-        // Badge tecnico
-        var techRow = card.querySelector('.giornata-tech-row');
-        if (tecnicoId && tecniciMap[tecnicoId]) {
-            var t   = tecniciMap[tecnicoId];
-            var ini = (t.nome.charAt(0) + t.cognome.charAt(0)).toUpperCase();
-            var html = '<div class="d-flex align-items-center mt-1 giornata-tech-row" style="gap:.25rem;">' +
-                '<span class="tech-dot" style="background:' + t.colore + '">' + ini + '</span>' +
-                '<small class="text-muted">' + t.cognome + '</small></div>';
-            if (techRow) {
-                techRow.outerHTML = html;
-            } else {
-                card.insertAdjacentHTML('beforeend', html);
-            }
-        } else if (techRow) {
-            techRow.remove();
-        }
-    }
-
-    // Rimuovi card dalla giornata (X button) → reload pagina
-    function rimuoviCardHandler(e) {
-        e.stopPropagation();
-        var card = this.closest('.intervention-card');
-        if (!card) return;
-        card.style.opacity = '.4';
-        fetch('<?= base_url('interventi/') ?>' + card.dataset.id + '/annulla-pianificazione', {
-            method:  'POST',
-            headers: { 'X-CSRF-TOKEN': csrfToken },
-        })
-        .then(function (r) { return r.json(); })
-        .then(function (json) {
-            if (json.ok) {
                 window.location.reload();
             } else {
-                card.style.opacity = '';
-                showAlert('danger', json.msg || 'Errore durante la rimozione.');
+                btnConf.disabled  = false;
+                btnConf.innerHTML = '<i class="fas fa-check mr-1"></i> Pianifica';
+                showAlert('danger', json.msg || 'Errore durante il salvataggio.');
             }
         })
         .catch(function () {
-            card.style.opacity = '';
+            btnConf.disabled  = false;
+            btnConf.innerHTML = '<i class="fas fa-check mr-1"></i> Pianifica';
             showAlert('danger', 'Errore di rete.');
         });
-    }
-
-    // Attacca handler X ai bottoni pre-esistenti (card già pianificate dal server)
-    document.querySelectorAll('.btn-rimuovi-giornata').forEach(function (btn) {
-        btn.addEventListener('click', rimuoviCardHandler);
     });
 
-    // --- Aggiorna contatori ---
-    function updateUI() {
-        var pool     = document.querySelectorAll('.pool-zone .intervention-card').length;
-        var giornata = document.querySelectorAll('#giornata-zone .intervention-card').length;
-
-        document.getElementById('pool-count').textContent     = pool;
-        document.getElementById('giornata-count').textContent = giornata;
-
-        var emptyEl = document.getElementById('giornata-empty');
-        if (emptyEl) emptyEl.style.display = giornata > 0 ? 'none' : '';
-
-        // Aggiorna badge conteggio per gruppo tipo nel pool
-        document.querySelectorAll('.pool-zone').forEach(function (zone) {
-            var cnt   = zone.querySelectorAll('.intervention-card').length;
-            var badge = zone.previousElementSibling
-                ? zone.previousElementSibling.querySelector('.pool-tipo-count')
-                : null;
-            if (badge) badge.textContent = cnt;
+    // --- X button (rimuovi pianificazione) ---
+    document.querySelectorAll('.btn-rimuovi-giornata').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var card = this.closest('.intervention-card');
+            if (!card) return;
+            card.style.opacity = '.4';
+            fetch('<?= base_url('interventi/') ?>' + card.dataset.id + '/annulla-pianificazione', {
+                method:  'POST',
+                headers: { 'X-CSRF-TOKEN': csrfToken },
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (json) {
+                if (json.ok) {
+                    window.location.reload();
+                } else {
+                    card.style.opacity = '';
+                    showAlert('danger', json.msg || 'Errore.');
+                }
+            })
+            .catch(function () {
+                card.style.opacity = '';
+                showAlert('danger', 'Errore di rete.');
+            });
         });
-    }
+    });
 
-    updateUI();
-
-    // --- Modal dettaglio intervento (click su card) ---
+    // --- Click su card → modal dettaglio ---
     document.addEventListener('click', function (e) {
         if (dragging) return;
         if (e.target.closest('.btn-rimuovi-giornata')) return;
@@ -636,10 +577,10 @@ $renderGiornataCard = function (array $i) use ($tipiPerCodice, $priorita): void 
         var luogo = [card.dataset.ml, card.dataset.mci].filter(Boolean).join(' — ');
         var descr = card.dataset.md || '';
 
-        document.getElementById('mi-badge').className    = 'badge mr-2 ' + (card.dataset.mb || 'badge-secondary');
-        document.getElementById('mi-badge').textContent  = card.dataset.mp || '';
+        document.getElementById('mi-badge').className   = 'badge mr-2 ' + (card.dataset.mb || 'badge-secondary');
+        document.getElementById('mi-badge').textContent = card.dataset.mp || '';
         document.getElementById('mi-icona').className   = 'fas ' + (card.dataset.mi || 'fa-wrench') + ' mr-1';
-        document.getElementById('mi-tipo').textContent   = card.dataset.mt || '';
+        document.getElementById('mi-tipo').textContent  = card.dataset.mt || '';
         document.getElementById('mi-cliente').textContent = card.dataset.mc || '—';
 
         var luogoLabel = document.getElementById('mi-luogo-label');
@@ -659,9 +600,9 @@ $renderGiornataCard = function (array $i) use ($tipiPerCodice, $priorita): void 
     });
 
     function showAlert(type, html) {
-        alertEl.className     = 'alert alert-' + type + ' py-2 mb-0';
-        alertEl.innerHTML     = html;
-        alertEl.style.display = '';
+        alertEl.className         = 'alert alert-' + type + ' py-2 mb-0';
+        alertEl.innerHTML         = html;
+        alertWrapEl.style.display = '';
     }
 })();
 </script>

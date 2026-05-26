@@ -13,8 +13,25 @@
             + count($nonAssegnati);
 ?>
 
+<?php
+    $qActual = array_filter($_GET, fn($k) => $k !== 'mostra_completati', ARRAY_FILTER_USE_KEY);
+    $qs      = http_build_query($qActual);
+    $urlBase = base_url('interventi') . ($qs ? '?' . $qs : '');
+    $urlConCompletati = base_url('interventi') . '?' . http_build_query($qActual + ['mostra_completati' => '1']);
+?>
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <span class="text-muted small"><?= $totale ?> interventi totali</span>
+    <div class="d-flex align-items-center" style="gap:.75rem;">
+        <span class="text-muted small"><?= $totale ?> interventi</span>
+        <?php if ($mostraCompletati || $statoFiltro === 'completato'): ?>
+            <a href="<?= $urlBase ?>" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-eye-slash mr-1"></i>Nascondi completati
+            </a>
+        <?php elseif (!$statoFiltro): ?>
+            <a href="<?= $urlConCompletati ?>" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-eye mr-1"></i>Mostra anche completati
+            </a>
+        <?php endif; ?>
+    </div>
     <a href="<?= base_url('interventi/new') ?>" class="btn btn-primary btn-sm">
         <i class="fas fa-plus mr-1"></i>
         <span class="d-none d-sm-inline">Nuovo intervento</span>

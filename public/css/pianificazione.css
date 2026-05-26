@@ -1,5 +1,5 @@
 /* ================================================================
-   Pianificazione — layout pool sidebar + zona giornata
+   Pianificazione — pool sidebar + griglia settimanale
    ================================================================ */
 
 .planning-layout {
@@ -10,7 +10,7 @@
 
 /* --- Pool sidebar --- */
 .pool-panel {
-    width: 320px;
+    width: 290px;
     flex-shrink: 0;
     position: sticky;
     top: 70px;
@@ -33,26 +33,7 @@
     flex: 1;
 }
 
-/* --- Giornata panel --- */
-.giornata-panel {
-    flex: 1;
-    min-width: 0;
-}
-
-/* --- Drop zone giornata --- */
-.giornata-drop-zone {
-    display: flex;
-    flex-direction: column;
-    gap: .4rem;
-    min-height: 120px;
-    padding: .25rem;
-}
-
-.giornata-drop-zone .intervention-card {
-    width: 100%;
-}
-
-/* --- Card base (condivisa pool + giornata) --- */
+/* --- Card base (pool + giornata) --- */
 .intervention-card {
     background: #fff;
     border: 1px solid rgba(0,0,0,.12);
@@ -72,25 +53,17 @@
 .intervention-card.ordinario   { border-left-color: #6c757d; }
 .intervention-card.programmato { border-left-color: #17a2b8; }
 
+/* Card in drag */
+.intervention-card.dragging {
+    opacity: .4;
+}
+
 /* Pool: spaziatura verticale */
 .pool-zone .intervention-card {
     margin-bottom: .35rem;
 }
 
-/* Giornata: card salvata con bordo verde */
-#giornata-zone .intervention-card[data-saved="1"] {
-    border-left-width: 4px;
-}
-
-/* --- Numero tappa (legacy, non più usato ma tenuto per sicurezza) --- */
-.step-num {
-    color: #adb5bd;
-    font-size: .68rem;
-    font-weight: 600;
-    margin-right: .2rem;
-}
-
-/* --- Preview descrizione nelle pool card --- */
+/* Preview descrizione pool */
 .card-descr-preview {
     font-style: italic;
     opacity: .75;
@@ -98,14 +71,14 @@
     line-height: 1.3;
 }
 
-/* --- Ghost drag --- */
+/* Ghost drag SortableJS */
 .sortable-ghost {
     opacity: .35;
     background: #cfe2ff !important;
     border-style: dashed !important;
 }
 
-/* --- Empty pool --- */
+/* Empty pool */
 .pool-empty {
     text-align: center;
     padding: 24px 12px;
@@ -113,31 +86,7 @@
     font-size: .8rem;
 }
 
-/* --- Empty giornata --- */
-.giornata-empty {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 32px 16px;
-    color: #adb5bd;
-    font-size: .8rem;
-    text-align: center;
-    min-height: 120px;
-}
-
-/* --- Drop hint (piccolo, usato inline) --- */
-.drop-empty {
-    color: #adb5bd;
-    font-size: .78rem;
-    display: flex;
-    align-items: center;
-    gap: .35rem;
-    pointer-events: none;
-    padding: .25rem;
-}
-
-/* --- Avatar tecnico --- */
+/* Avatar tecnico */
 .tech-avatar {
     display: inline-flex;
     align-items: center;
@@ -151,7 +100,7 @@
     flex-shrink: 0;
 }
 
-/* --- Dot tecnico (consigliati pool / badge giornata) --- */
+/* Dot tecnico */
 .tech-dot {
     display: inline-flex;
     width: 20px;
@@ -164,4 +113,84 @@
     font-weight: 700;
     vertical-align: middle;
     margin-left: 2px;
+}
+
+/* ================================================================
+   Griglia settimanale
+   ================================================================ */
+
+.week-panel {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.week-grid-wrap {
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.week-grid {
+    display: flex;
+    gap: .4rem;
+    align-items: flex-start;
+    min-width: max-content;
+}
+
+/* Colonna giorno */
+.day-col {
+    width: 175px;
+    display: flex;
+    flex-direction: column;
+}
+
+.day-header {
+    padding: .45rem .5rem;
+    text-align: center;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-bottom: none;
+    border-radius: .35rem .35rem 0 0;
+    font-size: .8rem;
+    line-height: 1.3;
+}
+
+.day-col.oggi .day-header {
+    background: #d1ecf1;
+    border-color: #17a2b8;
+    color: #0c5460;
+}
+
+.day-col.weekend .day-header {
+    color: #adb5bd;
+}
+
+/* Zona di drop */
+.day-drop-zone {
+    flex: 1;
+    min-height: 150px;
+    border: 1px solid #dee2e6;
+    border-radius: 0 0 .35rem .35rem;
+    padding: .35rem;
+    transition: background .12s, border-color .12s;
+}
+
+.day-col.oggi .day-drop-zone {
+    border-color: #17a2b8;
+}
+
+.day-drop-zone.drag-over {
+    background: #d4edda;
+    border-color: #28a745;
+    border-style: dashed;
+}
+
+/* Placeholder "trascina qui" */
+.day-empty {
+    text-align: center;
+    padding: 20px 6px;
+    color: #ced4da;
+    font-size: .72rem;
+    line-height: 1.8;
+    pointer-events: none;
 }

@@ -5,27 +5,18 @@
     <li class="breadcrumb-item active">Clienti</li>
 <?= $this->endSection() ?>
 
+<?= $this->section('styles') ?>
+<link rel="stylesheet" href="<?= base_url('plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') ?>">
+<style>
+#table-clienti_wrapper .dataTables_info { padding-top: 0; }
+</style>
+<?= $this->endSection() ?>
+
 <?= $this->section('content') ?>
 <div class="card card-primary">
     <div class="card-header">
         <h3 class="card-title mb-0">Elenco clienti</h3>
-        <div class="card-tools d-flex align-items-center">
-            <form method="get" action="<?= base_url('clienti') ?>" class="mr-2 mb-0">
-                <div class="input-group input-group-sm">
-                    <input type="text" name="q" class="form-control"
-                           placeholder="Cerca..." value="<?= esc($q ?? '') ?>">
-                    <div class="input-group-append">
-                        <button type="submit" class="btn btn-outline-secondary">
-                            <i class="fas fa-search"></i>
-                        </button>
-                        <?php if ($q ?? ''): ?>
-                            <a href="<?= base_url('clienti') ?>" class="btn btn-outline-secondary" title="Azzera">
-                                <i class="fas fa-times"></i>
-                            </a>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </form>
+        <div class="card-tools">
             <a href="<?= base_url('clienti/import') ?>" class="btn btn-outline-secondary btn-sm mr-1">
                 <i class="fas fa-file-csv mr-1"></i>
                 <span class="d-none d-sm-inline">Import CSV</span>
@@ -42,29 +33,22 @@
         <?php if (empty($clienti)): ?>
             <div class="text-center py-5 text-muted">
                 <i class="fas fa-users fa-3x mb-3"></i>
-                <?php if ($q ?? ''): ?>
-                    <p>Nessun cliente trovato per "<strong><?= esc($q) ?></strong>".</p>
-                    <a href="<?= base_url('clienti') ?>" class="btn btn-outline-secondary btn-sm">
-                        <i class="fas fa-times mr-1"></i> Azzera ricerca
-                    </a>
-                <?php else: ?>
-                    <p>Nessun cliente ancora inserito.</p>
-                    <a href="<?= base_url('clienti/new') ?>" class="btn btn-primary">
-                        <i class="fas fa-plus mr-1"></i> Aggiungi cliente
-                    </a>
-                <?php endif; ?>
+                <p>Nessun cliente ancora inserito.</p>
+                <a href="<?= base_url('clienti/new') ?>" class="btn btn-primary">
+                    <i class="fas fa-plus mr-1"></i> Aggiungi cliente
+                </a>
             </div>
         <?php else: ?>
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
+                <table id="table-clienti" class="table table-hover mb-0" style="width:100%">
                     <thead>
                         <tr>
                             <th>Codice</th>
                             <th>Nominativo</th>
-                            <th class="d-none d-md-table-cell">Tipo</th>
-                            <th class="d-none d-lg-table-cell">Città</th>
-                            <th class="d-none d-md-table-cell">Telefono</th>
-                            <th class="d-none d-lg-table-cell">Portale</th>
+                            <th>Tipo</th>
+                            <th>Città</th>
+                            <th>Telefono</th>
+                            <th>Portale</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -91,29 +75,24 @@
                                         </span>
                                     <?php endif; ?>
                                 <?php endif; ?>
-                                <?php if ($c['citta'] ?? ''): ?>
-                                    <br><small class="text-muted d-lg-none"><?= esc($c['citta']) ?></small>
-                                <?php endif; ?>
                             </td>
-                            <td class="d-none d-md-table-cell align-middle">
+                            <td class="align-middle">
                                 <?= $c['tipo'] === 'persona_fisica'
                                     ? '<span class="badge badge-light">Persona fisica</span>'
                                     : '<span class="badge badge-light">Società</span>' ?>
                             </td>
-                            <td class="d-none d-lg-table-cell align-middle">
-                                <?= esc($c['citta'] ?? '—') ?>
+                            <td class="align-middle">
+                                <?= esc($c['citta'] ?? '') ?>
                                 <?php if ($c['provincia'] ?? ''): ?>
                                     <span class="text-muted">(<?= esc($c['provincia']) ?>)</span>
                                 <?php endif; ?>
                             </td>
-                            <td class="d-none d-md-table-cell align-middle">
-                                <?= $c['telefono'] ? esc($c['telefono']) : '<span class="text-muted">—</span>' ?>
+                            <td class="align-middle">
+                                <?= $c['telefono'] ? esc($c['telefono']) : '' ?>
                             </td>
-                            <td class="d-none d-lg-table-cell align-middle">
+                            <td class="align-middle">
                                 <?php if ($c['user_id']): ?>
                                     <span class="badge badge-success"><i class="fas fa-check mr-1"></i>Attivo</span>
-                                <?php else: ?>
-                                    <span class="text-muted small">—</span>
                                 <?php endif; ?>
                             </td>
                             <td class="text-right align-middle">
@@ -127,13 +106,6 @@
                     </tbody>
                 </table>
             </div>
-            <?php if ($q ?? ''): ?>
-                <div class="card-footer text-muted small">
-                    <?= count($clienti) ?> risultat<?= count($clienti) === 1 ? 'o' : 'i' ?>
-                    per "<?= esc($q) ?>" —
-                    <a href="<?= base_url('clienti') ?>">mostra tutti</a>
-                </div>
-            <?php endif; ?>
         <?php endif; ?>
     </div>
 </div>
@@ -141,4 +113,43 @@
 
 <?= $this->section('help') ?>
 <?= $this->include('help/clienti/index') ?>
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script src="<?= base_url('plugins/datatables/js/jquery.dataTables.min.js') ?>"></script>
+<script src="<?= base_url('plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') ?>"></script>
+<script>
+$(function () {
+    $('#table-clienti').DataTable({
+        language: {
+            search:           'Cerca:',
+            lengthMenu:       'Mostra _MENU_',
+            info:             'Da _START_ a _END_ di _TOTAL_ clienti',
+            infoEmpty:        'Nessun cliente',
+            infoFiltered:     '(filtrati da _MAX_ totali)',
+            zeroRecords:      'Nessun cliente trovato',
+            emptyTable:       'Nessun cliente disponibile',
+            paginate: {
+                first:    'Prima',
+                last:     'Ultima',
+                next:     'Succ.',
+                previous: 'Prec.'
+            }
+        },
+        dom:
+            "<'d-flex justify-content-end px-3 pt-2 pb-1'f>" +
+            "t" +
+            "<'d-flex flex-wrap align-items-center justify-content-between py-2 border-top'" +
+                "<'d-flex align-items-center ml-3'<'mr-3'l>i>" +
+                "<'mr-3'p>" +
+            ">",
+        pageLength: 25,
+        lengthMenu: [[25, 50, 100, -1], [25, 50, 100, 'Tutti']],
+        order: [[1, 'asc']],
+        columnDefs: [
+            { orderable: false, targets: -1 }
+        ]
+    });
+});
+</script>
 <?= $this->endSection() ?>

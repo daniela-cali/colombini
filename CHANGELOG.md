@@ -50,6 +50,13 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 - **Elenco interventi — colonna Cliente prima di Tipo** — riordinamento colonne per leggibilità immediata
 - **Intervento rapido dalla dashboard tecnico** — pulsante "Nuovo intervento" apre modal con cliente, tipo e data opzionale; pre-compila tecnico loggato e stato pianificato; redirect diretto alla scheda dopo il salvataggio
 - **Tecnico consigliato** — nel form di creazione intervento, selezionando tipo e cliente appare un badge con il tecnico che ha gestito più spesso quella combinazione (fallback su tipo solo se nessun dato per cliente)
+- **Pianificazione rapida — griglia settimanale** — la schermata pianificazione sostituisce la timeline giornaliera con una griglia a 7 colonne (lun–dom); navigazione settimana con prev/next e date picker; drag & drop dalla pool verso qualsiasi giorno; le card già pianificate mostrano tecnico e ora; contatori per giorno nella barra di navigazione
+- **Pianificazione rapida — tecnico suggerito con fallback disponibilità** — se nessun tecnico risulta dallo storico, l'API cerca il tecnico con meno interventi nella data selezionata tra quelli con competenza ≥ Autonomo; la modal indica la fonte (storico / disponibilità); tendina tecnici raggruppata per livello competenza (Autonomi/Referenti, Base, Non competenti)
+- **Dashboard tecnico — interventi raggruppati per data** — la tabella "I miei prossimi interventi" è raggruppata per giorno con separatori visivi; colonna "Assegnato" rimossa; mostrati solo gli interventi del tecnico loggato (no interventi altrui)
+- **Elenco interventi — completati nascosti di default** — i completati e annullati non appaiono nell'elenco standard; toggle "Mostra anche completati" / "Nascondi completati" per visualizzarli
+- **Scheda cliente — storico interventi** — sezione in fondo alla scheda con tabella degli interventi collegati (data, tipo, tecnico, stato); pulsante "Nuovo" precompila il cliente; link a ogni intervento con ritorno contestuale alla scheda
+- **Navigazione contestuale `?from=clienti/ID`** — dalla scheda cliente, il link a un intervento porta `?from=clienti/ID`; nella scheda intervento il breadcrumb mostra "Clienti › Scheda cliente" e il pulsante "Elenco" diventa "Scheda cliente" con link di ritorno corretto
+- **Elenco clienti — DataTables** — ricerca live client-side con DataTables (Bootstrap 4); rimosso form di ricerca server-side; paginazione 25/50/100/Tutti; ordinamento per colonna; interfaccia in italiano
 
 ### Corretto
 - **Firma email** — sfondo trasparente illeggibile in dark mode: template HTML completo con `bgcolor` su body e tabella wrapper, `color-scheme: light only` per forzare tema chiaro nei client che lo supportano

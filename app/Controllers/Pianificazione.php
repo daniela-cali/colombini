@@ -14,7 +14,9 @@ class Pianificazione extends BaseController
 {
     public function index(): string
     {
-        $data = $this->request->getGet('data') ?? date('Y-m-d');
+        $data     = $this->request->getGet('data') ?? date('Y-m-d');
+        $lunedi   = date('Y-m-d', strtotime('monday this week', strtotime($data)));
+        $domenica = date('Y-m-d', strtotime($lunedi . ' +6 days'));
 
         $tecnici = (new UserModel())
             ->whereAssegnabile()
@@ -36,9 +38,10 @@ class Pianificazione extends BaseController
         $tipiPerCodice = [];
         foreach ($tipiCompleti as $tipo) {
             $tipiPerCodice[$tipo['codice']] = [
-                'id'    => (int) $tipo['id'],
-                'nome'  => $tipo['nome'],
-                'icona' => $tipo['icona'] ?? 'fa-wrench',
+                'id'             => (int) $tipo['id'],
+                'nome'           => $tipo['nome'],
+                'icona'          => $tipo['icona'] ?? 'fa-wrench',
+                'durata_default' => (int) ($tipo['durata_default'] ?? 60),
             ];
         }
 
@@ -48,45 +51,53 @@ class Pianificazione extends BaseController
             ->orderBy('FIELD(interventi.priorita, "urgente", "ordinario", "programmato")')
             ->findAll();
 
-        // Giornata: interventi già pianificati/in_corso per questa data
-        $giornataInterventi = $this->queryInterventi()
-            ->select('interventi.tecnico_id, interventi.stato, u_tec.nome AS tecnico_nome, u_tec.cognome AS tecnico_cognome, u_tec.colore AS tecnico_colore')
-            ->join('users u_tec', 'u_tec.id = interventi.tecnico_id', 'left')
-            ->whereIn('interventi.stato', ['pianificato', 'in_corso'])
-            ->where('DATE(interventi.data_pianificata)', $data)
-            ->orderBy('interventi.data_pianificata', 'ASC')
-            ->findAll();
-
-        // Barra settimanale
-        $lunedi    = date('Y-m-d', strtotime('monday this week', strtotime($data)));
-        $settimana = [];
-        for ($i = 0; $i < 7; $i++) {
-            $giorno = date('Y-m-d', strtotime($lunedi . " +{$i} days"));
-            $count  = (new InterventoModel())
-                ->whereIn('stato', ['pianificato', 'in_corso'])
-                ->where('DATE(data_pianificata)', $giorno)
-                ->countAllResults();
-            $settimana[] = ['data' => $giorno, 'count' => $count];
-        }
-
-        // Raggruppa pool per tipo_intervento
         $poolPerTipo = [];
         foreach ($interventi as $inv) {
             $poolPerTipo[$inv['tipo_intervento']][] = $inv;
+        }
+
+        // Interventi pianificati/in_corso per tutta la settimana
+        $giornataInterventi = $this->queryInterventi()
+            ->select('interventi.tecnico_id, interventi.stato,
+                      u_tec.nome AS tecnico_nome, u_tec.cognome AS tecnico_cognome, u_tec.colore AS tecnico_colore')
+            ->join('users u_tec', 'u_tec.id = interventi.tecnico_id', 'left')
+            ->whereIn('interventi.stato', ['pianificato', 'in_corso'])
+            ->where('DATE(interventi.data_pianificata) >=', $lunedi)
+            ->where('DATE(interventi.data_pianificata) <=', $domenica)
+            ->orderBy('interventi.data_pianificata', 'ASC')
+            ->findAll();
+
+        // Raggruppa per giorno
+        $giornataPerGiorno = [];
+        foreach ($giornataInterventi as $inv) {
+            $giorno = date('Y-m-d', strtotime($inv['data_pianificata']));
+            $giornataPerGiorno[$giorno][] = $inv;
+        }
+
+        // Settimana con conteggi (senza query aggiuntive)
+        $settimana = [];
+        for ($i = 0; $i < 7; $i++) {
+            $giorno      = date('Y-m-d', strtotime($lunedi . " +{$i} days"));
+            $settimana[] = [
+                'data'  => $giorno,
+                'count' => count($giornataPerGiorno[$giorno] ?? []),
+            ];
         }
 
         return view('pianificazione/index', [
             'title'                => 'Pianificazione',
             'page_title'           => 'Pianificazione Interventi',
             'data'                 => $data,
+            'lunedi'               => $lunedi,
+            'settimana'            => $settimana,
             'tecnici'              => $tecnici,
             'competenzePerTecnico' => $competenzePerTecnico,
             'tipiPerCodice'        => $tipiPerCodice,
             'interventi'           => $interventi,
             'poolPerTipo'          => $poolPerTipo,
-            'giornataInterventi'   => $giornataInterventi,
+            'giornataPerGiorno'    => $giornataPerGiorno,
             'priorita'             => InterventoModel::PRIORITA,
-            'settimana'            => $settimana,
+            'oraInizio'            => setting('Tecnici.orario_inizio') ?? '08:30',
         ]);
     }
 
