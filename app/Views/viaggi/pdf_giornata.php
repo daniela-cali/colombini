@@ -147,7 +147,7 @@ table.tappe tbody tr:nth-child(even) { background: #f9fafb; }
                 <th>Cliente / Luogo</th>
                 <th class="tipo">Tipo intervento</th>
                 <th class="pri">Priorità</th>
-                <th class="ora">Arrivo est.</th>
+                <th class="ora">Arrivo stim.</th>
             </tr>
         </thead>
         <tbody>

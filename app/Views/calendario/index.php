@@ -12,10 +12,40 @@
     .fc-event-title { font-weight: 500; font-size: .8rem; }
     .fc-timegrid-event .fc-event-title { white-space: normal; }
     body.fc-dragging .tooltip { display: none !important; }
+    .fc-day-selected { background: rgba(0,188,212,.12) !important; }
+    .fc-col-header-cell[data-date] { cursor: pointer; }
 </style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+
+<div class="mb-2 d-flex flex-wrap justify-content-between align-items-center" style="gap:.4rem;">
+    <div class="d-flex flex-wrap" style="gap:.4rem;">
+        <button type="button" class="btn btn-sm btn-secondary btn-filtro active" data-id="">
+            <i class="fas fa-users mr-1"></i>Tutti
+        </button>
+        <?php foreach ($tecnici as $t): ?>
+        <button type="button" class="btn btn-sm btn-filtro"
+                data-id="<?= $t['id'] ?>"
+                data-colore="<?= esc($t['colore'] ?: '#6c757d') ?>"
+                style="background:<?= esc($t['colore'] ?: '#6c757d') ?>;border-color:<?= esc($t['colore'] ?: '#6c757d') ?>;color:#fff;">
+            <?= esc($t['cognome'] . ' ' . $t['nome']) ?>
+        </button>
+        <?php endforeach; ?>
+    </div>
+
+    <form method="post" action="<?= base_url('calendario/genera-viaggio-giornata') ?>" class="d-flex align-items-center" style="gap:.5rem;"
+          target="<?= strpos($_SERVER['HTTP_USER_AGENT'] ?? '', 'Mobile') === false ? '_blank' : '_self' ?>">
+        <?= csrf_field() ?>
+        <input type="hidden" name="tecnico_id" id="form-tecnico-giornata" value="">
+        <input type="hidden" name="data"       id="form-data-giornata"    value="">
+        <small id="label-data-giornata" class="text-muted">Clicca un giorno sul calendario</small>
+        <button type="submit" class="btn btn-sm btn-outline-primary text-nowrap" id="btn-genera-viaggio" disabled>
+            <i class="fas fa-route mr-1"></i>Genera viaggio
+        </button>
+    </form>
+</div>
+
 <div class="card">
     <div class="card-body p-2 p-md-3">
         <div id="calendario"></div>
@@ -70,6 +100,44 @@
 document.addEventListener('DOMContentLoaded', function () {
     var _csrfToken = '<?= csrf_token() ?>';
     var _csrfHash  = '<?= csrf_hash() ?>';
+    var tecnicoId  = '';
+
+    function selezionaData(dateStr) {
+        document.querySelectorAll('.fc-day-selected').forEach(function (el) {
+            el.classList.remove('fc-day-selected');
+        });
+        document.querySelectorAll('[data-date="' + dateStr + '"]').forEach(function (el) {
+            el.classList.add('fc-day-selected');
+        });
+        document.getElementById('form-data-giornata').value = dateStr;
+        var parts = dateStr.split('-');
+        document.getElementById('label-data-giornata').textContent = parts[2] + '/' + parts[1] + '/' + parts[0];
+        document.getElementById('btn-genera-viaggio').disabled = false;
+    }
+
+    // click sugli header delle colonne giorno
+    document.getElementById('calendario').addEventListener('click', function (e) {
+        var cell = e.target.closest('.fc-col-header-cell[data-date]');
+        if (cell) selezionaData(cell.dataset.date);
+    });
+
+    document.querySelectorAll('.btn-filtro').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            tecnicoId = this.dataset.id;
+            document.getElementById('form-tecnico-giornata').value = tecnicoId;
+            document.querySelectorAll('.btn-filtro').forEach(function (b) {
+                var c = b.dataset.colore || '';
+                if (b.dataset.id === '') {
+                    b.classList.toggle('btn-secondary', b.dataset.id === tecnicoId);
+                    b.classList.toggle('btn-outline-secondary', b.dataset.id !== tecnicoId);
+                } else {
+                    b.style.opacity = (b.dataset.id === tecnicoId || tecnicoId === '') ? '1' : '.4';
+                }
+                b.classList.toggle('active', b.dataset.id === tecnicoId);
+            });
+            calendar.refetchEvents();
+        });
+    });
 
     var calendar = new FullCalendar.Calendar(document.getElementById('calendario'), {
         locale: 'it',
@@ -129,12 +197,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 },
             });
         },
-        eventSources: [{
-            url: '<?= base_url('calendario/eventi') ?>',
-            failure: function () {
-                alert('Errore nel caricamento degli eventi del calendario.');
-            },
-        }],
+        events: function (fetchInfo, successCallback, failureCallback) {
+            var url = '<?= base_url('calendario/eventi') ?>'
+                    + '?start=' + fetchInfo.startStr.substring(0, 10)
+                    + '&end='   + fetchInfo.endStr.substring(0, 10);
+            if (tecnicoId) url += '&tecnico_id=' + tecnicoId;
+            fetch(url)
+                .then(function (r) { return r.json(); })
+                .then(successCallback)
+                .catch(failureCallback);
+        },
         eventDidMount: function (info) {
             var p   = info.event.extendedProps;
             var tip = [p.tecnico, p.tipo, p.stato].filter(Boolean).join(' · ');
@@ -171,6 +243,9 @@ document.addEventListener('DOMContentLoaded', function () {
             $('#modal-btn-modifica').attr('href', urlBase.replace(/\/interventi\/(\d+)$/, '/interventi/$1/edit') + '?from=calendario');
 
             $('#modalIntervento').modal('show');
+        },
+        dateClick: function (info) {
+            selezionaData(info.dateStr.substring(0, 10));
         },
         eventContent: function (info) {
             var p    = info.event.extendedProps;

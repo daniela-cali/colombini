@@ -57,6 +57,9 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 - **Scheda cliente — storico interventi** — sezione in fondo alla scheda con tabella degli interventi collegati (data, tipo, tecnico, stato); pulsante "Nuovo" precompila il cliente; link a ogni intervento con ritorno contestuale alla scheda
 - **Navigazione contestuale `?from=clienti/ID`** — dalla scheda cliente, il link a un intervento porta `?from=clienti/ID`; nella scheda intervento il breadcrumb mostra "Clienti › Scheda cliente" e il pulsante "Elenco" diventa "Scheda cliente" con link di ritorno corretto
 - **Elenco clienti — DataTables** — ricerca live client-side con DataTables (Bootstrap 4); rimosso form di ricerca server-side; paginazione 25/50/100/Tutti; ordinamento per colonna; interfaccia in italiano
+- **Calendario — filtro tecnico** — barra pulsanti sopra il calendario per filtrare gli eventi per tecnico; "Tutti" mostra tutti; API `calendario/eventi` estesa con parametro `tecnico_id`
+- **Calendario — genera viaggio giornata** — click su un giorno del calendario (corpo o header colonna) lo evidenzia e abilita il pulsante "Genera viaggio"; crea automaticamente i record `viaggi` + `viaggi_tappe` in stato autorizzato per tutti i tecnici con interventi pianificati in quella data; redirect al PDF riepilogo giornata esistente; apertura in nuova tab su desktop
+- **X contestuale — btn-tool** — pulsante di chiusura con `from` in `interventi/show` e `interventi/edit` usa la classe AdminLTE `btn-tool` invece di `btn-outline-secondary`
 
 ### Corretto
 - **Firma email** — sfondo trasparente illeggibile in dark mode: template HTML completo con `bgcolor` su body e tabella wrapper, `color-scheme: light only` per forzare tema chiaro nei client che lo supportano

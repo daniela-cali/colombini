@@ -49,9 +49,10 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
     });
 
     $routes->group('calendario', function (RouteCollection $routes) {
-        $routes->get('/',       'Calendario::index');
-        $routes->get('eventi',  'Calendario::eventi');
-        $routes->post('sposta', 'Calendario::sposta');
+        $routes->get('/',                       'Calendario::index');
+        $routes->get('eventi',                  'Calendario::eventi');
+        $routes->post('sposta',                 'Calendario::sposta');
+        $routes->post('genera-viaggio-giornata','Calendario::generaViaggioGiornata');
     });
 
     $routes->group('clienti', function (RouteCollection $routes) {
