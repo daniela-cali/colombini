@@ -534,6 +534,10 @@ class Interventi extends BaseController
         return $this->response->setJSON(['ok' => true, 'csrf' => csrf_hash()]);
     }
 
+    // Suggerisce il tecnico più adatto in ordine di priorità:
+    // 1. Referente (livello 3) meno occupato nel giorno
+    // 2. Chi ha più storico completato su quel tipo (per cliente, poi generico)
+    // 3. Primo disponibile con competenza >= 2 nel giorno
     public function apiTecnicoConsigliato(): ResponseInterface
     {
         $tipo      = $this->request->getGet('tipo_intervento') ?? '';
@@ -541,12 +545,22 @@ class Interventi extends BaseController
         $data      = $this->request->getGet('data') ?? '';
 
         $model   = new InterventoModel();
-        $tecnico = $model->tecnicoConsigliato($tipo, $clienteId);
-        $source  = 'storico';
+        $tecnico = null;
+        $source  = null;
+
+        if ($data) {
+            $tecnico = $model->tecnicoReferente($tipo, $data);
+            if ($tecnico) $source = 'referente';
+        }
+
+        if (!$tecnico) {
+            $tecnico = $model->tecnicoConsigliato($tipo, $clienteId);
+            if ($tecnico) $source = 'storico';
+        }
 
         if (!$tecnico && $data) {
             $tecnico = $model->tecnicoMenoOccupato($tipo, $data);
-            $source  = 'disponibilita';
+            if ($tecnico) $source = 'disponibilita';
         }
 
         return $this->response->setJSON(['tecnico' => $tecnico, 'source' => $source]);

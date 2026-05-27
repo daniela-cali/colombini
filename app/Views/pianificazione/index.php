@@ -466,19 +466,16 @@ $renderDayCard = function (array $i) use ($tipiPerCodice, $priorita): void {
                 .then(function (json) {
                     if (!json.tecnico) return;
 
-                    var t      = json.tecnico;
-                    var isStorico = (json.source === 'storico');
-                    var etichetta = isStorico ? 'Consigliato'   : 'Meno occupato';
-                    var icona     = isStorico ? 'fa-lightbulb'  : 'fa-user-clock';
-                    var dettaglio = isStorico
-                        ? '(' + t.cnt + ' int. simili)'
-                        : '(' + t.cnt + ' int. oggi)';
+                    var t = json.tecnico;
+                    var dettaglio = json.source === 'referente' ? 'Referente'
+                                  : json.source === 'storico'   ? t.cnt + ' int. simili'
+                                  :                               'disponibile';
 
                     assegnaSuggEl.innerHTML =
                         '<div class="alert alert-info py-1 px-2 mb-0 small">'
-                        + '<i class="fas ' + icona + ' mr-1"></i>'
-                        + etichetta + ': <strong>' + t.cognome + ' ' + t.nome + '</strong> '
-                        + '<span class="text-muted">' + dettaglio + '</span>'
+                        + '<i class="fas fa-lightbulb mr-1"></i>'
+                        + 'Consigliato: <strong>' + t.cognome + ' ' + t.nome + '</strong> '
+                        + '<span class="text-muted">(' + dettaglio + ')</span>'
                         + ' <a href="#" class="ml-2"'
                         + ' onclick="document.getElementById(\'assegna-tecnico\').value=\'' + t.tecnico_id + '\';'
                         + 'this.parentElement.remove();return false;">Usa questo</a>'

@@ -126,6 +126,8 @@ class InterventoModel extends Model
             ->findAll();
     }
 
+    // Chi ha completato più interventi di questo tipo per quel cliente (fallback: qualsiasi cliente).
+    // Usato come segnale "storico" per suggerire esperienza specifica.
     public function tecnicoConsigliato(string $tipo, int $clienteId = 0): ?array
     {
         $base = fn() => db_connect()->table('interventi i')
@@ -147,6 +149,47 @@ class InterventoModel extends Model
         return $base()->get()->getRowArray() ?: null;
     }
 
+    // Referente (livello 3) del tipo dato meno occupato nel giorno indicato,
+    // escluso se supera $soglia interventi già pianificati quel giorno.
+    public function tecnicoReferente(string $tipo, string $data, int $soglia = 4): ?array
+    {
+        $db = db_connect();
+
+        $tipoRow = $db->table('tipi_intervento')
+            ->select('id')
+            ->where('codice', $tipo)
+            ->get()->getRowArray();
+
+        if (!$tipoRow) return null;
+
+        $tipoId = (int) $tipoRow['id'];
+
+        $row = $db->table('users u')
+            ->select('u.id AS tecnico_id, u.nome, u.cognome, COUNT(i.id) AS cnt')
+            ->join(
+                'tecnici_competenze tc',
+                'tc.tecnico_id = u.id AND tc.tipo_intervento_id = ' . $tipoId . ' AND tc.livello = 3',
+                'inner'
+            )
+            ->join(
+                'interventi i',
+                "i.tecnico_id = u.id AND i.stato IN ('pianificato', 'in_corso') AND DATE(i.data_pianificata) = " . $db->escape($data),
+                'left'
+            )
+            ->where('u.deleted_at IS NULL', null, false)
+            ->where('u.active', 1)
+            ->groupBy('u.id, u.nome, u.cognome')
+            ->having('COUNT(i.id) <', $soglia)
+            ->orderBy('cnt', 'ASC')
+            ->orderBy('u.cognome', 'ASC')
+            ->limit(1)
+            ->get()->getRowArray();
+
+        return $row ?: null;
+    }
+
+    // Tecnico con competenza >= 2 sul tipo dato che ha il minor numero di interventi
+    // pianificati/in corso nel giorno indicato. Fallback quando mancano referente e storico.
     public function tecnicoMenoOccupato(string $tipo, string $data): ?array
     {
         $db = db_connect();

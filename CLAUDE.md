@@ -54,6 +54,15 @@ $db->table('users u')
           'left');
 ```
 
+## Commenti sui metodi PHP
+Aggiungere sempre un commento descrittivo sopra ogni metodo di controller o model, su una o più righe, che spieghi **cosa fa e perché** (non solo il nome). Usare `//` senza docblock formale:
+
+```php
+// Restituisce il tecnico referente meno occupato per il tipo dato,
+// escludendo chi supera la soglia di interventi giornalieri.
+public function tecnicoReferente(...): ?array { ... }
+```
+
 ## Dominio aziendale
 Il dominio aziendale è **colombini-snc.it**.
 Usare per email admin (es. admin@colombini-snc.it), baseURL in produzione e qualsiasi riferimento al dominio.

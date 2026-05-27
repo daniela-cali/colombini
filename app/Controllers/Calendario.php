@@ -6,6 +6,8 @@ use App\Models\InterventoModel;
 use App\Models\UserModel;
 use App\Models\ViaggioModel;
 use App\Models\ViaggioTappaModel;
+use App\Models\TecnicoCompetenzaModel;
+use App\Models\TipoInterventoModel;
 
 class Calendario extends BaseController
 {
@@ -19,10 +21,51 @@ class Calendario extends BaseController
             ->asArray()
             ->findAll();
 
+        $competenzaModel      = new TecnicoCompetenzaModel();
+        $competenzePerTecnico = [];
+        foreach ($tecnici as $t) {
+            $rows = $competenzaModel->perTecnico($t['id']);
+            $map  = [];
+            foreach ($rows as $r) {
+                $map[(int) $r['tipo_intervento_id']] = (int) $r['livello'];
+            }
+            $competenzePerTecnico[$t['id']] = $map;
+        }
+
+        $tipiPerCodice = [];
+        foreach (TipoInterventoModel::comeListaCompleta() as $tipo) {
+            $tipiPerCodice[$tipo['codice']] = [
+                'id'             => (int) $tipo['id'],
+                'nome'           => $tipo['nome'],
+                'icona'          => $tipo['icona'] ?? 'fa-wrench',
+                'durata_default' => (int) ($tipo['durata_default'] ?? 60),
+            ];
+        }
+
+        $pool = (new InterventoModel())
+            ->select('interventi.id, interventi.tipo_intervento, interventi.descrizione,
+                      interventi.luogo_intervento, interventi.priorita, interventi.cliente_id,
+                      c.ragsoc, c.cognome AS cliente_cognome, c.nome AS cliente_nome,
+                      c.tipo AS cliente_tipo, c.citta AS cliente_citta')
+            ->join('clienti c', 'c.id = interventi.cliente_id AND c.deleted_at IS NULL', 'left')
+            ->where('interventi.stato', 'da_pianificare')
+            ->orderBy('FIELD(interventi.priorita, "urgente", "ordinario", "programmato")')
+            ->findAll();
+
+        $poolPerTipo = [];
+        foreach ($pool as $i) {
+            $poolPerTipo[$i['tipo_intervento']][] = $i;
+        }
+
         return view('calendario/index', [
-            'title'      => 'Calendario',
-            'page_title' => 'Calendario Interventi',
-            'tecnici'    => $tecnici,
+            'title'                => 'Calendario',
+            'page_title'           => 'Calendario Interventi',
+            'tecnici'              => $tecnici,
+            'competenzePerTecnico' => $competenzePerTecnico,
+            'tipiPerCodice'        => $tipiPerCodice,
+            'pool'                 => $pool,
+            'poolPerTipo'          => $poolPerTipo,
+            'oraInizio'            => setting('Tecnici.orario_inizio') ?? '08:00',
         ]);
     }
 
@@ -37,6 +80,7 @@ class Calendario extends BaseController
             ->select('interventi.id, interventi.tipo_intervento, interventi.stato,
                       interventi.data_pianificata, interventi.durata_effettiva, interventi.descrizione,
                       c.ragsoc AS cliente_ragsoc, c.nome AS cliente_nome, c.cognome AS cliente_cognome,
+                      c.citta AS cliente_citta,
                       u.nome AS tecnico_nome, u.cognome AS tecnico_cognome, u.colore AS tecnico_colore,
                       ti.durata_default AS tipo_durata, ti.nome AS tipo_nome, ti.icona AS tipo_icona')
             ->join('clienti c',          'c.id = interventi.cliente_id',          'left')
@@ -58,7 +102,7 @@ class Calendario extends BaseController
             $cliente = $i['cliente_ragsoc']
                 ?: trim(($i['cliente_nome'] ?? '') . ' ' . ($i['cliente_cognome'] ?? ''))
                 ?: '—';
-            $durata  = (int) ($i['durata_effettiva'] ?: $i['tipo_durata'] ?: 60);
+            $durata  = max(60, (int) ($i['durata_effettiva'] ?: $i['tipo_durata'] ?: 60));
             $colore  = $i['tecnico_colore'] ?: '#6c757d';
             $tecnico = $i['tecnico_nome']
                 ? trim($i['tecnico_nome'] . ' ' . $i['tecnico_cognome'])
@@ -74,11 +118,13 @@ class Calendario extends BaseController
                 'color' => $colore,
                 'url'   => base_url('interventi/' . $i['id'] . '?from=calendario'),
                 'extendedProps' => [
-                    'tecnico'     => $tecnico,
-                    'tipo'        => $i['tipo_nome'] ?: $i['tipo_intervento'],
-                    'icona'       => $i['tipo_icona'] ?: 'fa-tools',
-                    'stato'       => $i['stato'],
-                    'descrizione' => $i['descrizione'] ?: '',
+                    'tecnico'    => $tecnico,
+                    'tecnico_id' => $i['tecnico_id'] ?? null,
+                    'tipo'       => $i['tipo_nome'] ?: $i['tipo_intervento'],
+                    'icona'      => $i['tipo_icona'] ?: 'fa-tools',
+                    'stato'      => $i['stato'],
+                    'descrizione'=> $i['descrizione'] ?: '',
+                    'citta'      => $i['cliente_citta'] ?: '',
                 ],
             ];
         }
