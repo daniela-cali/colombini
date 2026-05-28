@@ -1,0 +1,70 @@
+/* FullCalendar */
+#calendario { min-height: 600px; }
+.fc-event { cursor: grab; }
+.fc-event-title { font-weight: 500; font-size: .8rem; }
+.fc-timegrid-event .fc-event-title { white-space: normal; }
+body.fc-dragging .tooltip { display: none !important; }
+.fc-day-selected { background: rgba(0,188,212,.12) !important; }
+.fc-col-header-cell[data-date] { cursor: pointer; }
+.fc-col-header-cell.fc-day-today { background: rgba(255,220,40,.25) !important; }
+.fc-col-header-cell.fc-day-today .fc-col-header-cell-cushion::after {
+    content: '';
+    display: block;
+    height: 3px;
+    background: #f0a500;
+    border-radius: 2px;
+    margin-top: 2px;
+}
+
+/* Layout flex con sidebar ridimensionabile */
+#cal-layout   { display: flex; align-items: flex-start; }
+#pool-panel   { width: 260px; min-width: 180px; max-width: 450px; flex-shrink: 0; }
+#cal-column   { flex: 1; min-width: 0; }
+
+/* Handle di ridimensionamento tra pool e calendario:
+   align-self:stretch lo fa alto quanto il pannello più alto */
+#resize-handle {
+    width: 5px;
+    flex-shrink: 0;
+    align-self: stretch;
+    cursor: col-resize;
+    background: #dee2e6;
+    border-radius: 3px;
+    margin: 0 6px;
+    transition: background .15s;
+}
+#resize-handle:hover { background: #adb5bd; }
+
+/* Pool container: scrollabile con altezza massima dinamica */
+#pool-container { max-height: calc(100vh - 270px); min-height: 200px; overflow-y: auto; }
+
+/* Pool card: bordo sinistro colorato per priorità */
+.pool-card {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-left: 3px solid #6c757d;
+    border-radius: 4px;
+    padding: 7px 8px;
+    margin-bottom: 6px;
+    cursor: grab;
+    transition: box-shadow .15s;
+}
+.pool-card:hover       { box-shadow: 0 2px 8px rgba(0,0,0,.15); }
+.pool-card.urgente     { border-left-color: #dc3545; }
+.pool-card.ordinario   { border-left-color: #fd7e14; }
+.pool-card.programmato { border-left-color: #28a745; }
+
+.pool-empty { text-align: center; padding: 2rem 0; color: #adb5bd; font-size: .85rem; }
+
+/* Badge tecnico con iniziali colorato */
+.tech-dot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: .5rem;
+    font-weight: 700;
+}

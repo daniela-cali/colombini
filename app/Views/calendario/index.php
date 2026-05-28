@@ -6,39 +6,7 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('styles') ?>
-<style>
-    /* Calendar */
-    #calendario { min-height: 600px; }
-    .fc-event { cursor: grab; }
-    .fc-event-title { font-weight: 500; font-size: .8rem; }
-    .fc-timegrid-event .fc-event-title { white-space: normal; }
-    body.fc-dragging .tooltip { display: none !important; }
-    .fc-day-selected { background: rgba(0,188,212,.12) !important; }
-    .fc-col-header-cell[data-date] { cursor: pointer; }
-
-    /* Pool cards */
-    #pool-container { max-height: calc(100vh - 270px); min-height: 200px; overflow-y: auto; }
-    .pool-card {
-        background: #fff;
-        border: 1px solid #dee2e6;
-        border-left: 3px solid #6c757d;
-        border-radius: 4px;
-        padding: 7px 8px;
-        margin-bottom: 6px;
-        cursor: grab;
-        transition: box-shadow .15s;
-    }
-    .pool-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.15); }
-    .pool-card.urgente    { border-left-color: #dc3545; }
-    .pool-card.ordinario  { border-left-color: #fd7e14; }
-    .pool-card.programmato { border-left-color: #28a745; }
-    .pool-empty { text-align: center; padding: 2rem 0; color: #adb5bd; font-size: .85rem; }
-    .tech-dot {
-        display: inline-flex; align-items: center; justify-content: center;
-        width: 20px; height: 20px; border-radius: 50%;
-        color: #fff; font-size: .5rem; font-weight: 700;
-    }
-</style>
+<link rel="stylesheet" href="<?= base_url('css/calendario.css') ?>">
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
@@ -51,10 +19,10 @@ $prioritaInfo = [
 ];
 ?>
 
-<div class="row">
+<div id="cal-layout">
 
     <!-- Pool sidebar -->
-    <div class="col-md-3 mb-3">
+    <div id="pool-panel" class="mb-3">
         <div class="card card-outline card-primary">
             <div class="card-header py-2">
                 <h3 class="card-title">
@@ -159,8 +127,10 @@ $prioritaInfo = [
         </div>
     </div>
 
+    <div id="resize-handle" title="Trascina per ridimensionare"></div>
+
     <!-- Calendar column -->
-    <div class="col-md-9">
+    <div id="cal-column">
 
         <!-- Filter buttons + generate trip form -->
         <div class="mb-2 d-flex flex-wrap justify-content-between align-items-center" style="gap:.4rem;">
@@ -669,6 +639,30 @@ document.addEventListener('DOMContentLoaded', function () {
         },
     });
     calendar.render();
+
+    // Sidebar ridimensionabile con drag handle
+    var poolPanel    = document.getElementById('pool-panel');
+    var resizeHandle = document.getElementById('resize-handle');
+    var savedW       = localStorage.getItem('pool-sidebar-width');
+    if (savedW) poolPanel.style.width = savedW + 'px';
+    var resizing = false, startX, startW;
+    resizeHandle.addEventListener('mousedown', function (e) {
+        resizing = true; startX = e.clientX; startW = poolPanel.offsetWidth;
+        document.body.style.cursor     = 'col-resize';
+        document.body.style.userSelect = 'none';
+    });
+    document.addEventListener('mousemove', function (e) {
+        if (!resizing) return;
+        var w = Math.max(180, Math.min(450, startW + e.clientX - startX));
+        poolPanel.style.width = w + 'px';
+    });
+    document.addEventListener('mouseup', function () {
+        if (!resizing) return;
+        resizing = false;
+        document.body.style.cursor     = '';
+        document.body.style.userSelect = '';
+        localStorage.setItem('pool-sidebar-width', poolPanel.offsetWidth);
+    });
 });
 </script>
 <?= $this->endSection() ?>

@@ -64,6 +64,8 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 - **Calendario — tecnico consigliato — priorità referente** — nuova logica: prima si propone il Referente (livello 3) meno occupato nel giorno (escluso se ha già ≥ 4 interventi), poi chi ha più storico completato sul tipo, infine il meno occupato con competenza ≥ 2; label sempre "Consigliato" (rimosso "Meno occupato") in calendario e pianificazione
 - **Calendario — città negli eventi** — campo `citta` del cliente visibile nei tooltip (Cliente · Città · Tecnico · Tipo) e come riga secondaria nelle card degli eventi FC; nelle pool card mostra la città del cliente (fallback sul luogo intervento)
 - **CLAUDE.md — regola commenti metodi PHP** — aggiunta linea guida: ogni metodo di controller o model deve avere un commento descrittivo sopra che spieghi cosa fa e perché
+- **Calendario — sidebar ridimensionabile** — drag handle tra pool e calendario; la larghezza viene salvata in `localStorage` e ripristinata al ricaricamento; stili spostati in `public/css/calendario.css`
+- **Calendario — giorno odierno evidenziato in header** — sfondo giallo e lineetta arancione sotto la data tramite `::after` sulla cella intestazione del giorno corrente
 
 ### Corretto
 - **Firma email** — sfondo trasparente illeggibile in dark mode: template HTML completo con `bgcolor` su body e tabella wrapper, `color-scheme: light only` per forzare tema chiaro nei client che lo supportano
