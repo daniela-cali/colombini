@@ -2,8 +2,15 @@
 
 Tutte le modifiche significative al progetto sono documentate in questo file.
 
-Il formato segue [Keep a Changelog](https://keepachangelog.com/it/1.0.0/)
+Il formato segue [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `MAJOR.MINOR.PATCH`.
+
+---
+
+## [0.12.1] — 2026-05-28
+
+### Corretto
+- **Eliminazione tecnico** — bloccata se il tecnico ha viaggi associati (qualsiasi stato); messaggio d'errore con conteggio e redirect alla scheda; in precedenza la FK `fk_viaggi_tecnico` causava un'eccezione non gestita
 
 ---
 

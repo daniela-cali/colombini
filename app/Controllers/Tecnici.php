@@ -7,6 +7,7 @@ use App\Models\InterventoModel;
 use App\Models\TecnicoOrarioModel;
 use App\Models\TecnicoCompetenzaModel;
 use App\Models\UserModel;
+use App\Models\ViaggioModel;
 use CodeIgniter\Shield\Entities\User;
 
 class Tecnici extends BaseController
@@ -277,6 +278,15 @@ class Tecnici extends BaseController
         if ($aperti > 0) {
             return redirect()->to('sistema/tecnici/' . $id)
                 ->with('error', "Impossibile eliminare il tecnico: ha {$aperti} intervento/i aperto/i. Riassegna o chiudi gli interventi prima di procedere.");
+        }
+
+        $viaggi = (new ViaggioModel())
+            ->where('tecnico_id', $id)
+            ->countAllResults();
+
+        if ($viaggi > 0) {
+            return redirect()->to('sistema/tecnici/' . $id)
+                ->with('error', "Impossibile eliminare il tecnico: è collegato a {$viaggi} viaggio/i. Elimina i viaggi associati prima di procedere.");
         }
 
         $users->delete($id, true);
