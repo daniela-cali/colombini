@@ -7,6 +7,11 @@
 - **Review del codice**: creare i file direttamente con Write/Edit e lasciare che l'utente approvi i diff nell'IDE. Non mostrare l'intero file o blocchi lunghi di codice in chat — la spiegazione descrive le modifiche a parole, non ripete il codice verbatim.
 - **Spiegazioni passo per passo**: prima di ogni modifica non banale, spiegare passo per passo e riga per riga cosa si sta per fare e perché, come farebbe un insegnante — cosa cambia, perché si sceglie quell'approccio, quali effetti produce. Solo dopo usare Write/Edit. Eccezione: per modifiche di una sola riga o correzioni ovvie basta una frase di contesto.
 - **Branch Git**: non aprire un branch per ogni piccola modifica. Suggerire attivamente quando NON serve un branch (es. modifiche contenute su una o due view/controller). Usare un branch solo per feature significative o rischiose.
+- **Guida passo per passo — ordine dei file**: quando si guida l'utente nell'implementazione passo per passo, partire sempre dalla **view** prima del controller e del model. La view definisce quali variabili servono, così controller e model vengono scritti sapendo già cosa devono produrre.
+
+## Bottoni nelle card-tools
+
+Grazie alla regola CSS in `public/css/custom.css`, i bottoni dentro `.card-tools` ereditano automaticamente il colore della card. Usare **solo `btn btn-sm`** (o `btn btn-tool` per le icone ×/collapse). Non aggiungere classi di colore (`btn-primary`, `btn-info`, ecc.) — il colore è gestito dal CSS tramite `--card-accent`.
 
 ## AdminLTE 3 — Layout card
 In AdminLTE 3, non usare `d-flex justify-content-between` su `.card-header` e `.card-footer` (il flex annidato non funziona come atteso).
