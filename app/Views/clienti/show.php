@@ -1,8 +1,13 @@
 <?= $this->extend('layouts/admin') ?>
 
 <?= $this->section('breadcrumb') ?>
+    <?php $_from = service('request')->getGet('from'); ?>
     <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Home</a></li>
+    <?php if ($_from === 'richieste'): ?>
+    <li class="breadcrumb-item"><a href="<?= base_url('richieste') ?>">Richieste</a></li>
+    <?php else: ?>
     <li class="breadcrumb-item"><a href="<?= base_url('clienti') ?>">Clienti</a></li>
+    <?php endif; ?>
     <li class="breadcrumb-item active"><?= esc($nome_display) ?></li>
 <?= $this->endSection() ?>
 
@@ -13,6 +18,16 @@
     <!-- Colonna sinistra: anagrafica -->
     <div class="col-md-4">
         <div class="card card-outline card-primary">
+            <div class="card-header py-2">
+                <h3 class="card-title">Scheda cliente</h3>
+                <?php if ($_from): ?>
+                <div class="card-tools">
+                    <a href="<?= base_url($_from) ?>" class="btn btn-tool" title="Torna indietro">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </div>
+                <?php endif; ?>
+            </div>
             <div class="card-body text-center pt-4">
                 <div class="mb-3">
                     <?php if ($cliente['tipo'] === 'persona_fisica'): ?>
