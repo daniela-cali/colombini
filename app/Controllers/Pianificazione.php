@@ -14,7 +14,9 @@ class Pianificazione extends BaseController
 {
     public function index(): string
     {
-        $data = $this->request->getGet('data') ?? date('Y-m-d');
+        $data     = $this->request->getGet('data') ?? date('Y-m-d');
+        $lunedi   = date('Y-m-d', strtotime('monday this week', strtotime($data)));
+        $domenica = date('Y-m-d', strtotime($lunedi . ' +6 days'));
 
         $tecnici = (new UserModel())
             ->whereAssegnabile()
@@ -36,94 +38,66 @@ class Pianificazione extends BaseController
         $tipiPerCodice = [];
         foreach ($tipiCompleti as $tipo) {
             $tipiPerCodice[$tipo['codice']] = [
-                'id'    => (int) $tipo['id'],
-                'nome'  => $tipo['nome'],
-                'icona' => $tipo['icona'] ?? 'fa-wrench',
+                'id'             => (int) $tipo['id'],
+                'nome'           => $tipo['nome'],
+                'icona'          => $tipo['icona'] ?? 'fa-wrench',
+                'durata_default' => (int) ($tipo['durata_default'] ?? 60),
             ];
         }
 
-        // Bozze esistenti per questa data → pre-assegnati per tecnico
-        $viaggiBozza = (new ViaggioModel())
-            ->where('data', $data)
-            ->where('stato', 'bozza')
-            ->findAll();
-
-        $tappeOrdinate  = []; // tecnico_id -> [intervento_id, ...]
-        $assignedIds    = [];
-        foreach ($viaggiBozza as $v) {
-            $tappe = db_connect()
-                ->table('viaggi_tappe')
-                ->where('viaggio_id', $v['id'])
-                ->orderBy('ordine', 'ASC')
-                ->get()->getResultArray();
-
-            $ids = array_column($tappe, 'intervento_id');
-            $tappeOrdinate[$v['tecnico_id']] = $ids;
-            $assignedIds = array_merge($assignedIds, $ids);
-        }
-
-        // Dati completi degli interventi pre-assegnati
-        $preInterventi = [];
-        if (!empty($assignedIds)) {
-            $rows = $this->queryInterventi()->whereIn('interventi.id', $assignedIds)->findAll();
-            foreach ($rows as $r) {
-                $preInterventi[$r['id']] = $r;
-            }
-        }
-
-        // Mappa tecnico_id -> [record intervento in ordine]
-        $preAssegnati = [];
-        foreach ($tappeOrdinate as $tecnicoId => $ids) {
-            $preAssegnati[$tecnicoId] = array_values(array_filter(
-                array_map(fn($id) => $preInterventi[$id] ?? null, $ids)
-            ));
-        }
-
-        // Pool: solo da_pianificare non ancora assegnati oggi
-        $poolQuery = $this->queryInterventi()->where('interventi.stato', 'da_pianificare');
-        if (!empty($assignedIds)) {
-            $poolQuery->whereNotIn('interventi.id', $assignedIds);
-        }
-        $interventi = $poolQuery
+        // Pool: tutti gli interventi da_pianificare
+        $interventi = $this->queryInterventi()
+            ->where('interventi.stato', 'da_pianificare')
             ->orderBy('FIELD(interventi.priorita, "urgente", "ordinario", "programmato")')
             ->findAll();
 
-        // Tecnici con viaggio già approvato in quella data (bloccati per nuove bozze)
-        $approvatiRows = (new ViaggioModel())
-            ->where('data', $data)
-            ->whereIn('stato', ['autorizzato', 'in_corso', 'completato'])
-            ->findAll();
-
-        $tecniciBloccati = [];
-        foreach ($approvatiRows as $v) {
-            $tecniciBloccati[(int) $v['tecnico_id']] = (int) $v['id'];
+        $poolPerTipo = [];
+        foreach ($interventi as $inv) {
+            $poolPerTipo[$inv['tipo_intervento']][] = $inv;
         }
 
-        // Tecnici rilevanti: hanno competenza ≥ 2 su almeno un tipo presente nel pool
-        $tipiPool = array_unique(array_column($interventi, 'tipo_intervento'));
-        $tecniciRilevanti = [];
-        foreach ($tecnici as $t) {
-            foreach ($tipiPool as $codice) {
-                $tipoId = $tipiPerCodice[$codice]['id'] ?? 0;
-                if ($tipoId && ($competenzePerTecnico[$t->id][$tipoId] ?? 0) >= 2) {
-                    $tecniciRilevanti[] = $t->id;
-                    break;
-                }
-            }
+        // Interventi pianificati/in_corso per tutta la settimana
+        $giornataInterventi = $this->queryInterventi()
+            ->select('interventi.tecnico_id, interventi.stato,
+                      u_tec.nome AS tecnico_nome, u_tec.cognome AS tecnico_cognome, u_tec.colore AS tecnico_colore')
+            ->join('users u_tec', 'u_tec.id = interventi.tecnico_id', 'left')
+            ->whereIn('interventi.stato', ['pianificato', 'in_corso'])
+            ->where('DATE(interventi.data_pianificata) >=', $lunedi)
+            ->where('DATE(interventi.data_pianificata) <=', $domenica)
+            ->orderBy('interventi.data_pianificata', 'ASC')
+            ->findAll();
+
+        // Raggruppa per giorno
+        $giornataPerGiorno = [];
+        foreach ($giornataInterventi as $inv) {
+            $giorno = date('Y-m-d', strtotime($inv['data_pianificata']));
+            $giornataPerGiorno[$giorno][] = $inv;
+        }
+
+        // Settimana con conteggi (senza query aggiuntive)
+        $settimana = [];
+        for ($i = 0; $i < 7; $i++) {
+            $giorno      = date('Y-m-d', strtotime($lunedi . " +{$i} days"));
+            $settimana[] = [
+                'data'  => $giorno,
+                'count' => count($giornataPerGiorno[$giorno] ?? []),
+            ];
         }
 
         return view('pianificazione/index', [
             'title'                => 'Pianificazione',
             'page_title'           => 'Pianificazione Interventi',
             'data'                 => $data,
+            'lunedi'               => $lunedi,
+            'settimana'            => $settimana,
             'tecnici'              => $tecnici,
             'competenzePerTecnico' => $competenzePerTecnico,
             'tipiPerCodice'        => $tipiPerCodice,
             'interventi'           => $interventi,
-            'preAssegnati'         => $preAssegnati,
+            'poolPerTipo'          => $poolPerTipo,
+            'giornataPerGiorno'    => $giornataPerGiorno,
             'priorita'             => InterventoModel::PRIORITA,
-            'tecniciRilevanti'     => $tecniciRilevanti,
-            'tecniciBloccati'      => $tecniciBloccati,
+            'oraInizio'            => setting('Tecnici.orario_inizio') ?? '08:30',
         ]);
     }
 

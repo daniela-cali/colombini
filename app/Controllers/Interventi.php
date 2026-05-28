@@ -7,6 +7,7 @@ use App\Models\InterventoModel;
 use App\Models\TipoInterventoModel;
 use App\Models\UserModel;
 use App\Models\RichiestaModel;
+use CodeIgniter\HTTP\ResponseInterface;
 use Dompdf\Dompdf;
 use Dompdf\Options;
 
@@ -16,9 +17,10 @@ class Interventi extends BaseController
     {
         $model      = new InterventoModel();
         /*Elvis operator: se vero, restituisce il valore stesso, altrimenti null */
-        $tecnicoFiltro = (int) $this->request->getGet('tecnico_id') ?: null;
-        $statoFiltro = (string) $this->request->getGet('stato') ?: null;
-        $interventi = $model->conDettagli(0, $tecnicoFiltro, $statoFiltro);
+        $tecnicoFiltro    = (int) $this->request->getGet('tecnico_id') ?: null;
+        $statoFiltro      = (string) $this->request->getGet('stato') ?: null;
+        $mostraCompletati = (bool) $this->request->getGet('mostra_completati');
+        $interventi       = $model->conDettagli(0, $tecnicoFiltro, $statoFiltro, !$mostraCompletati && !$statoFiltro);
         $tipi       = TipoInterventoModel::comeLista();
         $icone      = array_column(TipoInterventoModel::comeListaCompleta(), 'icona', 'codice');
 
@@ -61,13 +63,15 @@ class Interventi extends BaseController
         );
 
         return view('interventi/index', [
-            'title'        => 'Interventi',
-            'page_title'   => 'Interventi',
-            'perTecnico'   => $perTecnico,
-            'nonAssegnati' => $nonAssegnati,
-            'tipi'         => $tipi,
-            'icone'        => $icone,
-            'stati'        => InterventoModel::STATI,
+            'title'            => 'Interventi',
+            'page_title'       => 'Interventi',
+            'perTecnico'       => $perTecnico,
+            'nonAssegnati'     => $nonAssegnati,
+            'tipi'             => $tipi,
+            'icone'            => $icone,
+            'stati'            => InterventoModel::STATI,
+            'mostraCompletati' => $mostraCompletati,
+            'statoFiltro'      => $statoFiltro,
         ]);
     }
 
@@ -487,15 +491,140 @@ class Interventi extends BaseController
         return redirect()->to('interventi/' . $id)->with('success', $success);
     }
 
-    public function apiTecnicoConsigliato()
+    public function pianificaRapido(int $id)
+    {
+        $model     = new InterventoModel();
+        $intervento = $model->find($id);
+
+        if (! $intervento || $intervento['stato'] !== 'da_pianificare') {
+            return $this->response->setStatusCode(400)->setJSON(['ok' => false, 'msg' => 'Intervento non valido.']);
+        }
+
+        $dataPianificata = $this->request->getPost('data_pianificata');
+        $tecnicoId       = $this->request->getPost('tecnico_id') ?: null;
+
+        if (! $dataPianificata) {
+            return $this->response->setStatusCode(400)->setJSON(['ok' => false, 'msg' => 'Data mancante.']);
+        }
+
+        $model->update($id, [
+            'stato'            => 'pianificato',
+            'data_pianificata' => date('Y-m-d H:i:s', strtotime($dataPianificata)),
+            'tecnico_id'       => $tecnicoId,
+        ]);
+
+        return $this->response->setJSON(['ok' => true, 'csrf' => csrf_hash()]);
+    }
+
+    public function annullaPianificazione(int $id): ResponseInterface
+    {
+        $model     = new InterventoModel();
+        $intervento = $model->find($id);
+
+        if (! $intervento || in_array($intervento['stato'], ['completato', 'annullato'])) {
+            return $this->response->setStatusCode(400)->setJSON(['ok' => false, 'msg' => 'Impossibile annullare la pianificazione.']);
+        }
+
+        $model->update($id, [
+            'stato'            => 'da_pianificare',
+            'tecnico_id'       => null,
+            'data_pianificata' => null,
+        ]);
+
+        return $this->response->setJSON(['ok' => true, 'csrf' => csrf_hash()]);
+    }
+
+    // Suggerisce il tecnico più adatto in ordine di priorità:
+    // 1. Referente (livello 3) meno occupato nel giorno
+    // 2. Chi ha più storico completato su quel tipo (per cliente, poi generico)
+    // 3. Primo disponibile con competenza >= 2 nel giorno
+    public function apiTecnicoConsigliato(): ResponseInterface
     {
         $tipo      = $this->request->getGet('tipo_intervento') ?? '';
         $clienteId = (int) ($this->request->getGet('cliente_id') ?? 0);
+        $data      = $this->request->getGet('data') ?? '';
 
         $model   = new InterventoModel();
-        $tecnico = $model->tecnicoConsigliato($tipo, $clienteId);
+        $tecnico = null;
+        $source  = null;
 
-        return $this->response->setJSON(['tecnico' => $tecnico]);
+        if ($data) {
+            $tecnico = $model->tecnicoReferente($tipo, $data);
+            if ($tecnico) $source = 'referente';
+        }
+
+        if (!$tecnico) {
+            $tecnico = $model->tecnicoConsigliato($tipo, $clienteId);
+            if ($tecnico) $source = 'storico';
+        }
+
+        if (!$tecnico && $data) {
+            $tecnico = $model->tecnicoMenoOccupato($tipo, $data);
+            if ($tecnico) $source = 'disponibilita';
+        }
+
+        return $this->response->setJSON(['tecnico' => $tecnico, 'source' => $source]);
+    }
+
+    public function apiOrarioSuggerito(): ResponseInterface
+    {
+        $tecnicoId = (int) ($this->request->getGet('tecnico_id') ?? 0);
+        $data      = $this->request->getGet('data') ?? date('Y-m-d');
+
+        $db          = db_connect();
+        $oraInizio   = '08:00';
+        $pausaInizio = null;
+        $pausaFine   = null;
+
+        if ($tecnicoId) {
+            $giorno = (int) date('N', strtotime($data)); // 1=Lun, 7=Dom
+            $orario = $db->table('tecnici_orari')
+                ->where('tecnico_id', $tecnicoId)
+                ->where('giorno', $giorno)
+                ->where('attivo', 1)
+                ->get()->getRowArray();
+
+            if ($orario) {
+                $oraInizio   = substr($orario['ora_inizio'], 0, 5);
+                $pausaInizio = $orario['pausa_inizio'] ? substr($orario['pausa_inizio'], 0, 5) : null;
+                $pausaFine   = $orario['pausa_fine']   ? substr($orario['pausa_fine'],   0, 5) : null;
+            }
+
+            $esistenti = $db->table('interventi i')
+                ->select('i.data_pianificata, COALESCE(tp.durata_default, 60) AS durata')
+                ->join('tipi_intervento tp', 'tp.codice = i.tipo_intervento', 'left')
+                ->whereIn('i.stato', ['pianificato', 'in_corso'])
+                ->where('i.tecnico_id', $tecnicoId)
+                ->where('DATE(i.data_pianificata)', $data)
+                ->where('i.deleted_at IS NULL', null, false)
+                ->orderBy('i.data_pianificata', 'ASC')
+                ->get()->getResultArray();
+        } else {
+            $esistenti = [];
+        }
+
+        $tSuggerito = strtotime($data . ' ' . $oraInizio . ':00');
+
+        foreach ($esistenti as $inv) {
+            $tFine = strtotime($inv['data_pianificata']) + ((int) $inv['durata'] * 60);
+            if ($tFine > $tSuggerito) {
+                $tSuggerito = $tFine;
+            }
+        }
+
+        // Se cade nella pausa, sposta dopo la fine pausa
+        if ($pausaInizio && $pausaFine) {
+            $tPausaIn  = strtotime($data . ' ' . $pausaInizio . ':00');
+            $tPausaOut = strtotime($data . ' ' . $pausaFine . ':00');
+            if ($tSuggerito >= $tPausaIn && $tSuggerito < $tPausaOut) {
+                $tSuggerito = $tPausaOut;
+            }
+        }
+
+        return $this->response->setJSON([
+            'ora'    => date('H:i', $tSuggerito),
+            'n_prev' => count($esistenti),
+        ]);
     }
 
     private function _datiRapportino(int $id): ?array

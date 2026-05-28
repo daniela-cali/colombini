@@ -11,9 +11,14 @@
 
 <?= $this->section('content') ?>
 <?php
-// Card pool (completa, con tecnici consigliati)
+$prevSett   = date('Y-m-d', strtotime($lunedi . ' -7 days'));
+$nextSett   = date('Y-m-d', strtotime($lunedi . ' +7 days'));
+$oggi       = date('Y-m-d');
+$giorniNomi = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'];
+
+// --- Closure: card nel pool ---
 $renderPoolCard = function (array $i) use ($tipiPerCodice, $priorita, $tecnici, $competenzePerTecnico): void {
-    $tipoInfo = $tipiPerCodice[$i['tipo_intervento']] ?? ['id' => 0, 'nome' => $i['tipo_intervento'], 'icona' => 'fa-wrench'];
+    $tipoInfo = $tipiPerCodice[$i['tipo_intervento']] ?? ['id' => 0, 'nome' => $i['tipo_intervento'], 'icona' => 'fa-wrench', 'durata_default' => 60];
     $priInfo  = $priorita[$i['priorita']] ?? ['label' => $i['priorita'], 'badge' => 'badge-secondary'];
     $nomeCliente = '';
     if (!empty($i['cliente_tipo'])) {
@@ -27,15 +32,18 @@ $renderPoolCard = function (array $i) use ($tipiPerCodice, $priorita, $tecnici, 
             $adatti[] = $t;
         }
     }
-    ?>
-    <?php
-    $descr   = $i['descrizione'] ?? '';
-    $luogo   = $i['luogo_intervento'] ?? '';
-    $citta   = $i['citta'] ?? '';
+    $descr        = $i['descrizione'] ?? '';
+    $luogo        = $i['luogo_intervento'] ?? '';
+    $citta        = $i['citta'] ?? '';
     $luogoDisplay = $citta ?: $luogo;
     ?>
-    <div class="intervention-card <?= esc($i['priorita']) ?>" data-id="<?= $i['id'] ?>"
+    <div class="intervention-card <?= esc($i['priorita']) ?>"
+         draggable="true"
+         data-id="<?= $i['id'] ?>"
          data-modal="1"
+         data-tc="<?= esc($i['tipo_intervento']) ?>"
+         data-cid="<?= (int)($i['cliente_id'] ?? 0) ?>"
+         data-durata="<?= (int)$tipoInfo['durata_default'] ?>"
          data-mc="<?= htmlspecialchars($nomeCliente, ENT_QUOTES) ?>"
          data-mt="<?= htmlspecialchars($tipoInfo['nome'], ENT_QUOTES) ?>"
          data-mi="<?= htmlspecialchars($tipoInfo['icona'], ENT_QUOTES) ?>"
@@ -82,9 +90,9 @@ $renderPoolCard = function (array $i) use ($tipiPerCodice, $priorita, $tecnici, 
     <?php
 };
 
-// Card zona tecnico (compatta, senza consigliati)
-$renderZonaCard = function (array $i) use ($tipiPerCodice, $priorita): void {
-    $tipoInfo = $tipiPerCodice[$i['tipo_intervento']] ?? ['id' => 0, 'nome' => $i['tipo_intervento'], 'icona' => 'fa-wrench'];
+// --- Closure: card nel giorno (griglia settimanale) ---
+$renderDayCard = function (array $i) use ($tipiPerCodice, $priorita): void {
+    $tipoInfo = $tipiPerCodice[$i['tipo_intervento']] ?? ['id' => 0, 'nome' => $i['tipo_intervento'], 'icona' => 'fa-wrench', 'durata_default' => 60];
     $priInfo  = $priorita[$i['priorita']] ?? ['label' => $i['priorita'], 'badge' => 'badge-secondary'];
     $nomeCliente = '';
     if (!empty($i['cliente_tipo'])) {
@@ -92,14 +100,23 @@ $renderZonaCard = function (array $i) use ($tipiPerCodice, $priorita): void {
             ? trim(($i['cliente_cognome'] ?? '') . ' ' . ($i['cliente_nome'] ?? ''))
             : ($i['ragsoc'] ?? '');
     }
+    $luogo     = $i['luogo_intervento'] ?? '';
+    $citta     = $i['citta'] ?? '';
+    $descr     = $i['descrizione'] ?? '';
+    $ora       = $i['data_pianificata'] ? date('H:i', strtotime($i['data_pianificata'])) : '';
+    $tecNome   = trim(($i['tecnico_cognome'] ?? '') . ' ' . ($i['tecnico_nome'] ?? ''));
+    $tecColore = $i['tecnico_colore'] ?? '#6c757d';
+    $tecIni    = $tecNome
+        ? strtoupper(substr($i['tecnico_nome'] ?? '', 0, 1) . substr($i['tecnico_cognome'] ?? '', 0, 1))
+        : '';
+    $canRevert = ($i['stato'] === 'pianificato');
     ?>
-    <?php
-    $descr = $i['descrizione'] ?? '';
-    $luogo = $i['luogo_intervento'] ?? '';
-    $citta = $i['citta'] ?? '';
-    ?>
-    <div class="intervention-card <?= esc($i['priorita']) ?>" data-id="<?= $i['id'] ?>"
+    <div class="intervention-card <?= esc($i['priorita']) ?> mb-1"
+         data-id="<?= $i['id'] ?>"
+         data-saved="1"
          data-modal="1"
+         data-tc="<?= esc($i['tipo_intervento']) ?>"
+         data-cid="<?= (int)($i['cliente_id'] ?? 0) ?>"
          data-mc="<?= htmlspecialchars($nomeCliente, ENT_QUOTES) ?>"
          data-mt="<?= htmlspecialchars($tipoInfo['nome'], ENT_QUOTES) ?>"
          data-mi="<?= htmlspecialchars($tipoInfo['icona'], ENT_QUOTES) ?>"
@@ -109,15 +126,34 @@ $renderZonaCard = function (array $i) use ($tipiPerCodice, $priorita): void {
          data-mci="<?= htmlspecialchars($citta, ENT_QUOTES) ?>"
          data-md="<?= htmlspecialchars($descr, ENT_QUOTES) ?>"
          data-link="<?= base_url('interventi/' . $i['id']) ?>">
-        <div class="d-flex align-items-center mb-1" style="gap:.35rem;">
-            <span class="badge <?= esc($priInfo['badge']) ?>" style="font-size:.65rem;"><?= esc($priInfo['label']) ?></span>
-            <small class="text-muted" title="<?= esc($tipoInfo['nome']) ?>">
-                <i class="fas fa-<?= esc($tipoInfo['icona']) ?>"></i>
-            </small>
+        <div class="d-flex justify-content-between align-items-start mb-1">
+            <div class="d-flex align-items-center" style="gap:.3rem;">
+                <span class="badge <?= esc($priInfo['badge']) ?>" style="font-size:.6rem;"><?= esc($priInfo['label']) ?></span>
+                <small class="text-muted" title="<?= esc($tipoInfo['nome']) ?>">
+                    <i class="fas <?= esc($tipoInfo['icona']) ?>"></i>
+                </small>
+            </div>
+            <?php if ($canRevert): ?>
+                <button type="button" class="btn btn-xs btn-link text-danger p-0 btn-rimuovi-giornata"
+                        title="Rimuovi dalla pianificazione" style="line-height:1;">
+                    <i class="fas fa-times"></i>
+                </button>
+            <?php endif; ?>
         </div>
-        <div class="font-weight-bold small mb-1 text-truncate">
+        <div class="small font-weight-bold text-truncate">
             <?= $nomeCliente ? esc($nomeCliente) : '<em class="text-muted">—</em>' ?>
         </div>
+        <?php if ($citta || $luogo): ?>
+        <div class="small text-muted text-truncate" style="font-size:.7rem;">
+            <i class="fas fa-map-marker-alt mr-1"></i><?= esc($citta ?: $luogo) ?>
+        </div>
+        <?php endif; ?>
+        <?php if ($tecNome): ?>
+        <div class="d-flex align-items-center mt-1" style="gap:.25rem;">
+            <span class="tech-dot" style="background:<?= esc($tecColore) ?>;width:16px;height:16px;font-size:.45rem;"><?= esc($tecIni) ?></span>
+            <small class="text-muted" style="font-size:.68rem;"><?= esc($tecNome) ?></small>
+        </div>
+        <?php endif; ?>
     </div>
     <?php
 };
@@ -125,34 +161,30 @@ $renderZonaCard = function (array $i) use ($tipiPerCodice, $priorita): void {
 
 <!-- Toolbar -->
 <div class="card card-outline card-primary mb-3">
-    <div class="card-header">
+    <div class="card-header py-2">
         <h3 class="card-title">
-            <i class="fas fa-calendar-alt mr-1"></i> Pianificazione manuale
+            <i class="fas fa-calendar-week mr-1"></i>
+            Settimana del <?= date('d/m/Y', strtotime($lunedi)) ?>
         </h3>
-        <div class="card-tools d-flex align-items-center">
-            <button id="btn-filtro" class="btn btn-outline-light btn-sm mr-3" style="display:none;"></button>
-            <label class="mb-0 mr-2 small">Data viaggio:</label>
-            <input type="date" id="data-viaggio" class="form-control form-control-sm mr-3"
-                   value="<?= esc($data) ?>" style="width:155px;"
+        <div class="card-tools d-flex align-items-center" style="gap:.4rem;">
+            <a href="<?= base_url('pianificazione?data=' . $prevSett) ?>" class="btn btn-sm btn-outline-secondary"
+               title="Settimana precedente"><i class="fas fa-chevron-left"></i></a>
+            <input type="date" id="data-sel" class="form-control form-control-sm" style="width:145px;"
+                   value="<?= esc($data) ?>"
                    onchange="window.location.href='<?= base_url('pianificazione') ?>?data='+this.value">
-            <button id="btn-salva" class="btn btn-success btn-sm" disabled>
-                <i class="fas fa-save mr-1"></i> Salva bozze
-            </button>
+            <a href="<?= base_url('pianificazione?data=' . $nextSett) ?>" class="btn btn-sm btn-outline-secondary"
+               title="Settimana successiva"><i class="fas fa-chevron-right"></i></a>
+            <a href="<?= base_url('pianificazione?data=' . $oggi) ?>" class="btn btn-sm btn-outline-primary">Oggi</a>
         </div>
     </div>
-    <div class="card-body py-2">
-        <span id="msg-stato" class="text-sm text-muted">
-            <?php if (empty($interventi) && empty(array_filter($preAssegnati))): ?>
-                Nessun intervento da pianificare.
-            <?php else: ?>
-                Trascina gli interventi nelle righe dei tecnici, poi salva le bozze.
-            <?php endif; ?>
-        </span>
-        <div id="alert-salva" class="alert py-2 mb-0 mt-1" style="display:none;"></div>
+    <div id="alert-salva-wrap" style="display:none;">
+        <div class="card-body py-1 px-2">
+            <div id="alert-salva" class="alert py-2 mb-0"></div>
+        </div>
     </div>
 </div>
 
-<!-- Layout pianificazione -->
+<!-- Layout -->
 <div class="planning-layout">
 
     <!-- Pool sidebar -->
@@ -161,124 +193,91 @@ $renderZonaCard = function (array $i) use ($tipiPerCodice, $priorita): void {
             <div class="card-header py-2">
                 <h3 class="card-title">
                     <i class="fas fa-inbox mr-1 text-primary"></i> Da pianificare
-                    <span class="badge badge-primary ml-1" id="pool-count"><?= count($interventi) ?></span>
+                    <span class="badge badge-primary ml-1"><?= count($interventi) ?></span>
                 </h3>
             </div>
             <div class="card-body p-2">
-                <div class="sortable-zone" id="pool-zone" data-tecnico="">
-                    <?php if (empty($interventi)): ?>
-                        <div class="pool-empty">
-                            <i class="fas fa-check-circle fa-2x d-block mb-2 text-success" style="opacity:.5;"></i>
-                            Tutti assegnati
+                <?php if (empty($interventi)): ?>
+                    <div class="pool-empty">
+                        <i class="fas fa-check-circle fa-2x d-block mb-2 text-success" style="opacity:.5;"></i>
+                        Tutti pianificati
+                    </div>
+                <?php else: ?>
+                    <?php foreach ($poolPerTipo as $tipo => $invPerTipo):
+                        $tipoInfo   = $tipiPerCodice[$tipo] ?? ['nome' => $tipo, 'icona' => 'fa-wrench'];
+                        $collapseId = 'pool-tipo-' . preg_replace('/\W/', '_', $tipo);
+                    ?>
+                    <div class="mb-1">
+                        <a class="d-flex align-items-center justify-content-between px-2 py-1 text-dark"
+                           data-toggle="collapse" href="#<?= $collapseId ?>"
+                           style="background:#f4f6f9;border-radius:4px;text-decoration:none;">
+                            <span class="small font-weight-bold">
+                                <i class="fas <?= esc($tipoInfo['icona']) ?> mr-1 text-muted"></i>
+                                <?= esc($tipoInfo['nome']) ?>
+                            </span>
+                            <span class="badge badge-secondary"><?= count($invPerTipo) ?></span>
+                        </a>
+                        <div class="collapse show pool-zone" id="<?= $collapseId ?>">
+                            <?php foreach ($invPerTipo as $i): $renderPoolCard($i); endforeach; ?>
                         </div>
-                    <?php endif; ?>
-                    <?php foreach ($interventi as $i): $renderPoolCard($i); endforeach; ?>
-                </div>
+                    </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 
-    <!-- Righe tecnici -->
-    <div class="tecnici-panel">
-        <?php
-        // Mappa tipo_id → nome per elencare le competenze
-        $tipiPerId = [];
-        foreach ($tipiPerCodice as $info) {
-            $tipiPerId[(int) $info['id']] = $info['nome'];
-        }
-        ?>
-        <?php foreach ($tecnici as $t):
-            $initials  = strtoupper(substr($t->nome, 0, 1) . substr($t->cognome, 0, 1));
-            $colore    = $t->colore ?? '#6c757d';
-            $preCards  = $preAssegnati[$t->id] ?? [];
-            $rilevante = in_array($t->id, $tecniciRilevanti) ? '1' : '0';
-            $bloccato  = isset($tecniciBloccati[$t->id]);
-            $viaggioBloccatoId = $tecniciBloccati[$t->id] ?? null;
-
-            $nomiComp = [];
-            foreach ($competenzePerTecnico[$t->id] ?? [] as $tipoId => $livello) {
-                if ($livello >= 2) {
-                    $nomiComp[] = $tipiPerId[(int) $tipoId] ?? '?';
-                }
-            }
-            $nComp = count($nomiComp);
-        ?>
-        <div class="card card-outline <?= $bloccato ? 'card-primary' : 'card-secondary' ?> mb-2 tech-row-wrap"
-             data-rilevante="<?= $rilevante ?>">
-            <div class="card-header py-2" style="background:<?= esc($colore) ?>; border-color:<?= esc($colore) ?>;">
-                <div class="d-flex align-items-center">
-                    <span class="tech-avatar mr-2"
-                          style="background:rgba(0,0,0,.15); color:#212529;"><?= $initials ?></span>
-                    <div style="flex:1; min-width:0;">
-                        <div class="font-weight-bold small text-truncate" style="color:#212529;"><?= esc($t->cognome . ' ' . $t->nome) ?></div>
-                        <small style="color:rgba(0,0,0,.55);">
-                            <?= $nComp ?> competenz<?= $nComp === 1 ? 'a' : 'e' ?>
-                            <?php if (!empty($nomiComp)): ?>
-                                : <?= esc(implode(', ', $nomiComp)) ?>
-                            <?php endif; ?>
-                        </small>
+    <!-- Griglia settimanale -->
+    <div class="week-panel">
+        <div class="week-grid-wrap">
+            <div class="week-grid">
+                <?php foreach ($settimana as $idx => $g):
+                    $isOggi    = $g['data'] === $oggi;
+                    $isWeekend = $idx >= 5;
+                    $colClass  = 'day-col' . ($isOggi ? ' oggi' : '') . ($isWeekend ? ' weekend' : '');
+                ?>
+                <div class="<?= $colClass ?>">
+                    <div class="day-header">
+                        <div class="font-weight-bold"><?= $giorniNomi[$idx] ?></div>
+                        <div style="font-size:.72rem;"><?= date('d/m', strtotime($g['data'])) ?></div>
+                        <?php if ($g['count'] > 0): ?>
+                            <span class="badge badge-success mt-1" style="font-size:.58rem;"><?= $g['count'] ?></span>
+                        <?php endif; ?>
                     </div>
-                    <?php if ($bloccato): ?>
-                        <a href="<?= base_url('viaggi/' . $viaggioBloccatoId) ?>"
-                           class="badge ml-2 text-white"
-                           style="background:rgba(0,0,0,.25);"
-                           title="Viaggio approvato — clicca per aprirlo e riapri in bozza">
-                            <i class="fas fa-lock mr-1"></i> Approvato
-                        </a>
-                    <?php else: ?>
-                        <span class="badge ml-2" id="count-<?= $t->id ?>"
-                              style="background:rgba(0,0,0,.15); color:#212529;">0</span>
-                    <?php endif; ?>
+                    <div class="day-drop-zone" data-date="<?= $g['data'] ?>">
+                        <?php foreach ($giornataPerGiorno[$g['data']] ?? [] as $i): $renderDayCard($i); endforeach; ?>
+                        <div class="day-empty<?= empty($giornataPerGiorno[$g['data']]) ? '' : ' d-none' ?>">
+                            <i class="fas fa-arrow-down"></i><br>Trascina qui
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="card-body p-0">
-                <?php if ($bloccato): ?>
-                    <div class="text-center py-3 text-muted small">
-                        <i class="fas fa-lock mr-1"></i>
-                        Viaggio approvato.
-                        <a href="<?= base_url('viaggi/' . $viaggioBloccatoId) ?>">Apri il viaggio</a>
-                        e usa <strong>Riapri</strong> per modificarlo.
-                    </div>
-                <?php else: ?>
-                <div class="sortable-zone tech-drop-zone" id="zone-<?= $t->id ?>" data-tecnico="<?= $t->id ?>">
-                    <div class="drop-empty" id="empty-<?= $t->id ?>"
-                         <?= !empty($preCards) ? 'style="display:none;"' : '' ?>>
-                        <i class="fas fa-arrow-left" style="opacity:.35;"></i> Trascina qui
-                    </div>
-                    <?php foreach ($preCards as $i): $renderZonaCard($i); endforeach; ?>
-                </div>
-                <?php endif; ?>
+                <?php endforeach; ?>
             </div>
         </div>
-        <?php endforeach; ?>
     </div>
 
 </div>
 
-<!-- Modal dettaglio intervento -->
+<!-- Modal dettaglio intervento (click su card) -->
 <div class="modal fade" id="modal-intervento" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header py-2">
-                <h5 class="modal-title d-flex align-items-center gap-2">
+                <h5 class="modal-title d-flex align-items-center">
                     <span id="mi-badge" class="badge mr-2"></span>
                     <i id="mi-icona" class="fas fa-wrench mr-1"></i>
                     <span id="mi-tipo"></span>
                 </h5>
-                <button type="button" class="close" data-dismiss="modal">
-                    <span>&times;</span>
-                </button>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
             </div>
             <div class="modal-body">
                 <dl class="mb-0">
                     <dt class="small text-muted">Cliente</dt>
                     <dd id="mi-cliente" class="mb-2 font-weight-bold"></dd>
-
                     <dt class="small text-muted" id="mi-luogo-label" style="display:none;">Luogo</dt>
-                    <dd id="mi-luogo" class="mb-2"></dd>
-
+                    <dd id="mi-luogo" class="mb-2" style="display:none;"></dd>
                     <dt class="small text-muted" id="mi-descr-label" style="display:none;">Descrizione</dt>
-                    <dd id="mi-descr" class="mb-0 text-sm"></dd>
+                    <dd id="mi-descr" class="mb-0" style="display:none;"></dd>
                 </dl>
             </div>
             <div class="modal-footer py-2">
@@ -291,6 +290,38 @@ $renderZonaCard = function (array $i) use ($tipiPerCodice, $priorita): void {
     </div>
 </div>
 
+<!-- Modal assegna tecnico (al drop su giorno) -->
+<div class="modal fade" id="modal-assegna" tabindex="-1" data-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success py-2">
+                <h5 class="modal-title text-white">
+                    <i class="fas fa-calendar-day mr-1"></i>
+                    Pianifica — <span id="assegna-giorno" class="font-weight-bold"></span>
+                </h5>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0 font-weight-bold" id="assegna-cliente"></p>
+                <p class="small text-muted mb-1" id="assegna-tipo"></p>
+                <p class="small text-muted fst-italic mb-3" id="assegna-descr" style="display:none;"></p>
+                <div class="form-group mb-0">
+                    <label class="small">Tecnico <span class="text-muted font-weight-normal">(opzionale)</span></label>
+                    <select id="assegna-tecnico" class="form-control form-control-sm">
+                        <option value="">— Non assegnato —</option>
+                    </select>
+                    <div id="assegna-suggerimento" class="mt-1"></div>
+                </div>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-assegna-annulla">Annulla</button>
+                <button type="button" class="btn btn-success btn-sm" id="btn-assegna-conferma">
+                    <i class="fas fa-check mr-1"></i> Pianifica
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('help') ?>
@@ -298,182 +329,254 @@ $renderZonaCard = function (array $i) use ($tipiPerCodice, $priorita): void {
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 <script>
 (function () {
-    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    var btnSalva  = document.getElementById('btn-salva');
-    var msgEl     = document.getElementById('msg-stato');
-    var alertEl   = document.getElementById('alert-salva');
-    var btnFiltro = document.getElementById('btn-filtro');
+    var csrfToken   = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    var oraInizio   = '<?= esc($oraInizio) ?>';
+    var alertWrapEl = document.getElementById('alert-salva-wrap');
+    var alertEl     = document.getElementById('alert-salva');
+    var dragging    = false;
+    var dragCard    = null;
+    var pendingDate = null;
 
-    // --- Filtro tecnici per competenza ---
-    var filtroAttivo = <?= (!empty($tecniciRilevanti) && count($tecniciRilevanti) < count($tecnici)) ? 'true' : 'false' ?>;
+    var giorniIt = ['', 'Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'];
 
-    function applyFiltro() {
-        var nascosti = 0;
-        document.querySelectorAll('.tech-row-wrap[data-rilevante]').forEach(function (row) {
-            var rilevante = row.dataset.rilevante === '1';
-            var haCards   = row.querySelectorAll('.intervention-card').length > 0;
-            var visible   = !filtroAttivo || rilevante || haCards;
-            row.style.display = visible ? '' : 'none';
-            if (!visible) nascosti++;
+    // Dati competenze per popolare il select tecnico
+    var tecnici              = <?= json_encode(array_map(fn($t) => ['id' => $t->id, 'nome' => $t->nome, 'cognome' => $t->cognome], $tecnici)) ?>;
+    var competenzePerTecnico = <?= json_encode($competenzePerTecnico) ?>;
+    var tipiPerCodice        = <?= json_encode(array_map(fn($t) => ['id' => $t['id']], $tipiPerCodice)) ?>;
+    var livelliNomi          = {1: 'Base', 2: 'Autonomo', 3: 'Referente'};
+
+    function buildTecnicoSelect(tipoCode) {
+        var tipoId    = (tipiPerCodice[tipoCode] || {}).id || 0;
+        var qualificati = [], base = [], altri = [];
+
+        tecnici.forEach(function (t) {
+            var livello = ((competenzePerTecnico[t.id] || {})[tipoId]) || 0;
+            if      (livello >= 2) qualificati.push({t: t, livello: livello});
+            else if (livello === 1) base.push({t: t, livello: livello});
+            else                    altri.push({t: t});
         });
 
-        if (filtroAttivo && nascosti > 0) {
-            btnFiltro.innerHTML = '<i class="fas fa-users mr-1"></i> Mostra tutti <span class="badge badge-light ml-1">' + nascosti + '</span>';
-            btnFiltro.style.display = '';
-        } else if (!filtroAttivo) {
-            btnFiltro.innerHTML = '<i class="fas fa-filter mr-1"></i> Filtra per competenza';
-            btnFiltro.style.display = '';
-        } else {
-            btnFiltro.style.display = 'none';
+        var html = '<option value="">— Non assegnato —</option>';
+
+        if (qualificati.length) {
+            html += '<optgroup label="Autonomi / Referenti">';
+            qualificati.forEach(function (item) {
+                html += '<option value="' + item.t.id + '">'
+                      + item.t.cognome + ' ' + item.t.nome
+                      + ' — ' + livelliNomi[item.livello] + '</option>';
+            });
+            html += '</optgroup>';
         }
+        if (base.length) {
+            html += '<optgroup label="Base">';
+            base.forEach(function (item) {
+                html += '<option value="' + item.t.id + '">'
+                      + item.t.cognome + ' ' + item.t.nome + ' — Base</option>';
+            });
+            html += '</optgroup>';
+        }
+        if (altri.length) {
+            html += '<optgroup label="Non competenti">';
+            altri.forEach(function (item) {
+                html += '<option value="' + item.t.id + '" style="color:#adb5bd;">'
+                      + item.t.cognome + ' ' + item.t.nome + '</option>';
+            });
+            html += '</optgroup>';
+        }
+
+        assegnaTecnicoEl.innerHTML = html;
     }
 
-    btnFiltro.addEventListener('click', function () {
-        filtroAttivo = !filtroAttivo;
-        applyFiltro();
+    // --- Drag dal pool ---
+    document.querySelectorAll('.pool-zone .intervention-card').forEach(function (card) {
+        card.addEventListener('dragstart', function (e) {
+            dragging = true;
+            dragCard = card;
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', card.dataset.id);
+            setTimeout(function () { card.classList.add('dragging'); }, 0);
+        });
+        card.addEventListener('dragend', function () {
+            card.classList.remove('dragging');
+            dragging = false;
+        });
     });
 
-    // --- SortableJS ---
-    document.querySelectorAll('.sortable-zone').forEach(function (el) {
-        Sortable.create(el, {
-            group:      'board',
-            animation:  150,
-            ghostClass: 'sortable-ghost',
-            onEnd:      function () { updateUI(); updateStepNumbers(); },
+    // --- Drop sulle colonne dei giorni ---
+    document.querySelectorAll('.day-drop-zone').forEach(function (zone) {
+        zone.addEventListener('dragenter', function (e) {
+            if (!dragCard) return;
+            e.preventDefault();
+            zone.classList.add('drag-over');
         });
-    });
-
-    // Aggiorna numerazione tappe nelle zone tecnico
-    function updateStepNumbers() {
-        document.querySelectorAll('.tech-drop-zone').forEach(function (zone) {
-            zone.querySelectorAll('.intervention-card').forEach(function (card, idx) {
-                var span = card.querySelector('.step-num');
-                if (!span) {
-                    span = document.createElement('span');
-                    span.className = 'step-num';
-                    card.insertBefore(span, card.firstChild);
-                }
-                span.textContent = idx + 1;
-            });
+        zone.addEventListener('dragover', function (e) {
+            if (!dragCard) return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
         });
-        // Rimuove il numero se la card torna nel pool
-        document.querySelectorAll('#pool-zone .step-num').forEach(function (s) { s.remove(); });
-    }
-
-    function updateUI() {
-        var assigned = 0;
-
-        document.querySelectorAll('.sortable-zone[data-tecnico]').forEach(function (zone) {
-            var tecnicoId = zone.dataset.tecnico;
-            if (!tecnicoId) return;
-
-            var count = zone.querySelectorAll('.intervention-card').length;
-            var empty = document.getElementById('empty-' + tecnicoId);
-            if (empty) empty.style.display = count > 0 ? 'none' : '';
-
-            var badge = document.getElementById('count-' + tecnicoId);
-            if (badge) badge.textContent = count;
-
-            assigned += count;
-        });
-
-        var pool = document.querySelectorAll('#pool-zone .intervention-card').length;
-        document.getElementById('pool-count').textContent = pool;
-
-        if (assigned > 0) {
-            msgEl.textContent = assigned + (assigned === 1 ? ' intervento assegnato.' : ' interventi assegnati.');
-            btnSalva.disabled = false;
-        } else {
-            msgEl.textContent = 'Trascina gli interventi nelle righe dei tecnici, poi salva le bozze.';
-            btnSalva.disabled = true;
-        }
-        alertEl.style.display = 'none';
-    }
-
-    updateUI();
-    updateStepNumbers();
-    applyFiltro();
-
-    // Messaggio di successo post-save
-    (function () {
-        var params = new URLSearchParams(window.location.search);
-        var saved  = params.get('saved');
-        if (saved) {
-            showAlert('success', '<i class="fas fa-check-circle mr-1"></i> ' + saved
-                + ' — <a href="<?= base_url('viaggi') ?>">Vai ai Viaggi</a> per autorizzarli.');
-            history.replaceState(null, '', window.location.pathname + '?data=' + params.get('data'));
-        }
-    })();
-
-    btnSalva.addEventListener('click', function () {
-        var data         = document.getElementById('data-viaggio').value;
-        var assegnazioni = [];
-
-        document.querySelectorAll('.sortable-zone[data-tecnico]').forEach(function (zone) {
-            var tecnicoId = zone.dataset.tecnico;
-            if (!tecnicoId) return;
-
-            var tappe = [];
-            zone.querySelectorAll('.intervention-card[data-id]').forEach(function (card) {
-                tappe.push({ intervento_id: parseInt(card.dataset.id) });
-            });
-            if (tappe.length > 0) {
-                assegnazioni.push({ tecnico_id: parseInt(tecnicoId), tappe: tappe });
+        zone.addEventListener('dragleave', function (e) {
+            if (!zone.contains(e.relatedTarget)) {
+                zone.classList.remove('drag-over');
             }
         });
+        zone.addEventListener('drop', function (e) {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+            if (!dragCard) return;
+            pendingDate = zone.dataset.date;
+            showModalAssegna(dragCard, pendingDate);
+        });
+    });
 
-        if (assegnazioni.length === 0) {
-            showAlert('warning', '<i class="fas fa-exclamation-triangle mr-1"></i> Nessun intervento assegnato.');
-            return;
+    // --- Modal assegna ---
+    var $modalAssegna    = $('#modal-assegna');
+    var assegnaTecnicoEl = document.getElementById('assegna-tecnico');
+    var assegnaSuggEl    = document.getElementById('assegna-suggerimento');
+
+    function showModalAssegna(card, dateStr) {
+        var d    = new Date(dateStr + 'T12:00:00');
+        var dow  = d.getDay() === 0 ? 7 : d.getDay();
+        var label = giorniIt[dow] + ' ' +
+                    String(d.getDate()).padStart(2, '0') + '/' +
+                    String(d.getMonth() + 1).padStart(2, '0');
+
+        document.getElementById('assegna-giorno').textContent  = label;
+        document.getElementById('assegna-cliente').textContent = card.dataset.mc || '—';
+        document.getElementById('assegna-tipo').textContent    = card.dataset.mt || '';
+        var descrEl = document.getElementById('assegna-descr');
+        descrEl.textContent   = card.dataset.md || '';
+        descrEl.style.display = card.dataset.md ? '' : 'none';
+        buildTecnicoSelect(card.dataset.tc || '');
+        assegnaSuggEl.innerHTML = '';
+
+        var tipo      = card.dataset.tc  || '';
+        var clienteId = card.dataset.cid || 0;
+        if (tipo) {
+            var apiUrl = '<?= base_url('interventi/api/tecnico-consigliato') ?>'
+                       + '?tipo_intervento=' + encodeURIComponent(tipo)
+                       + '&cliente_id='      + encodeURIComponent(clienteId)
+                       + '&data='            + encodeURIComponent(dateStr);
+
+            fetch(apiUrl)
+                .then(function (risposta) {
+                    return risposta.json();
+                })
+                .then(function (json) {
+                    if (!json.tecnico) return;
+
+                    var t = json.tecnico;
+                    var dettaglio = json.source === 'referente' ? 'Referente'
+                                  : json.source === 'storico'   ? t.cnt + ' int. simili'
+                                  :                               'disponibile';
+
+                    assegnaSuggEl.innerHTML =
+                        '<div class="alert alert-info py-1 px-2 mb-0 small">'
+                        + '<i class="fas fa-lightbulb mr-1"></i>'
+                        + 'Consigliato: <strong>' + t.cognome + ' ' + t.nome + '</strong> '
+                        + '<span class="text-muted">(' + dettaglio + ')</span>'
+                        + ' <a href="#" class="ml-2"'
+                        + ' onclick="document.getElementById(\'assegna-tecnico\').value=\'' + t.tecnico_id + '\';'
+                        + 'this.parentElement.remove();return false;">Usa questo</a>'
+                        + '</div>';
+                })
+                .catch(function () {});
         }
 
-        btnSalva.disabled = true;
-        btnSalva.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Salvataggio…';
+        $modalAssegna.modal('show');
+    }
 
-        fetch('<?= base_url('pianificazione/salva') ?>', {
+    $modalAssegna.on('hide.bs.modal', function () {
+        dragCard    = null;
+        pendingDate = null;
+    });
+
+    document.getElementById('btn-assegna-annulla').addEventListener('click', function () {
+        $modalAssegna.modal('hide');
+    });
+
+    // Conferma → AJAX pianifica
+    document.getElementById('btn-assegna-conferma').addEventListener('click', function () {
+        if (!dragCard || !pendingDate) return;
+
+        var card       = dragCard;
+        var tecnicoId  = assegnaTecnicoEl.value || '';
+        var dataPianif = pendingDate + 'T' + oraInizio;
+        var btnConf    = this;
+
+        btnConf.disabled  = true;
+        btnConf.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Salvo…';
+
+        var formData = new FormData();
+        formData.append('data_pianificata', dataPianif);
+        if (tecnicoId) formData.append('tecnico_id', tecnicoId);
+
+        fetch('<?= base_url('interventi/') ?>' + card.dataset.id + '/pianifica', {
             method:  'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
-            body:    JSON.stringify({ data: data, assegnazioni: assegnazioni }),
+            headers: { 'X-CSRF-TOKEN': csrfToken },
+            body:    formData,
         })
         .then(function (r) { return r.json(); })
         .then(function (json) {
             if (json.ok) {
-                window.location.href = '<?= base_url('pianificazione') ?>?data=' + data
-                    + '&saved=' + encodeURIComponent(json.msg);
+                dragCard    = null;
+                pendingDate = null;
+                $modalAssegna.modal('hide');
+                window.location.reload();
             } else {
-                showAlert('danger', '<i class="fas fa-times-circle mr-1"></i> ' + (json.errore || 'Errore.'));
-                btnSalva.disabled = false;
-                btnSalva.innerHTML = '<i class="fas fa-save mr-1"></i> Salva bozze';
+                btnConf.disabled  = false;
+                btnConf.innerHTML = '<i class="fas fa-check mr-1"></i> Pianifica';
+                showAlert('danger', json.msg || 'Errore durante il salvataggio.');
             }
         })
         .catch(function () {
-            showAlert('danger', '<i class="fas fa-times-circle mr-1"></i> Errore di rete.');
-            btnSalva.disabled = false;
-            btnSalva.innerHTML = '<i class="fas fa-save mr-1"></i> Salva bozze';
+            btnConf.disabled  = false;
+            btnConf.innerHTML = '<i class="fas fa-check mr-1"></i> Pianifica';
+            showAlert('danger', 'Errore di rete.');
         });
     });
 
-    // --- Modal dettaglio intervento ---
-    var dragging = false;
-    document.querySelectorAll('.sortable-zone').forEach(function (el) {
-        el.addEventListener('sortstart', function () { dragging = true; });
-        el.addEventListener('sortend',   function () { setTimeout(function () { dragging = false; }, 50); });
+    // --- X button (rimuovi pianificazione) ---
+    document.querySelectorAll('.btn-rimuovi-giornata').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var card = this.closest('.intervention-card');
+            if (!card) return;
+            card.style.opacity = '.4';
+            fetch('<?= base_url('interventi/') ?>' + card.dataset.id + '/annulla-pianificazione', {
+                method:  'POST',
+                headers: { 'X-CSRF-TOKEN': csrfToken },
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (json) {
+                if (json.ok) {
+                    window.location.reload();
+                } else {
+                    card.style.opacity = '';
+                    showAlert('danger', json.msg || 'Errore.');
+                }
+            })
+            .catch(function () {
+                card.style.opacity = '';
+                showAlert('danger', 'Errore di rete.');
+            });
+        });
     });
 
+    // --- Click su card → modal dettaglio ---
     document.addEventListener('click', function (e) {
         if (dragging) return;
+        if (e.target.closest('.btn-rimuovi-giornata')) return;
         var card = e.target.closest('.intervention-card[data-modal]');
         if (!card) return;
 
-        var luogo  = [card.dataset.ml, card.dataset.mci].filter(Boolean).join(' — ');
-        var descr  = card.dataset.md || '';
+        var luogo = [card.dataset.ml, card.dataset.mci].filter(Boolean).join(' — ');
+        var descr = card.dataset.md || '';
 
-        document.getElementById('mi-badge').className  = 'badge mr-2 ' + (card.dataset.mb || 'badge-secondary');
+        document.getElementById('mi-badge').className   = 'badge mr-2 ' + (card.dataset.mb || 'badge-secondary');
         document.getElementById('mi-badge').textContent = card.dataset.mp || '';
-        document.getElementById('mi-icona').className  = 'fas ' + (card.dataset.mi || 'fa-wrench') + ' mr-1';
+        document.getElementById('mi-icona').className   = 'fas ' + (card.dataset.mi || 'fa-wrench') + ' mr-1';
         document.getElementById('mi-tipo').textContent  = card.dataset.mt || '';
         document.getElementById('mi-cliente').textContent = card.dataset.mc || '—';
 
@@ -490,15 +593,13 @@ $renderZonaCard = function (array $i) use ($tipiPerCodice, $priorita): void {
         descrEl.textContent      = descr;
 
         document.getElementById('mi-link').href = card.dataset.link || '#';
-
         $('#modal-intervento').modal('show');
     });
-    // --- Fine modal ---
 
     function showAlert(type, html) {
-        alertEl.className = 'alert alert-' + type + ' py-2 mb-0 mt-1';
-        alertEl.innerHTML = html;
-        alertEl.style.display = '';
+        alertEl.className         = 'alert alert-' + type + ' py-2 mb-0';
+        alertEl.innerHTML         = html;
+        alertWrapEl.style.display = '';
     }
 })();
 </script>

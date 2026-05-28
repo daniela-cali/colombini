@@ -13,18 +13,13 @@ class Clienti extends BaseController
 {
     public function index(): string
     {
-        $model = new ClienteModel();
-        $q     = $this->request->getGet('q');
-
-        $clienti = $q
-            ? $model->ricerca($q)
-            : $model->where('stato', 1)->orderBy('ragsoc, cognome')->findAll();
+        $model   = new ClienteModel();
+        $clienti = $model->where('stato', 1)->orderBy('ragsoc, cognome')->findAll();
 
         return view('clienti/index', [
             'title'      => 'Clienti',
             'page_title' => 'Clienti',
             'clienti'    => $clienti,
-            'q'          => $q,
         ]);
     }
 
@@ -43,12 +38,16 @@ class Clienti extends BaseController
             $utente = $users->find($cliente['user_id']);
         }
 
+        $interventi = (new InterventoModel())->conDettagli(0, null, null, false, $id);
+
         return view('clienti/show', [
             'title'        => $model->getNomeDisplay($cliente),
             'page_title'   => 'Scheda Cliente',
             'cliente'      => $cliente,
             'utente'       => $utente,
             'nome_display' => $model->getNomeDisplay($cliente),
+            'interventi'   => $interventi,
+            'stati'        => InterventoModel::STATI,
         ]);
     }
 

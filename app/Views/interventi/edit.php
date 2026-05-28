@@ -29,7 +29,7 @@
                     <?php $s = $stati[$intervento['stato']] ?? ['label' => $intervento['stato'], 'badge' => 'badge-secondary']; ?>
                     <span class="badge badge-light text-dark px-3 py-2"><?= $s['label'] ?></span>
                     <?php $from = service('request')->getGet('from'); if ($from): ?>
-                    <a href="<?= base_url($from) ?>" class="btn btn-sm btn-outline-secondary ml-2" title="Torna a <?= esc($from) ?>">
+                    <a href="<?= base_url($from) ?>" class="btn btn-tool ml-2" title="Torna a <?= esc($from) ?>">
                         <i class="fas fa-times"></i>
                     </a>
                     <?php endif; ?>

@@ -217,6 +217,58 @@
     </div>
 
 </div>
+
+<!-- Storico interventi -->
+<?php if (!empty($interventi)): ?>
+<div class="card card-outline card-secondary mt-3">
+    <div class="card-header py-2">
+        <h3 class="card-title">
+            <i class="fas fa-history mr-1"></i> Storico interventi
+            <span class="badge badge-secondary ml-1"><?= count($interventi) ?></span>
+        </h3>
+        <div class="card-tools">
+            <a href="<?= base_url('interventi/new?cliente_id=' . $cliente['id']) ?>" class="btn btn-sm btn-success">
+                <i class="fas fa-plus mr-1"></i> Nuovo
+            </a>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-sm table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Tipo</th>
+                    <th class="d-none d-md-table-cell">Tecnico</th>
+                    <th>Stato</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($interventi as $inv):
+                $s = $stati[$inv['stato']] ?? ['label' => $inv['stato'], 'badge' => 'badge-secondary'];
+                $dataInv = $inv['data_pianificata']
+                    ? date('d/m/Y', strtotime($inv['data_pianificata']))
+                    : '—';
+                $tecnico = trim(($inv['tecnico_cognome'] ?? '') . ' ' . ($inv['tecnico_nome'] ?? '')) ?: '—';
+            ?>
+                <tr>
+                    <td class="align-middle text-nowrap small"><?= $dataInv ?></td>
+                    <td class="align-middle small"><?= esc($inv['tipo_intervento']) ?></td>
+                    <td class="d-none d-md-table-cell align-middle small text-muted"><?= esc($tecnico) ?></td>
+                    <td class="align-middle"><span class="badge <?= $s['badge'] ?>"><?= $s['label'] ?></span></td>
+                    <td class="align-middle text-right">
+                        <a href="<?= base_url('interventi/' . $inv['id'] . '?from=clienti/' . $cliente['id']) ?>" class="btn btn-xs btn-outline-primary">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+<?php endif; ?>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('help') ?>

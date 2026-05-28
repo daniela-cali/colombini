@@ -49,9 +49,10 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
     });
 
     $routes->group('calendario', function (RouteCollection $routes) {
-        $routes->get('/',       'Calendario::index');
-        $routes->get('eventi',  'Calendario::eventi');
-        $routes->post('sposta', 'Calendario::sposta');
+        $routes->get('/',                       'Calendario::index');
+        $routes->get('eventi',                  'Calendario::eventi');
+        $routes->post('sposta',                 'Calendario::sposta');
+        $routes->post('genera-viaggio-giornata','Calendario::generaViaggioGiornata');
     });
 
     $routes->group('clienti', function (RouteCollection $routes) {
@@ -132,6 +133,9 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
         $routes->post('(:num)/invia-email', 'Interventi::inviaEmail/$1');
         $routes->post('(:num)/firma',       'Interventi::salvaFirma/$1');
         $routes->get('api/tecnico-consigliato', 'Interventi::apiTecnicoConsigliato');
+        $routes->get('api/orario-suggerito',    'Interventi::apiOrarioSuggerito');
+        $routes->post('(:num)/pianifica',              'Interventi::pianificaRapido/$1');
+        $routes->post('(:num)/annulla-pianificazione', 'Interventi::annullaPianificazione/$1');
     });
 
     $routes->group('preventivi', ['filter' => 'solo-staff'], function (RouteCollection $routes) {

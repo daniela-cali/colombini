@@ -23,38 +23,41 @@ class Dashboard extends BaseController
 
     private function dashboardAdmin(): string
     {
-        $clientiModel    = new ClienteModel();
         $interventiModel = new InterventoModel();
-        $richiesteModel  = new RichiestaModel();
-        $usersModel      = new UserModel();
 
-        $interventiAperti = $interventiModel
-            ->whereIn('stato', ['pianificato', 'in_corso'])
-            ->countAllResults();
+        $daPianificare = $interventiModel->conDettagli(0, null, 'da_pianificare');
+        $quaderni = [];
+        foreach ($daPianificare as $inv) {
+            $quaderni[$inv['tipo_intervento']][] = $inv;
+        }
 
-        $interventiMese = $interventiModel
-            ->where('stato', 'completato')
-            ->where('MONTH(data_completamento)', date('n'))
-            ->where('YEAR(data_completamento)', date('Y'))
-            ->countAllResults();
+        $mese = date('n');
+        $anno = date('Y');
+
+        $richiesteModel   = new RichiestaModel();
+        $nuoveRichieste   = $richiesteModel->where('stato', 'nuova')->countAllResults();
+        $ultime_richieste = $richiesteModel->ultime(5);
 
         return view('dashboard/index', [
             'title'      => 'Dashboard',
             'page_title' => 'Dashboard',
             'stats' => [
-                'clienti'           => $clientiModel->where('stato', 1)->countAllResults(),
-                'impianti'          => 0,
-                'interventi_aperti' => $interventiAperti,
-                'interventi_mese'   => $interventiMese,
+                'da_pianificare'  => $interventiModel->where('stato', 'da_pianificare')->countAllResults(),
+                'pianificati'     => $interventiModel->where('stato', 'pianificato')->countAllResults(),
+                'in_corso'        => $interventiModel->where('stato', 'in_corso')->countAllResults(),
+                'completati_mese' => $interventiModel->where('stato', 'completato')
+                    ->where('MONTH(data_completamento)', $mese)
+                    ->where('YEAR(data_completamento)', $anno)
+                    ->countAllResults(),
             ],
-            'ultime_richieste'  => $richiesteModel->ultime(6),
-            'ultimi_interventi' => $interventiModel->conDettagli(6),
-            'tecnici'           => $usersModel->whereAssegnabile()->orderBy('cognome')->findAll(),
-            'riepilogo_tecnici' => $interventiModel->riepilogoPerTecnico(),
-            'tipi'              => TipoInterventoModel::comeLista(),
-            'icone'             => array_column(TipoInterventoModel::comeListaCompleta(), 'icona', 'codice'),
-            'stati_intervento'  => InterventoModel::STATI,
-            'stati_richiesta'   => RichiestaModel::STATI,
+            'quaderni'         => $quaderni,
+            'tipi'             => TipoInterventoModel::comeLista(),
+            'icone'            => array_column(TipoInterventoModel::comeListaCompleta(), 'icona', 'codice'),
+            'stati'            => InterventoModel::STATI,
+            'tecnici'          => (new UserModel())->whereAssegnabile()->orderBy('cognome')->findAll(),
+            'nuove_richieste'  => $nuoveRichieste,
+            'ultime_richieste' => $ultime_richieste,
+            'stati_richiesta'  => RichiestaModel::STATI,
         ]);
     }
 
@@ -65,7 +68,6 @@ class Dashboard extends BaseController
         $id = $utente->id;
 
         $interventiMiei = $interventiModel->conDettagli(0, $id);
-        $tuttiAperti    = $interventiModel->conDettagli();
 
         $mese = date('Y-m');
         $cPianificati      = 0;
@@ -82,24 +84,26 @@ class Dashboard extends BaseController
             }
         }
 
-        $prossimi = array_filter($tuttiAperti, fn($i) =>
+        $prossimi = array_filter($interventiMiei, fn($i) =>
             in_array($i['stato'], ['da_pianificare', 'pianificato', 'in_corso'])
-            && (empty($i['tecnico_id']) || (int) $i['tecnico_id'] === $id)
         );
-        usort($prossimi, function ($a, $b) {
-            $aNonAssegnato = empty($a['tecnico_id']) ? 0 : 1;
-            $bNonAssegnato = empty($b['tecnico_id']) ? 0 : 1;
-            if ($aNonAssegnato !== $bNonAssegnato) {
-                return $aNonAssegnato - $bNonAssegnato;
-            }
-            return strcmp($a['data_pianificata'] ?? '', $b['data_pianificata'] ?? '');
-        });
+        usort($prossimi, fn($a, $b) =>
+            strcmp($a['data_pianificata'] ?? '', $b['data_pianificata'] ?? '')
+        );
+
+        $prossimiPerGiorno = [];
+        foreach (array_slice($prossimi, 0, 30) as $inv) {
+            $giorno = $inv['data_pianificata']
+                ? date('Y-m-d', strtotime($inv['data_pianificata']))
+                : 'senza_data';
+            $prossimiPerGiorno[$giorno][] = $inv;
+        }
 
         return view('dashboard/tecnico', [
             'title'            => 'La mia agenda',
             'page_title'       => 'La mia agenda',
             'tecnico'          => $utente,
-            'prossimi'         => array_slice($prossimi, 0, 10),
+            'prossimiPerGiorno'=> $prossimiPerGiorno,
             'stats' => [
                 'pianificati'       => $cPianificati,
                 'in_corso'          => $cInCorso,

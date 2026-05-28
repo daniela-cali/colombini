@@ -94,6 +94,23 @@
                 </li>
                 <?php if ($_isStaff): ?>
                 <li class="nav-item">
+                    <a href="<?= base_url('quaderni') ?>" class="nav-link <?= str_starts_with(uri_string(), 'quaderni') ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-clipboard-list"></i>
+                        <p>Quaderni</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <?php $_nuoveRichieste = (new \App\Models\RichiestaModel())->where('stato', 'nuova')->countAllResults(); ?>
+                    <a href="<?= base_url('richieste') ?>" class="nav-link <?= str_starts_with(uri_string(), 'richieste') ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-inbox"></i>
+                        <p>Richieste
+                            <?php if ($_nuoveRichieste > 0): ?>
+                                <span class="badge badge-info right"><?= $_nuoveRichieste ?></span>
+                            <?php endif; ?>
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="<?= base_url('pianificazione') ?>" class="nav-link <?= str_starts_with(uri_string(), 'pianificazione') ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-calendar-check"></i>
                         <p>Pianificazione</p>

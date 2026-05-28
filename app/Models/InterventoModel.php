@@ -90,9 +90,8 @@ class InterventoModel extends Model
         return $rows;
     }
 
-    public function conDettagli(int $limit = 0, ?int $tecnicoId = null, ?string $statoFiltro = null): array
+    public function conDettagli(int $limit = 0, ?int $tecnicoId = null, ?string $statoFiltro = null, bool $escludiCompletati = false, ?int $clienteId = null): array
     {
-        //dd([$tecnicoId,$statoFiltro]);
         $q = $this->select('interventi.*,
                 c.ragsoc AS cliente_ragsoc, c.nome AS cliente_nome, c.cognome AS cliente_cognome, c.deleted_at AS cliente_deleted_at,
                 u_tec.nome AS tecnico_nome, u_tec.cognome AS tecnico_cognome, u_tec.colore AS tecnico_colore, u_tec.id AS tecnico_id')
@@ -100,14 +99,18 @@ class InterventoModel extends Model
             ->join('users u_tec', 'u_tec.id = interventi.tecnico_id', 'left')
             ->orderBy('interventi.created_at', 'DESC');
 
-        /* Filtro per tecnico */
-        if($tecnicoId){
+        if ($tecnicoId) {
             $q->where('interventi.tecnico_id', $tecnicoId);
         }
 
-        /* Filtro per stato */
-        if($statoFiltro){
+        if ($clienteId) {
+            $q->where('interventi.cliente_id', $clienteId);
+        }
+
+        if ($statoFiltro) {
             $q->where('interventi.stato', $statoFiltro);
+        } elseif ($escludiCompletati) {
+            $q->whereNotIn('interventi.stato', ['completato', 'annullato']);
         }
 
         return $limit ? $q->findAll($limit) : $q->findAll();
@@ -123,6 +126,8 @@ class InterventoModel extends Model
             ->findAll();
     }
 
+    // Chi ha completato più interventi di questo tipo per quel cliente (fallback: qualsiasi cliente).
+    // Usato come segnale "storico" per suggerire esperienza specifica.
     public function tecnicoConsigliato(string $tipo, int $clienteId = 0): ?array
     {
         $base = fn() => db_connect()->table('interventi i')
@@ -142,5 +147,80 @@ class InterventoModel extends Model
         }
 
         return $base()->get()->getRowArray() ?: null;
+    }
+
+    // Referente (livello 3) del tipo dato meno occupato nel giorno indicato,
+    // escluso se supera $soglia interventi già pianificati quel giorno.
+    public function tecnicoReferente(string $tipo, string $data, int $soglia = 4): ?array
+    {
+        $db = db_connect();
+
+        $tipoRow = $db->table('tipi_intervento')
+            ->select('id')
+            ->where('codice', $tipo)
+            ->get()->getRowArray();
+
+        if (!$tipoRow) return null;
+
+        $tipoId = (int) $tipoRow['id'];
+
+        $row = $db->table('users u')
+            ->select('u.id AS tecnico_id, u.nome, u.cognome, COUNT(i.id) AS cnt')
+            ->join(
+                'tecnici_competenze tc',
+                'tc.tecnico_id = u.id AND tc.tipo_intervento_id = ' . $tipoId . ' AND tc.livello = 3',
+                'inner'
+            )
+            ->join(
+                'interventi i',
+                "i.tecnico_id = u.id AND i.stato IN ('pianificato', 'in_corso') AND DATE(i.data_pianificata) = " . $db->escape($data),
+                'left'
+            )
+            ->where('u.deleted_at IS NULL', null, false)
+            ->where('u.active', 1)
+            ->groupBy('u.id, u.nome, u.cognome')
+            ->having('COUNT(i.id) <', $soglia)
+            ->orderBy('cnt', 'ASC')
+            ->orderBy('u.cognome', 'ASC')
+            ->limit(1)
+            ->get()->getRowArray();
+
+        return $row ?: null;
+    }
+
+    // Tecnico con competenza >= 2 sul tipo dato che ha il minor numero di interventi
+    // pianificati/in corso nel giorno indicato. Fallback quando mancano referente e storico.
+    public function tecnicoMenoOccupato(string $tipo, string $data): ?array
+    {
+        $db = db_connect();
+
+        $tipoRow = $db->table('tipi_intervento')
+            ->select('id')
+            ->where('codice', $tipo)
+            ->get()->getRowArray();
+
+        if (!$tipoRow) return null;
+
+        $tipoId = (int) $tipoRow['id'];
+
+        return $db->table('users u')
+            ->select('u.id AS tecnico_id, u.nome, u.cognome, COUNT(i.id) AS cnt')
+            ->join(
+                'tecnici_competenze tc',
+                'tc.tecnico_id = u.id AND tc.tipo_intervento_id = ' . $tipoId . ' AND tc.livello >= 2',
+                'inner'
+            )
+            ->join(
+                'interventi i',
+                "i.tecnico_id = u.id AND i.stato IN ('pianificato', 'in_corso') AND DATE(i.data_pianificata) = " . $db->escape($data),
+                'left'
+            )
+            ->where('u.deleted_at IS NULL', null, false)
+            ->where('u.active', 1)
+            ->groupBy('u.id, u.nome, u.cognome')
+            ->orderBy('cnt', 'ASC')
+            ->orderBy('u.cognome', 'ASC')
+            ->limit(1)
+            ->get()->getRowArray() ?: null;
     }
 }

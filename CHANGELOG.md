@@ -9,6 +9,16 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 
 ## [Non rilasciato]
 
+### Aggiunto (branch feature/pianificazione-rapida)
+- **Dashboard admin — Quaderni** — sezione "Da pianificare" raggruppata per tipo intervento con card collassabili; badge contatore per gruppo; pulsante "Pianifica" per ogni intervento con modal inline (data/ora, tecnico, suggerimento API); link "altri N" per tipi con molti interventi
+- **Dashboard admin — widget cliccabili** — i 4 info-box (da pianificare, pianificati, in corso, completati mese) sono link diretti all'elenco interventi filtrato per stato
+- **Dashboard admin — richieste portale** — sezione compatta in fondo con badge "N nuove" e tabella delle ultime 5 richieste
+- **Sidebar — Quaderni e Richieste** — nuove voci sotto Assistenza (solo staff); Richieste mostra badge con contatore nuove in tempo reale
+- **Pianificazione rapida — zona giornata** — la pagina pianificazione sostituisce le colonne per tecnico con un'unica zona "Giornata del [data]"; barra settimanale con contatori interventi per giorno
+- **Pianificazione rapida — assegna al drag** — trascinando un intervento nella giornata si apre un modal: tecnico consigliato via API, data/ora precompilata con orario stimato; salvataggio immediato via `POST /interventi/{id}/pianifica`
+- **Pianificazione rapida — orario suggerito** — nuova API `GET /interventi/api/orario-suggerito`: calcola l'orario libero successivo per il tecnico selezionato tenendo conto di orari di lavoro (`tecnici_orari`), durate stimate dei tipi intervento (`durata_default`) e pausa pranzo; si aggiorna dinamicamente al cambio tecnico nel modal
+- **Pianificazione rapida — annulla pianificazione** — bottone X sulle card già pianificate nella giornata; chiama `POST /interventi/{id}/annulla-pianificazione` che riporta lo stato a `da_pianificare`
+
 ### Aggiunto (branch feature/pianificazione — Pianificazione v.1)
 - **VRP — Competenze tecnici** — tabella `tecnici_competenze` (FK su users e tipi_intervento, livelli: Apprendista / Autonomo / Referente); form inline nella scheda tecnico per assegnare il livello per ogni tipo intervento
 - **VRP — Requisiti veicoli** — colonne `cambio_automatico` e `carico_massimo` su `veicoli`; flag `richiede_cambio_auto` su `users`; form aggiornati per tecnici e veicoli
@@ -40,6 +50,22 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 - **Elenco interventi — colonna Cliente prima di Tipo** — riordinamento colonne per leggibilità immediata
 - **Intervento rapido dalla dashboard tecnico** — pulsante "Nuovo intervento" apre modal con cliente, tipo e data opzionale; pre-compila tecnico loggato e stato pianificato; redirect diretto alla scheda dopo il salvataggio
 - **Tecnico consigliato** — nel form di creazione intervento, selezionando tipo e cliente appare un badge con il tecnico che ha gestito più spesso quella combinazione (fallback su tipo solo se nessun dato per cliente)
+- **Pianificazione rapida — griglia settimanale** — la schermata pianificazione sostituisce la timeline giornaliera con una griglia a 7 colonne (lun–dom); navigazione settimana con prev/next e date picker; drag & drop dalla pool verso qualsiasi giorno; le card già pianificate mostrano tecnico e ora; contatori per giorno nella barra di navigazione
+- **Pianificazione rapida — tecnico suggerito con fallback disponibilità** — se nessun tecnico risulta dallo storico, l'API cerca il tecnico con meno interventi nella data selezionata tra quelli con competenza ≥ Autonomo; la modal indica la fonte (storico / disponibilità); tendina tecnici raggruppata per livello competenza (Autonomi/Referenti, Base, Non competenti)
+- **Dashboard tecnico — interventi raggruppati per data** — la tabella "I miei prossimi interventi" è raggruppata per giorno con separatori visivi; colonna "Assegnato" rimossa; mostrati solo gli interventi del tecnico loggato (no interventi altrui)
+- **Elenco interventi — completati nascosti di default** — i completati e annullati non appaiono nell'elenco standard; toggle "Mostra anche completati" / "Nascondi completati" per visualizzarli
+- **Scheda cliente — storico interventi** — sezione in fondo alla scheda con tabella degli interventi collegati (data, tipo, tecnico, stato); pulsante "Nuovo" precompila il cliente; link a ogni intervento con ritorno contestuale alla scheda
+- **Navigazione contestuale `?from=clienti/ID`** — dalla scheda cliente, il link a un intervento porta `?from=clienti/ID`; nella scheda intervento il breadcrumb mostra "Clienti › Scheda cliente" e il pulsante "Elenco" diventa "Scheda cliente" con link di ritorno corretto
+- **Elenco clienti — DataTables** — ricerca live client-side con DataTables (Bootstrap 4); rimosso form di ricerca server-side; paginazione 25/50/100/Tutti; ordinamento per colonna; interfaccia in italiano
+- **Calendario — filtro tecnico** — barra pulsanti sopra il calendario per filtrare gli eventi per tecnico; "Tutti" mostra tutti; API `calendario/eventi` estesa con parametro `tecnico_id`
+- **Calendario — genera viaggio giornata** — click su un giorno del calendario (corpo o header colonna) lo evidenzia e abilita il pulsante "Genera viaggio"; crea automaticamente i record `viaggi` + `viaggi_tappe` in stato autorizzato per tutti i tecnici con interventi pianificati in quella data; redirect al PDF riepilogo giornata esistente; apertura in nuova tab su desktop
+- **X contestuale — btn-tool** — pulsante di chiusura con `from` in `interventi/show` e `interventi/edit` usa la classe AdminLTE `btn-tool` invece di `btn-outline-secondary`
+- **Calendario — pool interventi da pianificare** — sidebar sinistra con card raggruppate per tipo (accordion collassato); drag & drop FullCalendar.Draggable verso il calendario; modal pianifica con orario pre-compilato dall'orario di drop, select tecnico con optgroup per livello competenza, suggerimento tecnico via API (referente → storico → disponibile), orario consecutivo aggiornato al cambio tecnico (solo se più tardi del drop); conferma salva via `POST /interventi/{id}/pianifica`, rimuove la card dal pool e aggiorna i contatori gruppo e totale
+- **Calendario — tecnico consigliato — priorità referente** — nuova logica: prima si propone il Referente (livello 3) meno occupato nel giorno (escluso se ha già ≥ 4 interventi), poi chi ha più storico completato sul tipo, infine il meno occupato con competenza ≥ 2; label sempre "Consigliato" (rimosso "Meno occupato") in calendario e pianificazione
+- **Calendario — città negli eventi** — campo `citta` del cliente visibile nei tooltip (Cliente · Città · Tecnico · Tipo) e come riga secondaria nelle card degli eventi FC; nelle pool card mostra la città del cliente (fallback sul luogo intervento)
+- **CLAUDE.md — regola commenti metodi PHP** — aggiunta linea guida: ogni metodo di controller o model deve avere un commento descrittivo sopra che spieghi cosa fa e perché
+- **Calendario — sidebar ridimensionabile** — drag handle tra pool e calendario; la larghezza viene salvata in `localStorage` e ripristinata al ricaricamento; stili spostati in `public/css/calendario.css`
+- **Calendario — giorno odierno evidenziato in header** — sfondo giallo e lineetta arancione sotto la data tramite `::after` sulla cella intestazione del giorno corrente
 
 ### Corretto
 - **Firma email** — sfondo trasparente illeggibile in dark mode: template HTML completo con `bgcolor` su body e tabella wrapper, `color-scheme: light only` per forzare tema chiaro nei client che lo supportano

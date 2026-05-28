@@ -148,6 +148,16 @@
                         </div>
                     </div>
 
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="zona">Zona</label>
+                            <input type="text" name="zona" id="zona" class="form-control"
+                                   maxlength="100"
+                                   value="<?= esc(old('zona', $cliente['zona'] ?? '')) ?>"
+                                   placeholder="es. Savona, Ceriale, Finale…">
+                        </div>
+                    </div>
+
                     <div class="mb-3">
                         <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-geo"
                                 onclick="verificaIndirizzo()">

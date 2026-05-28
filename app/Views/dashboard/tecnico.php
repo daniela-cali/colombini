@@ -69,87 +69,72 @@
                 </div>
             </div>
             <div class="card-body p-0">
-                <?php if (empty($prossimi)): ?>
+                <?php if (empty($prossimiPerGiorno)): ?>
                     <div class="text-center py-5 text-muted">
                         <i class="fas fa-calendar-check fa-3x mb-3"></i>
                         <p class="mb-0">Nessun intervento in programma.</p>
                     </div>
-                <?php else: ?>
+                <?php else:
+                    $giorniIt = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
+                ?>
                     <div class="table-responsive">
                         <table class="table table-hover table-sm mb-0">
                             <thead>
                                 <tr>
-                                    <th>Data</th>
+                                    <th style="width:60px;">Ora</th>
                                     <th>Tipo</th>
                                     <th>Cliente</th>
                                     <th class="d-none d-md-table-cell">Luogo</th>
                                     <th>Stato</th>
-                                    <th class="d-none d-md-table-cell">Assegnato</th>
                                     <th></th>
                                 </tr>
                             </thead>
                             <tbody>
-                            <?php foreach ($prossimi as $inv):
+                            <?php foreach ($prossimiPerGiorno as $giorno => $invs):
+                                if ($giorno === 'senza_data') {
+                                    $intestazione = 'Da pianificare';
+                                    $rowClass     = 'table-light';
+                                } else {
+                                    $ts           = strtotime($giorno);
+                                    $dow          = $giorniIt[(int) date('w', $ts)];
+                                    $intestazione = $dow . ' ' . date('d/m/Y', $ts);
+                                    $isOggi       = $giorno === date('Y-m-d');
+                                    $rowClass     = $isOggi ? 'table-primary' : 'table-secondary';
+                                }
+                            ?>
+                                <tr class="<?= $rowClass ?>">
+                                    <td colspan="6" class="py-1 px-3">
+                                        <strong style="font-size:.8rem;"><?= $intestazione ?></strong>
+                                        <span class="badge badge-dark ml-1" style="font-size:.65rem;"><?= count($invs) ?></span>
+                                    </td>
+                                </tr>
+                            <?php foreach ($invs as $inv):
                                 $s = $stati[$inv['stato']] ?? ['label' => $inv['stato'], 'badge' => 'badge-secondary'];
                                 $cliente = $inv['cliente_ragsoc']
                                     ?: trim(($inv['cliente_cognome'] ?? '') . ' ' . ($inv['cliente_nome'] ?? ''));
+                                $ora = $inv['data_pianificata'] ? date('H:i', strtotime($inv['data_pianificata'])) : '—';
                             ?>
                                 <tr>
-                                    <!-- Data Pianificata -->
-                                    <td class="align-middle text-nowrap">
-                                        <?php if ($inv['data_pianificata']):
-                                            $ts = strtotime($inv['data_pianificata']);
-                                            $ora = date('H:i', $ts);
-                                        ?>
-                                            <strong><?= date('d/m', $ts) ?></strong>
-                                            <span class="text-muted small"><?= date('Y', $ts) ?></span>
-                                            <?php if ($ora !== '00:00'): ?>
-                                                <br><span class="text-primary small"><i class="fas fa-clock mr-1"></i><?= $ora ?></span>
-                                            <?php endif; ?>
-                                        <?php else: ?>
-                                            <span class="text-muted">—</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <!-- Tipo intervento -->
+                                    <td class="align-middle text-nowrap text-muted small"><?= $ora !== '00:00' ? $ora : '—' ?></td>
                                     <td class="align-middle">
                                         <i class="fas <?= esc($icone[$inv['tipo_intervento']] ?? 'fa-tools') ?> mr-1 text-muted"></i><?= esc($tipi[$inv['tipo_intervento']] ?? $inv['tipo_intervento']) ?>
                                     </td>
-                                    <!-- Cliente -->
                                     <td class="align-middle">
                                         <?= $cliente ? esc($cliente) : '<span class="text-muted">—</span>' ?>
                                     </td>
-                                    <!-- Luogo intervento -->
                                     <td class="d-none d-md-table-cell align-middle text-muted small">
                                         <?= esc($inv['luogo_intervento'] ?? '—') ?>
                                     </td>
-                                    <!-- Stato -->
                                     <td class="align-middle">
                                         <span class="badge <?= $s['badge'] ?>"><?= $s['label'] ?></span>
                                     </td>
-                                    <!-- Assegnato -->
-                                    <td class="d-none d-md-table-cell align-middle">
-                                    <?php if ($inv['stato'] == 'pianificato'): ?>
-                                        <?= $inv['tecnico_id'] == auth()->user()->id ? 'A te' : esc($inv['tecnico_nome']). ' ' . esc($inv['tecnico_cognome']) ?>
-                                    <?php else: ?>
-                                        Non ancora assegnato
-                                    <?php endif; ?>
-                                    </td>
-                                    <td class="align-middle text-right text-nowrap">
-                                        <?php if ($inv['stato'] === 'da_pianificare' && empty($inv['tecnico_id'])): ?>
-                                        <form method="post" action="<?= base_url('interventi/' . $inv['id'] . '/assegna') ?>" class="d-inline">
-                                            <?= csrf_field() ?>
-                                            <input type="hidden" name="tecnico_id" value="<?= auth()->user()->id ?>">
-                                            <button type="submit" class="btn btn-xs btn-success" title="Assegna a me">
-                                                <i class="fas fa-hand-pointer"></i>
-                                            </button>
-                                        </form>
-                                        <?php endif; ?>
-                                        <a href="<?= base_url('interventi/' . $inv['id']) ?>"
-                                           class="btn btn-xs btn-outline-primary">
+                                    <td class="align-middle text-right">
+                                        <a href="<?= base_url('interventi/' . $inv['id']) ?>" class="btn btn-xs btn-outline-primary">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                     </td>
                                 </tr>
+                            <?php endforeach; ?>
                             <?php endforeach; ?>
                             </tbody>
                         </table>
