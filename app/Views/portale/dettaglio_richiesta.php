@@ -54,10 +54,41 @@
             <div class="mb-1 text-muted small font-weight-bold">Descrizione problema</div>
             <p class="mb-0" style="white-space:pre-wrap; font-size:.95rem;"><?= esc($richiesta['note']) ?></p>
 
+            <?php if (! empty($messaggi)): ?>
+            <hr class="my-3">
+            <div class="mb-2 text-muted small font-weight-bold">Risposte</div>
+            <?php foreach ($messaggi as $msg):
+                $isCliente = (int) $msg['user_id'] === (int) $richiesta['user_id'];
+                if ($isCliente) {
+                    $autore = esc($richiesta['richiedente']);
+                } else {
+                    $autore = trim(($msg['nome'] ?? '') . ' ' . ($msg['cognome'] ?? '')) ?: 'Staff Colombini';
+                }
+            ?>
+            <div class="mb-3 <?= $isCliente ? '' : 'ml-3' ?>">
+                <div class="d-flex align-items-center mb-1">
+                    <small class="font-weight-bold mr-2 <?= $isCliente ? 'text-muted' : 'text-primary' ?>">
+                        <?= esc($autore) ?>
+                    </small>
+                    <small class="text-muted"><?= date('d/m/Y H:i', strtotime($msg['created_at'])) ?></small>
+                </div>
+                <?php if ($isCliente): ?>
+                <div class="p-2 rounded" style="background:#f8f9fa; border:1px solid #dee2e6; font-size:.9rem;">
+                    <?= nl2br(esc($msg['testo'])) ?>
+                </div>
+                <?php else: ?>
+                <div class="p-2 rounded" style="background:#e8f4fd; border-left:3px solid #007bff; font-size:.9rem;">
+                    <?= nl2br(esc($msg['testo'])) ?>
+                </div>
+                <?php endif; ?>
+            </div>
+            <?php endforeach; ?>
+            <?php endif; ?>
+
         </div>
         <div class="p-card-footer">
             <small class="text-muted">
-                Vi contatteremo al più presto al numero indicato.
+                <?= $richiesta['stato'] === 'chiusa' ? 'Richiesta chiusa.' : 'Vi contatteremo al più presto al numero indicato.' ?>
             </small>
         </div>
     </div>

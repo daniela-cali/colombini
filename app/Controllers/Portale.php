@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\RichiestaModel;
+use App\Models\RichiestaMessaggioModel;
 use App\Models\TipoInterventoModel;
 
 class Portale extends BaseController
@@ -68,10 +69,13 @@ class Portale extends BaseController
             return redirect()->to('portale')->with('error', 'Richiesta non trovata.');
         }
 
+        $messaggi = (new RichiestaMessaggioModel())->perRichiesta($id);
+
         return view('portale/dettaglio_richiesta', [
             'title'      => 'Richiesta #' . $id,
             'page_title' => 'Dettaglio Richiesta',
             'richiesta'  => $richiesta,
+            'messaggi'   => $messaggi,
             'tipi'       => TipoInterventoModel::comeLista(),
             'stati'      => RichiestaModel::STATI,
         ]);

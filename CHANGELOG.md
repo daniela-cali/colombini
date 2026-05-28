@@ -7,19 +7,31 @@ e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `
 
 ---
 
-## [Non rilasciato]
+## [0.12.0] — 2026-05-28
 
-### Aggiunto (branch feature/pianificazione-rapida)
-- **Dashboard admin — Quaderni** — sezione "Da pianificare" raggruppata per tipo intervento con card collassabili; badge contatore per gruppo; pulsante "Pianifica" per ogni intervento con modal inline (data/ora, tecnico, suggerimento API); link "altri N" per tipi con molti interventi
+### Aggiunto
+- **Richieste — elenco admin** — pagina `/richieste` con tutte le richieste aperte (nuova + in lavorazione), ordinate dalla più vecchia; righe colorate per anzianità (giallo ≥3gg, rosso ≥7gg); anteprima nota troncata; click sulla riga apre il dettaglio; click sul nome cliente apre la scheda con `?from=richieste`
+- **Richieste — dettaglio e thread** — visualizzazione ad albero: nodo radice con la richiesta originale del cliente, risposte staff indentate con bordo azzurro; messaggi futuri del cliente allineati al nodo radice; form "Rispondi" per aggiungere un messaggio e/o cambiare stato (in lavorazione / chiusa); form nascosto se richiesta chiusa
+
+- **Richieste — thread portale** — il cliente vede le stesse risposte dello staff nella scheda richiesta del portale, con stesso stile ad albero (read-only)
+- **Richieste — tabella `richieste_messaggi`** — nuova tabella per il thread messaggi (richiesta_id, user_id, testo, created_at); predisposta per thread multi-messaggio futuro
+- **Magazzino — struttura sidebar** — sezione Magazzino ristrutturata: Prodotti chimici + Piscine (Impianti/Ricambi) + Trattamento Acqua (Impianti/Ricambi); route parametrizzate `magazzino/{tipo}/{categoria}` con controller coming soon
+- **Sidebar — ristrutturazione completa** — Ottimizzazione e Pianificazione nascoste (route intatte); Impianti come link diretti senza dropdown; Sistema sciolto in 4 link diretti con icone parlanti (fa-hard-hat, fa-tags, fa-truck, fa-cog); Quaderni rimosso
+
+- **Scheda cliente — navigazione contestuale** — breadcrumb e pulsante X gestiscono `?from=richieste`; card anagrafica con header "Scheda cliente" e X di ritorno
+
+---
+
+## [0.11.0] — 2026-05-28
+
+### Aggiunto
 - **Dashboard admin — widget cliccabili** — i 4 info-box (da pianificare, pianificati, in corso, completati mese) sono link diretti all'elenco interventi filtrato per stato
 - **Dashboard admin — richieste portale** — sezione compatta in fondo con badge "N nuove" e tabella delle ultime 5 richieste
-- **Sidebar — Quaderni e Richieste** — nuove voci sotto Assistenza (solo staff); Richieste mostra badge con contatore nuove in tempo reale
+- **Sidebar — Richieste** — nuova voce sotto Assistenza (solo staff) con badge contatore richieste nuove in tempo reale
 - **Pianificazione rapida — zona giornata** — la pagina pianificazione sostituisce le colonne per tecnico con un'unica zona "Giornata del [data]"; barra settimanale con contatori interventi per giorno
 - **Pianificazione rapida — assegna al drag** — trascinando un intervento nella giornata si apre un modal: tecnico consigliato via API, data/ora precompilata con orario stimato; salvataggio immediato via `POST /interventi/{id}/pianifica`
 - **Pianificazione rapida — orario suggerito** — nuova API `GET /interventi/api/orario-suggerito`: calcola l'orario libero successivo per il tecnico selezionato tenendo conto di orari di lavoro (`tecnici_orari`), durate stimate dei tipi intervento (`durata_default`) e pausa pranzo; si aggiorna dinamicamente al cambio tecnico nel modal
 - **Pianificazione rapida — annulla pianificazione** — bottone X sulle card già pianificate nella giornata; chiama `POST /interventi/{id}/annulla-pianificazione` che riporta lo stato a `da_pianificare`
-
-### Aggiunto (branch feature/pianificazione — Pianificazione v.1)
 - **VRP — Competenze tecnici** — tabella `tecnici_competenze` (FK su users e tipi_intervento, livelli: Apprendista / Autonomo / Referente); form inline nella scheda tecnico per assegnare il livello per ogni tipo intervento
 - **VRP — Requisiti veicoli** — colonne `cambio_automatico` e `carico_massimo` su `veicoli`; flag `richiede_cambio_auto` su `users`; form aggiornati per tecnici e veicoli
 - **VRP — Geocodifica clienti (Fase 2)** — colonna `geocodifica_fallita` su `clienti`; badge colorati nell'elenco e scheda clienti (rosso = mai tentato, arancio = fallito); utility in Impostazioni con barra progresso AJAX passo-passo, contatori riepilogo e opzione "Riprova falliti"

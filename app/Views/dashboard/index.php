@@ -46,15 +46,15 @@
     </div>
 </div>
 
-<!-- Quaderni (da pianificare per tipo) -->
+<!-- Da pianificare per tipo -->
 <div class="row">
     <div class="col-12">
         <div class="card card-outline card-primary">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-clipboard-list mr-1"></i> Da pianificare</h3>
                 <div class="card-tools">
-                    <a href="<?= base_url('quaderni') ?>" class="btn btn-sm btn-outline-light">
-                        <i class="fas fa-th-list mr-1"></i> Vista quaderni
+                    <a href="<?= base_url('calendario') ?>" class="btn btn-sm btn-outline-light">
+                        <i class="fas fa-calendar-alt mr-1"></i> Calendario
                     </a>
                     <a href="<?= base_url('interventi/new') ?>" class="btn btn-sm btn-success ml-1">
                         <i class="fas fa-plus mr-1"></i> Nuovo

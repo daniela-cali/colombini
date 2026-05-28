@@ -148,6 +148,17 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
         $routes->post('(:num)/elimina', 'Preventivi::delete/$1');
     });
 
+    $routes->group('richieste', ['filter' => 'solo-staff'], function (RouteCollection $routes) {
+        $routes->get('/',                       'Richieste::index');
+        $routes->get('(:num)',                  'Richieste::show/$1');
+        $routes->post('(:num)/risposta',        'Richieste::storeRisposta/$1');
+    });
+
+    $routes->group('magazzino', ['filter' => 'solo-staff'], function (RouteCollection $routes) {
+        $routes->get('(:segment)/(:segment)', 'Magazzino::lista/$1/$2');
+        $routes->get('(:segment)',            'Magazzino::lista/$1');
+    });
+
     $routes->group('prodotti', function (RouteCollection $routes) {
         $routes->get('/',               'Prodotti::index');
         $routes->get('new',             'Prodotti::create');
