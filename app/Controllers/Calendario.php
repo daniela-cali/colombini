@@ -46,11 +46,40 @@ class Calendario extends BaseController
             ->select('interventi.id, interventi.tipo_intervento, interventi.descrizione,
                       interventi.luogo_intervento, interventi.priorita, interventi.cliente_id,
                       c.ragsoc, c.cognome AS cliente_cognome, c.nome AS cliente_nome,
-                      c.tipo AS cliente_tipo, c.citta AS cliente_citta')
+                      c.tipo AS cliente_tipo, c.citta AS cliente_citta,
+                      c.lat, c.lng')
             ->join('clienti c', 'c.id = interventi.cliente_id AND c.deleted_at IS NULL', 'left')
             ->where('interventi.stato', 'da_pianificare')
-            ->orderBy('FIELD(interventi.priorita, "urgente", "ordinario", "programmato")')
             ->findAll();
+
+        /** 
+         * UTILIZZO FORMULA DI HAVERSINE 
+         * per calcolo distante empiriche matematiche 
+         **/
+        // Coordinate della sede — servono come punto di partenza per la distanza
+        $sedeLat = (float) (setting('Azienda.sede_lat') ?? 0);
+        $sedeLng = (float) (setting('Azienda.sede_lng') ?? 0);
+        
+        // Calcolo distanza per ogni intervento e ordinamento: priorità prima, distanza dopo
+        if ($sedeLat && $sedeLng) {
+            foreach ($pool as &$i) {
+                $i['distanza_km'] = ($i['lat'] && $i['lng'])
+                    ? self::haversineKm($sedeLat, $sedeLng, (float)$i['lat'], (float)$i['lng'])
+                    : null;
+            }
+            unset($i);
+        
+            $ordPriorita = ['urgente' => 0, 'ordinario' => 1, 'programmato' => 2];
+            usort($pool, function ($a, $b) use ($ordPriorita) {
+                $pa = $ordPriorita[$a['priorita']] ?? 3;
+                $pb = $ordPriorita[$b['priorita']] ?? 3;
+                if ($pa !== $pb) return $pa - $pb;
+                // a parità di priorità: più vicino prima, non geocodificati in fondo
+                $da = $a['distanza_km'] ?? PHP_FLOAT_MAX;
+                $db = $b['distanza_km'] ?? PHP_FLOAT_MAX;
+                return $da <=> $db;
+            });
+        }
 
         $poolPerTipo = [];
         foreach ($pool as $i) {
@@ -232,4 +261,15 @@ class Calendario extends BaseController
 
         return $this->response->setJSON(['ok' => true, 'csrf' => csrf_hash()]);
     }
+
+    // Distanza in km tra due coordinate geografiche (formula di Haversine)
+    private static function haversineKm(float $lat1, float $lng1, float $lat2, float $lng2): float
+    {
+        $R    = 6371;
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLng = deg2rad($lng2 - $lng1);
+        $a    = sin($dLat / 2) ** 2 + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * sin($dLng / 2) ** 2;
+        return $R * 2 * atan2(sqrt($a), sqrt(1 - $a));
+    }
+
 }

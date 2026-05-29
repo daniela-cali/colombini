@@ -87,7 +87,12 @@ $prioritaInfo = [
                                 <div class="d-flex align-items-center" style="gap:.3rem;">
                                     <span class="badge <?= esc($priInfo['badge']) ?>" style="font-size:.65rem;"><?= esc($priInfo['label']) ?></span>
                                 </div>
-                                <small class="text-muted">#<?= $i['id'] ?></small>
+                                <small class="text-muted">
+                                    #<?= $i['id'] ?>
+                                    <?php if (isset($i['distanza_km'])): ?>
+                                        · <?= number_format($i['distanza_km'], 1) ?> km
+                                    <?php endif; ?>
+                                </small>
                             </div>
                             <div class="font-weight-bold small mb-1 text-truncate">
                                 <?= $nomeCliente ? esc($nomeCliente) : '<em class="text-muted">Senza cliente</em>' ?>
@@ -625,8 +630,10 @@ document.addEventListener('DOMContentLoaded', function () {
         eventContent: function (info) {
             var p    = info.event.extendedProps;
             var time = info.timeText;
-            var html = '<div style="padding:2px 4px;overflow:hidden;line-height:1.25;">'
-                     + '<div style="font-size:.78rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'
+            // position:relative sul wrapper permette al bottone × di posizionarsi in alto a destra
+            var html = '<div style="position:relative;padding:2px 4px;overflow:hidden;line-height:1.25;">'
+                     // padding-right:14px evita che il titolo finisca sotto il bottone ×
+                     + '<div style="font-size:.78rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:14px;">'
                      +   '<i class="fas ' + (p.icona || 'fa-tools') + '" style="margin-right:3px;opacity:.8;"></i>'
                      +   time + ' &nbsp;' + info.event.title
                      + '</div>'
@@ -634,11 +641,55 @@ document.addEventListener('DOMContentLoaded', function () {
                      +   (p.tecnico || '')
                      +   (p.citta ? ' · ' + p.citta : '')
                      + '</div>'
+                     // Bottone × — data-id contiene l'id dell'intervento (viene letto dal click handler sotto)
+                     + '<button class="btn-rimuovi-pian" data-id="' + info.event.id + '"'
+                     + ' style="position:absolute;top:1px;right:2px;background:none;border:none;'
+                     + 'color:rgba(255,255,255,.8);font-size:.95rem;padding:0 2px;line-height:1;cursor:pointer;"'
+                     + ' title="Rimuovi pianificazione">&times;</button>'
                      + '</div>';
             return { html: html };
         },
     });
     calendar.render();
+
+    // ---- Rimozione pianificazione (bottone × sugli eventi) ----
+    // Uso la event delegation su #calendario invece di eventDidMount:
+    // FullCalendar ridisegna gli eventi ad ogni refetch, e i listener
+    // attaccati in eventDidMount andrebbero persi. Con la delega, basta
+    // un solo listener sul contenitore padre che non viene mai ridisegnato.
+    document.getElementById('calendario').addEventListener('click', function (e) {
+        // Controllo se il click è finito sul bottone × (o su un suo figlio)
+        var btn = e.target.closest('.btn-rimuovi-pian');
+        if (!btn) return; // click su altra parte dell'evento → ignoro
+
+        // Blocco la propagazione così FullCalendar non apre anche il modal dettaglio
+        e.stopPropagation();
+        e.preventDefault();
+
+        var interventoId = btn.dataset.id;
+
+        if (!confirm('Rimuovere questo intervento dalla pianificazione?\nTornerà nella coda "Da pianificare".')) return;
+
+        // Chiamo il backend: azzera data_pianificata e tecnico_id, stato → da_pianificare
+        fetch('<?= base_url('interventi/') ?>' + interventoId + '/annulla-pianificazione', {
+            method:  'POST',
+            headers: { 'X-CSRF-TOKEN': _csrfHash },
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (json) {
+            // CI4 rigenerà il token dopo ogni richiesta POST — aggiorno la variabile locale
+            if (json.csrf) _csrfHash = json.csrf;
+            if (json.ok) {
+                // Ricarico la pagina per visualizzare nuovamente quanto tolto dalla pianificazione
+                window.location.reload();
+            } else {
+                alert('Errore nella rimozione: ' + (json.msg || 'riprovare.'));
+            }
+        })
+        .catch(function () {
+            alert('Errore di rete. Riprovare.');
+        });
+    }, true); // true = capture phase, così intercetto prima di FullCalendar
 
     // Sidebar ridimensionabile con drag handle
     var poolPanel    = document.getElementById('pool-panel');

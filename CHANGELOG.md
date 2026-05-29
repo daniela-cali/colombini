@@ -5,6 +5,14 @@ Tutte le modifiche significative al progetto sono documentate in questo file.
 Il formato segue [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `MAJOR.MINOR.PATCH`.
 
+## [0.16.0] — 2026-05-29
+
+### Aggiunto
+- **Calendario — rimozione pianificazione** — bottone × su ogni evento del calendario per annullare l'assegnazione; chiede conferma, chiama `annullaPianificazione` via fetch e ricarica la pagina per aggiornare anche il pool
+- **Calendario — ordinamento pool per distanza** — gli interventi nel pool sono ordinati per priorità (urgente → ordinario → programmato) e, a parità di priorità, per distanza dalla sede aziendale calcolata con la formula di Haversine; i clienti non geocodificati vanno in fondo al loro gruppo; la distanza è visualizzata su ogni card del pool
+
+---
+
 ## [0.15.0] — 2026-05-29
 
 ### Aggiunto
