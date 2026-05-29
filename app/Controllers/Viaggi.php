@@ -13,7 +13,14 @@ class Viaggi extends BaseController
 {
     public function index(): string
     {
-        $data   = $this->request->getGet('data') ?? date('Y-m-d');
+        $settimana   = $this->request->getGet('settimana') ?? date('Y-m-d');
+        $lunedi = date('Y-m-d', strtotime('monday this week', strtotime($settimana)));
+        $domenica = date('Y-m-d', strtotime('+6 days', strtotime($lunedi)));
+        /*Per i link prev/next*/
+        $settPrecedente = date('Y-m-d', strtotime('-7 days', strtotime($lunedi)));
+        $settSuccessiva = date('Y-m-d', strtotime('+7 days', strtotime($lunedi)));
+
+
         $model  = new ViaggioModel();
         $utente = auth()->user();
 
@@ -22,8 +29,11 @@ class Viaggi extends BaseController
         return view('viaggi/index', [
             'title'      => 'Viaggi',
             'page_title' => 'Viaggi',
-            'data'       => $data,
-            'viaggi'     => $model->perData($data, $tecnicoFiltro),
+            'lunedi'          => $lunedi,
+            'domenica'        => $domenica,
+            'settPrecedente'  => $settPrecedente,
+            'settSuccessiva'  => $settSuccessiva,            
+            'viaggi'     => $model->perRange($lunedi, $domenica, $tecnicoFiltro),
             'stati'      => ViaggioModel::STATI,
         ]);
     }

@@ -5,6 +5,14 @@ Tutte le modifiche significative al progetto sono documentate in questo file.
 Il formato segue [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `MAJOR.MINOR.PATCH`.
 
+## [0.13.0] — 2026-05-29
+
+### Aggiunto
+- **Viaggi — visualizzazione settimanale** — la pagina viaggi mostra l'intera settimana con navigazione prev/next; i viaggi sono raggruppati per giorno con una card per ogni giornata e pulsante PDF inline; `ViaggioModel::perRange()` per query su range di date
+
+### Modificato
+- **Interfaccia — card senza outline** — rimosse le classi `card-outline` dalle card con header colorato; i bottoni nelle `card-tools` ereditano automaticamente il colore della card tramite CSS custom properties (`--card-accent`)
+
 ---
 
 ## [0.12.1] — 2026-05-28
