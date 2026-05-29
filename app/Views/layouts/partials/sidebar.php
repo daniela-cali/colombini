@@ -193,6 +193,13 @@
                 <!-- Sistema -->
                 <li class="nav-header">Sistema</li>
                 <li class="nav-item">
+                    <a href="<?= base_url('impostazioni') ?>"
+                       class="nav-link <?= str_starts_with(uri_string(), 'impostazioni') ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-cog"></i>
+                        <p>Impostazioni</p>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="<?= base_url('sistema/tecnici') ?>"
                        class="nav-link <?= str_starts_with(uri_string(), 'sistema/tecnici') ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-hard-hat"></i>
@@ -211,13 +218,6 @@
                        class="nav-link <?= str_starts_with(uri_string(), 'sistema/veicoli') ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-truck"></i>
                         <p>Veicoli</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="<?= base_url('impostazioni') ?>"
-                       class="nav-link <?= str_starts_with(uri_string(), 'impostazioni') ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-cog"></i>
-                        <p>Impostazioni</p>
                     </a>
                 </li>
                 <?php endif; ?>

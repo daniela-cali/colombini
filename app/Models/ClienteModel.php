@@ -69,4 +69,11 @@ class ClienteModel extends Model
                     ->orderBy('ragsoc, cognome')
                     ->findAll();
     }
+
+    public function getByUserId(int $id): array
+    {
+        return $this->where('user_id', $id)
+                    ->where('stato', 1)
+                    ->first();
+    }
 }

@@ -71,7 +71,7 @@
                                             <i class="fas fa-eye"></i>
                                         </a>
                                     <?php endif; ?>
-                                    <?php if ($u->ruolo !== 'tecnico'): ?>
+                                    <?php if (auth()->user()->ruolo !== 'tecnico'): ?>
                                         <a href="<?= base_url('impostazioni/utenti-app/' . $u->id . '/edit') ?>"
                                            class="btn btn-sm btn-outline-secondary mr-1" title="Modifica">
                                             <i class="fas fa-edit"></i>

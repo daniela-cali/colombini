@@ -3,7 +3,7 @@
 <?= $this->section('breadcrumb') ?>
     <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Home</a></li>
     <li class="breadcrumb-item"><a href="<?= base_url('impostazioni') ?>">Impostazioni</a></li>
-    <li class="breadcrumb-item"><a href="<?= base_url('impostazioni/utenti') ?>">Utenti Portale</a></li>
+    <li class="breadcrumb-item"><a href="<?= base_url('impostazioni/utenti_portale') ?>">Utenti Portale</a></li>
     <li class="breadcrumb-item active">Nuovo Utente</li>
 <?= $this->endSection() ?>
 
@@ -26,22 +26,9 @@
             <div class="card-header">
                 <h3 class="card-title">Dati accesso portale cliente</h3>
             </div>
-            <form method="post" action="<?= base_url('impostazioni/utenti') ?>">
+            <form method="post" action="<?= base_url('impostazioni/utenti_portale') ?>">
                 <?= csrf_field() ?>
                 <div class="card-body">
-
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label>Nome <span class="text-danger">*</span></label>
-                            <input type="text" name="nome" class="form-control"
-                                   value="<?= esc(old('nome')) ?>" required>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Cognome <span class="text-danger">*</span></label>
-                            <input type="text" name="cognome" class="form-control"
-                                   value="<?= esc(old('cognome')) ?>" required>
-                        </div>
-                    </div>
 
                     <div class="form-group">
                         <label>Username <span class="text-danger">*</span></label>

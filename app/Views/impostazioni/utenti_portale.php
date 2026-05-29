@@ -13,13 +13,13 @@
             <div class="card-header">
                 <h3 class="card-title">Clienti con accesso al portale</h3>
                 <div class="card-tools">
-                    <a href="<?= base_url('impostazioni/utenti/new') ?>" class="btn btn-primary btn-sm">
-                        <i class="fas fa-plus mr-1"></i> Nuovo utente
+                    <a href="<?= base_url('impostazioni/utenti-portale/new') ?>" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus mr-1"></i> Nuovo utente portale
                     </a>
                 </div>
             </div>
             <div class="card-body p-0">
-                <?php if (empty($clienti)): ?>
+                <?php if (empty($utenti_portale)): ?>
                     <div class="text-center py-5 text-muted">
                         <i class="fas fa-users fa-3x mb-3"></i>
                         <p>Nessun utente portale ancora creato.</p>
@@ -36,22 +36,27 @@
                             </tr>
                         </thead>
                         <tbody>
-                        <?php foreach ($clienti as $c): ?>
+                        <?php foreach ($utenti_portale as $u): ?>
                             <tr>
-                                <td><i class="fas fa-user-circle mr-1 text-muted"></i> <?= esc($c->username) ?></td>
-                                <td><?= esc($c->nome) ?></td>
-                                <td><?= esc($c->cognome) ?></td>
+                                <td><i class="fas fa-user-circle mr-1 text-muted"></i> <?= esc($u->username) ?></td>
+                                <td><?= esc($u->nome) ?></td>
+                                <td><?= esc($u->cognome) ?></td>
                                 <td>
-                                    <?php if ($c->active): ?>
+                                    <?php if ($u->active): ?>
                                         <span class="badge badge-success">Attivo</span>
                                     <?php else: ?>
                                         <span class="badge badge-secondary">Disattivato</span>
                                     <?php endif; ?>
                                 </td>
-                                <td class="text-right">
+                                <td class="text-right align-middle">
+                                    <a href="<?= base_url('impostazioni/utenti-portale/' . $u->id . '/edit') ?>"
+                                           class="btn btn-sm btn-outline-secondary mr-1" title="Modifica">
+                                            <i class="fas fa-edit"></i>
+                                    </a>
                                     <form method="post"
-                                          action="<?= base_url('impostazioni/utenti/' . $c->id . '/elimina') ?>"
-                                          onsubmit="return confirm('Eliminare l\'utente <?= esc($c->username) ?>?')">
+                                        class="d-inline"
+                                        action="<?= base_url('impostazioni/utenti-portale/' . $u->id . '/elimina') ?>"
+                                        onsubmit="return confirm('Eliminare l\'utente <?= esc($u->username) ?>?')">
                                         <?= csrf_field() ?>
                                         <button type="submit" class="btn btn-danger btn-sm">
                                             <i class="fas fa-trash"></i>
@@ -70,5 +75,5 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('help') ?>
-<?= $this->include('help/impostazioni/utenti') ?>
+<?= $this->include('help/impostazioni/utenti_portale') ?>
 <?= $this->endSection() ?>

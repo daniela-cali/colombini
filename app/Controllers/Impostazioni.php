@@ -64,32 +64,30 @@ class Impostazioni extends BaseController
         return redirect()->to('impostazioni/parametri')->with('success', 'Impostazioni salvate.');
     }
 
-    public function utenti(): string
+    public function utentiPortale(): string
     {
         $users    = new UserModel();
-        $clienti  = $users->where('ruolo', 'cliente')->orderBy('cognome', 'ASC')->findAll();
+        $utentiPortale  = $users->where('ruolo', 'cliente')->orderBy('cognome', 'ASC')->findAll();
 
-        return view('impostazioni/utenti', [
+        return view('impostazioni/utenti_portale', [
             'title'      => 'Utenti Portale',
             'page_title' => 'Utenti Portale',
-            'clienti'    => $clienti,
+            'utenti_portale'    => $utentiPortale,
         ]);
     }
 
-    public function creaCliente(): string
+    public function creaUtentePortale(): string
     {
-        return view('impostazioni/crea_cliente', [
+        return view('impostazioni/crea_utente_portale', [
             'title'      => 'Nuovo Utente Portale',
             'page_title' => 'Nuovo Utente Portale',
         ]);
     }
 
-    public function storeCliente()
+    public function storeUtentePortale()
     {
         $rules = [
             'username'         => 'required|min_length[3]|max_length[30]|is_unique[users.username]',
-            'nome'             => 'required|max_length[100]',
-            'cognome'          => 'required|max_length[100]',
             'password'         => 'required|min_length[8]',
             'password_confirm' => 'required|matches[password]',
         ];
@@ -124,8 +122,107 @@ class Impostazioni extends BaseController
 
         $user->addGroup('cliente');
 
-        return redirect()->to('impostazioni/utenti')
+        return redirect()->to('impostazioni/utenti-portale')
             ->with('success', 'Utente portale "' . $username . '" creato con successo.');
+    }
+
+    public function editUtentePortale(int $id)
+    {
+        $users = new UserModel();
+        $user  = $users->findById($id);
+
+        if (! $user ) {
+            return redirect()->to('impostazioni/utenti-portale')->with('error', 'Utente non trovato.');
+        }
+        if ( $user->ruolo !== 'cliente' ) {
+            return redirect()->to('impostazioni/utenti-portale')->with('error', "L'utente ha un ruolo diverso da 'cliente': ". esc($user->ruolo));
+        }
+        $cliente = (new ClienteModel())->getByUserId($id);
+        if ( !$cliente ) {
+            return redirect()->to('impostazioni/utenti-portale')->with('error', 'Nessun cliente collegato a questo utente.');
+        }
+        $denominazione = !empty($cliente["ragsoc"]) ? $cliente["ragsoc"] : trim($cliente["nome"] . ' ' . $cliente["cognome"]);
+
+        return view('impostazioni/edit_utente_portale', [
+            'title'      => 'Modifica Utente Portale',
+            'page_title' => 'Modifica Utente Portale',
+            'cliente'    => $denominazione,
+            'utente'     => $user,
+        ]);
+    }
+    
+    public function updateUtentePortale(int $id)
+    {
+        $users = new UserModel();
+        $user  = $users->findById($id);
+
+        if (! $user ) {
+            return redirect()->to('impostazioni/utenti-portale')->with('error', 'Utente non trovato.');
+        }
+        if ( $user->ruolo !== 'cliente' ) {
+            return redirect()->to('impostazioni/utenti-portale')->with('error', "L'utente ha un ruolo diverso da 'cliente': ". esc($user->ruolo));
+        }
+
+        $rules = [
+            'username' => 'required|min_length[3]|max_length[30]|is_unique[users.username,id,' . $id . ']',
+        ];
+
+        $password = $this->request->getPost('password');
+        if ($password) {
+            $rules['password']         = 'min_length[8]';
+            $rules['password_confirm'] = 'matches[password]';
+        }
+
+        $messages = [
+            'username'         => [
+                'min_length' => 'Il nome utente deve contenere un minimo di 3 caratteri, fino a un massimo di 30.',
+                'is_unique' => 'Questo nome utente è già in uso'],
+            'password_confirm' => ['matches'   => 'Le password non coincidono.'],
+        ];
+
+        if (! $this->validate($rules, $messages)) {
+            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        }
+
+        $users->update($id, [
+            'username'                   => $this->request->getPost('username'),
+        ]);
+
+        $nuovoUsername = $this->request->getPost('username');
+        if ($nuovoUsername !== $user->username) {
+            // aggiorna l'email identity
+            $identity = $user->getEmailIdentity();
+            $identity->secret = $nuovoUsername . '@portale.colombini-snc.it';
+            model(\CodeIgniter\Shield\Models\UserIdentityModel::class)->save($identity);
+        }
+
+        /* Refresh dell'utente dopo update e set password se modificata */
+
+        if ($password) {
+            $user = $users->findById($id);
+            $user->setPassword($password);
+            $users->save($user);
+        }
+
+        return redirect()->to('impostazioni/utenti-portale')
+            ->with('success', 'Utente "' . $nuovoUsername . '" aggiornato.');
+    }
+
+    public function deleteUtentePortale(int $id)
+    {
+        $users = new UserModel();
+        $user  = $users->findById($id);
+
+        if (! $user ) {
+            return redirect()->to('impostazioni/utenti-portale')->with('error', 'Utente non trovato.');
+        }
+        if ( $user->ruolo !== 'cliente' ) {
+            return redirect()->to('impostazioni/utenti-portale')->with('error', "L'utente ha un ruolo diverso da 'cliente': ". esc($user->ruolo));
+        }
+
+        $users->delete($id, true);
+
+        return redirect()->to('impostazioni/utenti-portale')->with('success', 'Utente eliminato.');
     }
 
     public function utentiApp(): string
@@ -276,20 +373,6 @@ class Impostazioni extends BaseController
 
         return redirect()->to('impostazioni/utenti-app')
             ->with('success', 'Utente "' . $user->username . '" eliminato.');
-    }
-
-    public function deleteCliente(int $id)
-    {
-        $users = new UserModel();
-        $user  = $users->findById($id);
-
-        if (! $user || $user->ruolo !== 'cliente') {
-            return redirect()->to('impostazioni/utenti')->with('error', 'Utente non trovato.');
-        }
-
-        $users->delete($id, true);
-
-        return redirect()->to('impostazioni/utenti')->with('success', 'Utente eliminato.');
     }
 
     public function geocodifica(): string

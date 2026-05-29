@@ -194,11 +194,13 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
         $routes->get('geocodifica',       'Impostazioni::geocodifica');
         $routes->post('geocodifica-step', 'Impostazioni::geocodificaStep');
 
-        $routes->group('utenti', function (RouteCollection $routes) {
-            $routes->get('/',                   'Impostazioni::utenti');
-            $routes->get('new',                 'Impostazioni::creaCliente');
-            $routes->post('/',                  'Impostazioni::storeCliente');
-            $routes->post('(:num)/elimina',     'Impostazioni::deleteCliente/$1');
+        $routes->group('utenti-portale', function (RouteCollection $routes) {
+            $routes->get('/',                   'Impostazioni::utentiPortale');
+            $routes->get('new',                 'Impostazioni::creaUtentePortale');
+            $routes->post('/',                  'Impostazioni::storeUtentePortale');
+            $routes->get('(:num)/edit',         'Impostazioni::editUtentePortale/$1');
+            $routes->post('(:num)',             'Impostazioni::updateUtentePortale/$1');
+            $routes->post('(:num)/elimina',     'Impostazioni::deleteUtentePortale/$1');
         });
 
         $routes->group('utenti-app', function (RouteCollection $routes) {

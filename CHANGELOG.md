@@ -5,6 +5,13 @@ Tutte le modifiche significative al progetto sono documentate in questo file.
 Il formato segue [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `MAJOR.MINOR.PATCH`.
 
+## [0.14.0] — 2026-05-29
+
+### Aggiunto
+- **Impostazioni — utenti portale** — CRUD completo per gli utenti con accesso al portale cliente: elenco, creazione (username + password), modifica (username e/o password), eliminazione; lo username funge anche da email identity Shield (`username@portale.colombini-snc.it`) e viene aggiornato in modo coerente
+
+---
+
 ## [0.13.0] — 2026-05-29
 
 ### Aggiunto
