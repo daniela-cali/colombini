@@ -17,7 +17,7 @@
 <?= $this->section('content') ?>
 <div class="row">
     <div class="col-md-8">
-        <div class="card card-outline card-primary">
+        <div class="card card-primary">
             <div class="card-header">
                 <h3 class="card-title">Intervento #<?= $intervento['id'] ?></h3>
                 <div class="card-tools">

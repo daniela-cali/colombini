@@ -11,7 +11,7 @@
 <div class="row justify-content-center">
     <div class="col-lg-8">
 
-        <div class="card card-outline card-primary">
+        <div class="card card-primary">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-exchange-alt mr-1"></i> Mappa le colonne del CSV</h3>
             </div>

@@ -55,9 +55,16 @@
                     </a>
                 </div>
                 <div class="mt-3 text-muted small text-center">
-                    <i class="fas fa-map-marker-alt mr-1"></i>
-                    Per geocodificare gli indirizzi importati esegui da terminale:
-                    <code>php spark geocode:clienti</code>
+                    <p class="mb-1"> Per geocodificare gli indirizzi importati segui la procedura disponibile qui: </p>                  
+                    <p class="mb-1">
+                        <a href="<?= base_url('impostazioni/geocodifica') ?>">
+                            <i class="fas fa-map-marker-alt mr-1"></i>
+                            Geocodifica Automatica      
+                        </a>
+                    </p>
+                    <p class="mb-1"> Oppure esegui da terminale: <code>php spark geocode:clienti</code></p>
+                
+                    
                 </div>
             </div>
         </div>

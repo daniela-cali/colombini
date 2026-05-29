@@ -10,7 +10,7 @@
 <div class="row justify-content-center">
     <div class="col-lg-7">
 
-        <div class="card card-outline card-primary">
+        <div class="card card-primary">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-file-csv mr-1"></i> Import Clienti da CSV</h3>
             </div>
@@ -22,7 +22,7 @@
                         <i class="fas fa-info-circle mr-1"></i>
                         Carica un file <strong>.csv</strong> con qualsiasi struttura — nel passo successivo
                         potrai mappare le colonne sui campi del gestionale.<br>
-                        Separatori supportati: <code>;</code> e <code>,</code> — encoding: UTF-8 o ISO-8859-1.
+                        Separatori supportati: <strong>;</strong> e <strong>,</strong> — encoding: UTF-8 o ISO-8859-1.
                     </div>
 
                     <div class="form-group">

@@ -22,7 +22,7 @@
             </div>
         <?php endif; ?>
 
-        <div class="card card-outline card-primary">
+        <div class="card card-primary">
             <div class="card-header">
                 <h3 class="card-title">Dati accesso portale cliente</h3>
             </div>

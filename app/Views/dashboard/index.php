@@ -49,11 +49,11 @@
 <!-- Da pianificare per tipo -->
 <div class="row">
     <div class="col-12">
-        <div class="card card-outline card-primary">
+        <div class="card card-primary">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-clipboard-list mr-1"></i> Da pianificare</h3>
                 <div class="card-tools">
-                    <a href="<?= base_url('calendario') ?>" class="btn btn-sm btn-outline-light">
+                    <a href="<?= base_url('calendario') ?>" class="btn btn-sm">
                         <i class="fas fa-calendar-alt mr-1"></i> Calendario
                     </a>
                     <a href="<?= base_url('interventi/new') ?>" class="btn btn-sm btn-success ml-1">
@@ -140,14 +140,14 @@
 <?php if (!empty($ultime_richieste)): ?>
 <div class="row">
     <div class="col-12">
-        <div class="card card-outline card-info">
+        <div class="card card-info">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-inbox mr-1"></i> Richieste portale</h3>
                 <div class="card-tools">
                     <?php if ($nuove_richieste > 0): ?>
                         <span class="badge badge-info mr-2"><?= $nuove_richieste ?> nuove</span>
                     <?php endif; ?>
-                    <a href="<?= base_url('richieste') ?>" class="btn btn-sm btn-outline-light">
+                    <a href="<?= base_url('richieste') ?>" class="btn btn-sm">
                         <i class="fas fa-list mr-1"></i> Tutte
                     </a>
                 </div>

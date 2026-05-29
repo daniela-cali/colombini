@@ -19,7 +19,7 @@ $isClosed  = $richiesta['stato'] === 'chiusa';
     <div class="col-md-8">
 
         <!-- Thread -->
-        <div class="card card-outline card-primary">
+        <div class="card card-primary">
             <div class="card-header">
                 <h3 class="card-title">
                     <i class="fas fa-comments mr-1"></i>
@@ -143,7 +143,7 @@ $isClosed  = $richiesta['stato'] === 'chiusa';
 
     <!-- Sidebar dati richiesta -->
     <div class="col-md-4">
-        <div class="card card-outline card-info">
+        <div class="card card-info">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-info-circle mr-1"></i> Dettagli</h3>
             </div>

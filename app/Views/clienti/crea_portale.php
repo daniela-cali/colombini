@@ -22,7 +22,7 @@
             </div>
         <?php endif; ?>
 
-        <div class="card card-outline card-primary">
+        <div class="card card-primary">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-globe mr-2"></i>Crea Accesso Portale</h3>
             </div>

@@ -43,7 +43,7 @@
         </div>
 
         <!-- Avvia geocodifica -->
-        <div class="card card-outline card-primary">
+        <div class="card card-primary">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-map-marked-alt mr-1"></i> Geocodifica massiva</h3>
             </div>

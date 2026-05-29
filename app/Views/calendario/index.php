@@ -23,7 +23,7 @@ $prioritaInfo = [
 
     <!-- Pool sidebar -->
     <div id="pool-panel" class="mb-3">
-        <div class="card card-outline card-primary">
+        <div class="card card-primary">
             <div class="card-header py-2">
                 <h3 class="card-title">
                     <i class="fas fa-inbox mr-1 text-primary"></i>

@@ -17,7 +17,7 @@
 
         <!-- Sede aziendale -->
         <div class="col-lg-6">
-            <div class="card card-outline card-primary">
+            <div class="card card-primary">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-building mr-1"></i> Sede aziendale</h3>
                 </div>
@@ -107,7 +107,7 @@
 
         <!-- Orari default tecnici -->
         <div class="col-lg-6">
-            <div class="card card-outline card-primary">
+            <div class="card card-primary">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-clock mr-1"></i> Orari default tecnici</h3>
                 </div>
@@ -143,7 +143,7 @@
             </div>
 
             <!-- Durate interventi -->
-            <div class="card card-outline card-primary">
+            <div class="card card-primary">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-stopwatch mr-1"></i> Durata standard interventi</h3>
                 </div>

@@ -10,7 +10,7 @@
 <?= $this->section('content') ?>
 <div class="row justify-content-center">
     <div class="col-lg-6">
-        <div class="card card-outline card-primary">
+        <div class="card card-primary">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-user-plus mr-1"></i> Nuovo utente app</h3>
             </div>

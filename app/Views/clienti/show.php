@@ -17,7 +17,7 @@
 
     <!-- Colonna sinistra: anagrafica -->
     <div class="col-md-4">
-        <div class="card card-outline card-primary">
+        <div class="card card-primary">
             <div class="card-header py-2">
                 <h3 class="card-title">Scheda cliente</h3>
                 <?php if ($_from): ?>
@@ -104,7 +104,7 @@
 
     <!-- Colonna destra: dettagli -->
     <div class="col-md-8">
-        <div class="card card-outline card-primary">
+        <div class="card  card-primary">
             <div class="card-header">
                 <h3 class="card-title">Dati anagrafici</h3>
             </div>

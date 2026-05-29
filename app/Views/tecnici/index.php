@@ -6,7 +6,7 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div class="card card-outline card-primary">
+<div class="card card-primary">
     <div class="card-header">
         <h3 class="card-title">Elenco tecnici</h3>
         <div class="card-tools">
