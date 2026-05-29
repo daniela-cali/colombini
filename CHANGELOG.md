@@ -5,6 +5,16 @@ Tutte le modifiche significative al progetto sono documentate in questo file.
 Il formato segue [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `MAJOR.MINOR.PATCH`.
 
+## [0.15.0] — 2026-05-29
+
+### Aggiunto
+- **Interventi — ricerca full-text** — campo di ricerca in tempo reale nella pagina interventi: filtra righe su tutte le card-gruppo (id, cliente, tipo, luogo, descrizione, data, stato) e nasconde le card senza risultati; implementato in JS vanilla con `textContent`
+
+### Corretto
+- **Interventi — testo header card tecnico** — il nome tecnico nell'header delle card era bianco su sfondo quasi trasparente; la regola CSS è stata ristretta alle sole card con classe di colore esplicita (`card-primary`, `card-info`, ecc.)
+
+---
+
 ## [0.14.0] — 2026-05-29
 
 ### Aggiunto

@@ -20,6 +20,7 @@
     $urlConCompletati = base_url('interventi') . '?' . http_build_query($qActual + ['mostra_completati' => '1']);
 ?>
 <div class="d-flex justify-content-between align-items-center mb-3">
+    <!-- gruppo SINISTRA -->
     <div class="d-flex align-items-center" style="gap:.75rem;">
         <span class="text-muted small"><?= $totale ?> interventi</span>
         <?php if ($mostraCompletati || $statoFiltro === 'completato'): ?>
@@ -32,11 +33,23 @@
             </a>
         <?php endif; ?>
     </div>
-    <a href="<?= base_url('interventi/new') ?>" class="btn btn-primary btn-sm">
-        <i class="fas fa-plus mr-1"></i>
-        <span class="d-none d-sm-inline">Nuovo intervento</span>
-        <span class="d-sm-none">Nuovo</span>
-    </a>
+    <!-- gruppo DESTRA -->
+    <div class="d-flex align-items-center" style="gap:.75rem;">
+        <div class="input-group input-group-sm" style="width:220px;">
+            <input type="search" id="cerca_interventi"
+                   class="form-control"
+                   placeholder="Cerca interventi...">
+            <div class="input-group-append">
+                <span class="input-group-text"><i class="fas fa-search fa-fw"></i></span>
+            </div>
+        </div>
+        <a href="<?= base_url('interventi/new') ?>" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus mr-1"></i>
+            <span class="d-none d-sm-inline">Nuovo intervento</span>
+            <span class="d-sm-none">Nuovo</span>
+        </a>
+    </div>
+
 </div>
 
 <?php if ($totale === 0): ?>
@@ -156,4 +169,27 @@ function _tabellaGruppo(array $interventi, array $tipi, array $icone, array $sta
 
 <?= $this->section('help') ?>
 <?= $this->include('help/interventi/index') ?>
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script>
+document.getElementById('cerca_interventi').addEventListener('input', function(){
+    const q = this.value.trim().toLowerCase();
+
+    document.querySelectorAll('table tbody tr').forEach(
+        function(tr) {
+            const testo = tr.textContent.toLowerCase();
+            tr.style.display = (q === '' || testo.includes(q)) ? '' : 'none';
+        }
+    );
+
+    document.querySelectorAll('.card').forEach(
+        function(card) {
+            if (!card.querySelector('table')) return;
+            const righeVisibili = card.querySelectorAll('tbody tr:not([style*="display: none"])').length;
+            card.style.display = (q === '' || righeVisibili > 0) ? '' : 'none';
+        }
+    );
+});
+</script>
 <?= $this->endSection() ?>

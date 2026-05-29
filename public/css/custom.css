@@ -236,8 +236,13 @@ a:hover {
     border-radius: .25rem;
 }
 
-/* Testo bianco nelle card header che non siano outline (sfondo bianco) */
-.card:not(.card-outline)>.card-header {
+/* Testo bianco nelle card header colorate (solo card-* con sfondo solido) */
+.card-primary:not(.card-outline)>.card-header,
+.card-info:not(.card-outline)>.card-header,
+.card-success:not(.card-outline)>.card-header,
+.card-danger:not(.card-outline)>.card-header,
+.card-warning:not(.card-outline)>.card-header,
+.card-secondary:not(.card-outline)>.card-header {
     color: #fff;
 }
 
