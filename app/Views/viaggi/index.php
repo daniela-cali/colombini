@@ -14,28 +14,25 @@ foreach ($viaggi as $v) {
     $perGiorno[$v['data']][] = $v;
 }
 //log_message('info', 'perGiorno: '.print_r($perGiorno, true));
-$settimana = data_ita($lunedi, false).' - '. data_ita($domenica, false);
+$periodo = data_ita($dal, false).' - '. data_ita($al, false);
 ?>
 
-<!-- Navigazione settimana -->
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <a href="<?= base_url('viaggi?settimana=' . $settPrecedente) ?>" class="btn btn-sm btn-outline-secondary">
-        <i class="fas fa-chevron-left"></i>
-    </a>
-    <h5 class="mb-0">
-        <i class="fas fa-calendar-week mr-2 text-muted"></i>
-        <?= $settimana ?>
-    </h5>
-    <a href="<?= base_url('viaggi?settimana=' . $settSuccessiva) ?>" class="btn btn-sm btn-outline-secondary">
-        <i class="fas fa-chevron-right"></i>
-    </a>
+<!-- Navigazione periodo -->
+<div class="d-flex justify-content-center align-items-center mb-3">
+    <form method="get" class = "d-flex align-items-center" style="gap: .5rem; flex-wrap: nowrap;">
+        <span class = "text-muted small">Periodo dal</span>
+        <input class="form-control form-control-sm" type="date" name = "dal" value="<?= $dal ?>" style="width:auto" onchange="this.form.submit()" />
+        <span class = "text-muted small"> - al</span>
+        <input class="form-control form-control-sm" type="date" name = "al" value="<?= $al ?>" style="width:auto" onchange="this.form.submit()"/>
+    </form>
+    <a class="btn btn-sm btn-outline-primary ml-2" href="<?= base_url('viaggi') ?>">Torna a oggi</a>
 </div>
 
 <?php if (empty($viaggi)): ?>
     <div class="card">
         <div class="card-body text-center py-5 text-muted">
             <i class="fas fa-route fa-3x mb-3"></i>
-            <p>Nessun viaggio pianificato per il <strong><?= $settimana ?></strong>.</p>
+            <p>Nessun viaggio pianificato per il periodo <strong><?= $periodo ?></strong>.</p>
         </div>
     </div>
 <?php else: ?>
@@ -59,6 +56,7 @@ $settimana = data_ita($lunedi, false).' - '. data_ita($domenica, false);
             <table class="table table-hover mb-0">
                 <thead class="thead-light">
                     <tr>
+                        <th>#</th>
                         <th>Tecnico</th>
                         <th>Veicolo</th>
                         <th class="d-none d-md-table-cell">Tappe</th>
@@ -71,6 +69,9 @@ $settimana = data_ita($lunedi, false).' - '. data_ita($domenica, false);
                 <?php foreach ($viaggiGiorno as $v): ?>
                     <?php $s = $stati[$v['stato']] ?? ['label' => $v['stato'], 'badge' => 'badge-secondary']; ?>
                     <tr>
+                        <td class="align-middle">
+                            #<?= esc($v['id']); ?>
+                        </td>
                         <td class="align-middle">
                             <span style="display:inline-block;width:10px;height:10px;border-radius:50%;
                                 background:<?= esc($v['colore'] ?? '#6c757d') ?>;margin-right:6px;"></span>

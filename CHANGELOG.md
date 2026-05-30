@@ -5,6 +5,13 @@ Tutte le modifiche significative al progetto sono documentate in questo file.
 Il formato segue [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `MAJOR.MINOR.PATCH`.
 
+## [0.17.0] — 2026-05-30
+
+### Aggiunto
+- **Viaggi — filtro per periodo** — sostituita la navigazione settimanale con due datepicker dal/al ad auto-submit; default settimana corrente; pulsante "Torna a oggi" per tornare alla settimana corrente; numero viaggio (`#id`) visibile nella riga di ogni viaggio
+
+---
+
 ## [0.16.2] — 2026-05-30
 
 ### Corretto
