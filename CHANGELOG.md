@@ -5,6 +5,13 @@ Tutte le modifiche significative al progetto sono documentate in questo file.
 Il formato segue [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `MAJOR.MINOR.PATCH`.
 
+## [0.16.2] — 2026-05-30
+
+### Corretto
+- **Impostazioni — messaggio errore utente portale** — i numeri di viaggio nel messaggio di blocco cancellazione sono ora link cliccabili che aprono direttamente la scheda viaggio; aggiunto flash key `error_html` nel layout per messaggi con HTML controllato
+
+---
+
 ## [0.16.1] — 2026-05-30
 
 ### Corretto

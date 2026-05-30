@@ -50,6 +50,12 @@
                         <?= esc(session()->getFlashdata('error')) ?>
                     </div>
                 <?php endif; ?>
+                <?php if (session()->getFlashdata('error_html')): ?>
+                    <div class="alert alert-danger alert-dismissible fade show">
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        <?= session()->getFlashdata('error_html') ?>
+                    </div>
+                <?php endif; ?>
 
                 <?= $this->renderSection('content') ?>
             </div>

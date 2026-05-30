@@ -231,13 +231,16 @@ class Impostazioni extends BaseController
                 ->get()->getResultArray();
             $inViaggio = count($viaggi);
             if ($inViaggio > 0){
-                $rifViaggi = implode(',', array_column($viaggi, 'viaggio_id'));
                 $nel    = $inViaggio === 1 ? 'nel'     : 'nei';
                 $v      = $inViaggio === 1 ? 'viaggio' : 'viaggi';
-                $msg    = "Impossibile eliminare: il cliente ha interventi inseriti {$nel} {$v} #{$rifViaggi}. Rimuovili prima!";
+                $links  = implode(', ', array_map(
+                    fn($vid) => '<a href="' . base_url('viaggi/' . (int)$vid) . '" class="alert-link">#' . (int)$vid . '</a>',
+                    array_column($viaggi, 'viaggio_id')
+                ));
+                $msg = "Impossibile eliminare: il cliente ha interventi inseriti {$nel} {$v} {$links}. Rimuovili prima dai viaggi.";
 
                 return redirect()->to('impostazioni/utenti-portale')
-                    ->with('error', $msg);
+                    ->with('error_html', $msg);
             }
         }
 
