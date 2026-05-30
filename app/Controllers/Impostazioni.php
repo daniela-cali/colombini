@@ -219,6 +219,29 @@ class Impostazioni extends BaseController
         if ( $user->ruolo !== 'cliente' ) {
             return redirect()->to('impostazioni/utenti-portale')->with('error', "L'utente ha un ruolo diverso da 'cliente': ". esc($user->ruolo));
         }
+        /* Verifico che sia cliente e che non abbia interventi associati */
+        $clienteRecord = (new ClienteModel())->getByUserId($id);
+        if ($clienteRecord){
+            $db = \Config\Database::connect();
+            $viaggi = $db->table('interventi')
+                ->select('viaggi_tappe.viaggio_id')
+                ->distinct()
+                ->join('viaggi_tappe', 'viaggi_tappe.intervento_id = interventi.id')
+                ->where('interventi.cliente_id', $clienteRecord['id'])
+                ->get()->getResultArray();
+            $inViaggio = count($viaggi);
+            if ($inViaggio > 0){
+                $rifViaggi = implode(',', array_column($viaggi, 'viaggio_id'));
+                $nel    = $inViaggio === 1 ? 'nel'     : 'nei';
+                $v      = $inViaggio === 1 ? 'viaggio' : 'viaggi';
+                $msg    = "Impossibile eliminare: il cliente ha interventi inseriti {$nel} {$v} #{$rifViaggi}. Rimuovili prima!";
+
+                return redirect()->to('impostazioni/utenti-portale')
+                    ->with('error', $msg);
+            }
+        }
+
+
 
         $users->delete($id, true);
 
@@ -292,7 +315,7 @@ class Impostazioni extends BaseController
         $user->addGroup($ruolo);
 
         return redirect()->to('impostazioni/utenti-app')
-            ->with('success', 'Utente "' . $username . '" creato con successo.');
+            ->with('success', 'Utente ' . $username . '" creato con successo.');
     }
 
     public function editUtenteApp(int $id)
