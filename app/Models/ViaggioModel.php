@@ -74,4 +74,19 @@ class ViaggioModel extends Model
         $viaggio['tappe'] = (new ViaggioTappaModel())->perViaggio($id);
         return $viaggio;
     }
+
+    public function perId(int $idRicerca): ?array 
+    {
+        $viaggio = $this->select('viaggi.*, u.nome, u.cognome, u.colore,
+                              v.nome AS veicolo_nome, v.targa AS veicolo_targa,
+                              (SELECT COUNT(*) FROM viaggi_tappe vt WHERE vt.viaggio_id = viaggi.id) AS tappe_count')
+                    ->join('users u', 'u.id = viaggi.tecnico_id')
+                    ->join('veicoli v', 'v.id = viaggi.veicolo_id', 'left')
+                    ->where('viaggi.id', $idRicerca)
+                    ->orderBy('viaggi.data, u.cognome')
+                    ->get()->getResultArray();
+
+        if (! $viaggio) return [];
+        return $viaggio;
+    }
 }

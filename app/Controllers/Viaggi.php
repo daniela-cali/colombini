@@ -13,28 +13,44 @@ class Viaggi extends BaseController
 {
     public function index(): string
     {
-        /* Imposto di default la settimana attuale */
-        $lunedi = date('Y-m-d', strtotime('monday this week'));
-        $domenica = date('Y-m-d', strtotime('sunday this week'));
-        /* Gestisco eventuali date inserite per periodo personalizzato */
-        $dal   = $this->request->getGet('dal') ?? $lunedi;
-        $al   = $this->request->getGet('al') ?? $domenica;
-        /*Per i link prev/next*/
-        //$settPrecedente = date('Y-m-d', strtotime('-7 days', strtotime($lunedi)));
-        //$settSuccessiva = date('Y-m-d', strtotime('+7 days', strtotime($lunedi)));
-
-
         $model  = new ViaggioModel();
-        $utente = auth()->user();
+        $idRicerca = $this->request->getGet('idRicerca') ?? 0;
+        /**
+         * Ricerca per id 
+         * La get passa idRicerca, quindi cerco per l'id indicato
+         * */
+        if($idRicerca > 0){ 
+            $viaggi = $model->perId($idRicerca);
+            //dd(['sono dentro id ricerca > 0' => $viaggi]);
+            $dal = date('Y-m-d', strtotime('monday this week'));
+            $al = date('Y-m-d', strtotime('sunday this week'));
+        
+        } else { 
+            /**
+             * Ricerca per periodo
+             * Imposto di default la settimana attuale 
+             * La get non passa idRicerca, quindi cerco per date (attuale)
+             */
+            
+            $lunedi = date('Y-m-d', strtotime('monday this week'));
+            $domenica = date('Y-m-d', strtotime('sunday this week'));
+            /* Gestisco eventuali date inserite per periodo personalizzato */
+            $dal   = $this->request->getGet('dal') ?? $lunedi;
+            $al   = $this->request->getGet('al') ?? $domenica;
+       
+            $utente = auth()->user();
+    
+            $tecnicoFiltro = ($utente->ruolo === 'tecnico') ? $utente->id : null;
+            $viaggi = $model->perRange($dal, $al, $tecnicoFiltro);
 
-        $tecnicoFiltro = ($utente->ruolo === 'tecnico') ? $utente->id : null;
-
+        }
         return view('viaggi/index', [
             'title'      => 'Viaggi',
             'page_title' => 'Viaggi',
             'dal'        => $dal,
-            'al'         => $al,            
-            'viaggi'     => $model->perRange($dal, $al, $tecnicoFiltro),
+            'al'         => $al, 
+            'idRicerca'  => $idRicerca,         
+            'viaggi'     => $viaggi,
             'stati'      => ViaggioModel::STATI,
         ]);
     }

@@ -5,6 +5,12 @@ Tutte le modifiche significative al progetto sono documentate in questo file.
 Il formato segue [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `MAJOR.MINOR.PATCH`.
 
+## [0.18.0] — 2026-05-31
+
+### Aggiunto
+- **Viaggi — ricerca per numero** — campo di ricerca per ID viaggio con messaggio contestuale se non trovato
+- **CSS — input number senza freccette** — rimossi i controlli spin button dagli input `type=number` su tutti i browser
+
 ## [0.17.0] — 2026-05-30
 
 ### Aggiunto

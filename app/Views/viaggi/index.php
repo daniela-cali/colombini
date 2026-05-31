@@ -8,35 +8,59 @@
 <?= $this->section('content') ?>
 
 <?php
-$perGiorno = [];
-//log_message('info', 'Viaggi: '. print_r($viaggi, true));
-foreach ($viaggi as $v) {
-    $perGiorno[$v['data']][] = $v;
-}
-//log_message('info', 'perGiorno: '.print_r($perGiorno, true));
-$periodo = data_ita($dal, false).' - '. data_ita($al, false);
+    $perGiorno = [];
+    //log_message('info', 'Viaggi nelle view: '. print_r($viaggi, true));
+    //dd($viaggi);
+    foreach ($viaggi as $v) {
+        $perGiorno[$v['data']][] = $v;
+    }
+    //log_message('info', 'perGiorno: '.print_r($perGiorno, true));
+    $periodo = data_ita($dal, false).' - '. data_ita($al, false);
 ?>
-
 <!-- Navigazione periodo -->
-<div class="d-flex justify-content-center align-items-center mb-3">
-    <form method="get" class = "d-flex align-items-center" style="gap: .5rem; flex-wrap: nowrap;">
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <!-- SINISTRA: filtro periodo -->
+    <form method="get" action="<?= base_url('viaggi') ?> "class = "d-flex align-items-center" style="gap: .5rem; flex-wrap: nowrap;">
         <span class = "text-muted small">Periodo dal</span>
         <input class="form-control form-control-sm" type="date" name = "dal" value="<?= $dal ?>" style="width:auto" onchange="this.form.submit()" />
         <span class = "text-muted small"> - al</span>
         <input class="form-control form-control-sm" type="date" name = "al" value="<?= $al ?>" style="width:auto" onchange="this.form.submit()"/>
+        <a class="btn btn-sm btn-outline-primary ml-2" href="<?= base_url('viaggi') ?>" style="width:auto; white-space:nowrap;">Torna a oggi</a>
     </form>
-    <a class="btn btn-sm btn-outline-primary ml-2" href="<?= base_url('viaggi') ?>">Torna a oggi</a>
+    <!-- DESTRA: ricerca per numero -->
+    <form method="get" action="<?= base_url('viaggi') ?> "class = "d-flex align-items-center" style="gap: .5rem; flex-wrap: nowrap;">
+        <div class = "input-group input-group-sm" style="width:auto">
+            <div class="input-group-prepend">
+                <span class="input-group-text">#</span>
+            </div>
+            <input type="text" name="idRicerca" class="form-control">
+            <div class="input-group-append">
+                <button class="btn btn-sm btn-outline-secondary" 
+                    type="submit" 
+                    value="submit">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+    </form>
 </div>
 
-<?php if (empty($viaggi)): ?>
+<?php if (empty($viaggi) && empty($idRicerca)): ?>
     <div class="card">
         <div class="card-body text-center py-5 text-muted">
             <i class="fas fa-route fa-3x mb-3"></i>
             <p>Nessun viaggio pianificato per il periodo <strong><?= $periodo ?></strong>.</p>
         </div>
     </div>
+<?php elseif (empty($viaggi) && $idRicerca): ?>
+    <div class="card">
+        <div class="card-body text-center py-5 text-muted">
+            <i class="fas fa-route fa-3x mb-3"></i>
+            <p>Viaggio col numero <strong><?= $idRicerca ?></strong> non trovato.</p>
+        </div>
+    </div>
 <?php else: ?>
-
+    
     <?php foreach($perGiorno as $giorno => $viaggiGiorno): ?>
 
     <div class="card card-primary">
