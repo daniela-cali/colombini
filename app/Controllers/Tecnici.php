@@ -12,10 +12,23 @@ use CodeIgniter\Shield\Entities\User;
 
 class Tecnici extends BaseController
 {
+
     private const COLORI_PRESET = [
-        '#93c5fd','#fca5a5','#6ee7b7','#fcd34d','#c4b5fd','#f9a8d4',
-        '#67e8f9','#fdba74','#5eead4','#a5b4fc','#bef264','#cbd5e1',
-    ];
+    '#93c5fd', // blu
+    '#6ee7b7', // menta
+    '#fcd34d', // giallo
+    '#fca5a5', // rosso
+    '#c4b5fd', // viola
+    '#fdba74', // arancio
+    '#67e8f9', // ciano
+    '#f9a8d4', // rosa
+    '#bef264', // lime
+    '#d4a574', // marrone ← nuovo
+    '#a5b4fc', // indaco
+    '#5eead4', // teal
+    '#f5cba7', // pesca ← nuovo
+    '#cbd5e1', // grigio
+];
 
     private function coloriUsati(int $escludiId = 0): array
     {

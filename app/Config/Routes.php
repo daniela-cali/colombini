@@ -155,9 +155,34 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
         $routes->post('(:num)/risposta',        'Richieste::storeRisposta/$1');
     });
 
+    // ── Fornitori (anagrafica) ───────────────────────────────────────────────
+    $routes->group('fornitori', ['filter' => 'solo-staff'], function (RouteCollection $routes) {
+        $routes->get('/',               'Fornitori::index');
+        $routes->get('new',             'Fornitori::create');
+        $routes->post('/',              'Fornitori::store');
+        $routes->get('(:num)',          'Fornitori::show/$1');
+        $routes->get('(:num)/edit',     'Fornitori::edit/$1');
+        $routes->post('(:num)',         'Fornitori::update/$1');
+        $routes->post('(:num)/elimina', 'Fornitori::delete/$1');
+    });
+
+    // ── Magazzino (articoli + movimenti) ────────────────────────────────────
     $routes->group('magazzino', ['filter' => 'solo-staff'], function (RouteCollection $routes) {
-        $routes->get('(:segment)/(:segment)', 'Magazzino::lista/$1/$2');
-        $routes->get('(:segment)',            'Magazzino::lista/$1');
+        $routes->get('/',               'Magazzino::index');
+        $routes->get('new',             'Magazzino::create');
+        $routes->post('/',              'Magazzino::store');
+        $routes->get('(:num)',          'Magazzino::show/$1');
+        $routes->get('(:num)/edit',     'Magazzino::edit/$1');
+        $routes->post('(:num)',         'Magazzino::update/$1');
+        $routes->post('(:num)/elimina', 'Magazzino::delete/$1');
+
+        $routes->group('movimenti', function (RouteCollection $routes) {
+            $routes->get('/',               'MagMovimenti::index');
+            $routes->get('new',             'MagMovimenti::create');
+            $routes->post('/',              'MagMovimenti::store');
+            $routes->get('(:num)',          'MagMovimenti::show/$1');
+            $routes->post('(:num)/elimina', 'MagMovimenti::delete/$1');
+        });
     });
 
     $routes->group('prodotti', function (RouteCollection $routes) {

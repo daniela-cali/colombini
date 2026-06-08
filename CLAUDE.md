@@ -9,6 +9,24 @@
 - **Branch Git**: non aprire un branch per ogni piccola modifica. Suggerire attivamente quando NON serve un branch (es. modifiche contenute su una o due view/controller). Usare un branch solo per feature significative o rischiose.
 - **Guida passo per passo — ordine dei file**: quando si guida l'utente nell'implementazione passo per passo, partire sempre dalla **view** prima del controller e del model. La view definisce quali variabili servono, così controller e model vengono scritti sapendo già cosa devono produrre.
 
+## Brainstorming prima di implementare
+Prima di iniziare qualsiasi feature nuova o non banale, proporre sempre un brainstorming onesto sui pro e contro — senza dare per scontato che si proceda. L'utente vuole valutare se vale la pena e confrontare approcci alternativi prima di investire tempo. Non cercare file né scrivere codice finché non si è concordato l'approccio.
+
+## Controller CRUD — dati da request
+Le normalizzazioni dei dati (casting, null per stringhe vuote, uppercase, default) appartengono al **model**, non al controller. Usare i callback CI4 `$beforeInsert` / `$beforeUpdate` con un metodo `normalizza()`.
+
+Il controller si limita a:
+```php
+$model->insert($this->request->getPost());
+// oppure, per campi impostati lato server:
+$model->insert(array_merge($this->request->getPost(), ['stato' => 1]));
+```
+
+Non creare metodi helper `campiDaRequest()` né array espliciti campo per campo nel controller.
+
+## Flashdata e layout
+Il layout `app/Views/layouts/admin.php` gestisce già `success`, `error` e `error_html` per tutte le pagine. Non duplicarli nelle singole view — causa visualizzazione doppia. Nelle view includere solo `errors` (plurale) per la lista errori di validazione, che il layout non gestisce.
+
 ## Bottoni nelle card-tools
 
 Grazie alla regola CSS in `public/css/custom.css`, i bottoni dentro `.card-tools` ereditano automaticamente il colore della card. Usare **solo `btn btn-sm`** (o `btn btn-tool` per le icone ×/collapse). Non aggiungere classi di colore (`btn-primary`, `btn-info`, ecc.) — il colore è gestito dal CSS tramite `--card-accent`.

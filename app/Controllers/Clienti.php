@@ -72,23 +72,7 @@ class Clienti extends BaseController
         }
 
         $model = new ClienteModel();
-        $id    = $model->insert([
-            'codice'    => $this->request->getPost('codice'),
-            'tipo'      => $tipo,
-            'ragsoc'    => $this->request->getPost('ragsoc')    ?: null,
-            'nome'      => $this->request->getPost('nome')      ?: null,
-            'cognome'   => $this->request->getPost('cognome')   ?: null,
-            'piva'      => $this->request->getPost('piva')      ?: null,
-            'cfisc'     => $this->request->getPost('cfisc')     ?: null,
-            'indirizzo' => $this->request->getPost('indirizzo') ?: null,
-            'citta'     => $this->request->getPost('citta')     ?: null,
-            'cap'       => $this->request->getPost('cap')       ?: null,
-            'provincia' => $this->request->getPost('provincia') ?: null,
-            'telefono'  => $this->request->getPost('telefono')  ?: null,
-            'email'     => $this->request->getPost('email')     ?: null,
-            'note'      => $this->request->getPost('note')      ?: null,
-            'stato'     => 1,
-        ]);
+        $id    = $model->insert(array_merge($this->request->getPost(), ['stato' => 1]));
 
         $this->geocodifica($model, $id);
 
@@ -128,22 +112,7 @@ class Clienti extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $model->update($id, [
-            'codice'    => $this->request->getPost('codice'),
-            'tipo'      => $tipo,
-            'ragsoc'    => $this->request->getPost('ragsoc')    ?: null,
-            'nome'      => $this->request->getPost('nome')      ?: null,
-            'cognome'   => $this->request->getPost('cognome')   ?: null,
-            'piva'      => $this->request->getPost('piva')      ?: null,
-            'cfisc'     => $this->request->getPost('cfisc')     ?: null,
-            'indirizzo' => $this->request->getPost('indirizzo') ?: null,
-            'citta'     => $this->request->getPost('citta')     ?: null,
-            'cap'       => $this->request->getPost('cap')       ?: null,
-            'provincia' => $this->request->getPost('provincia') ?: null,
-            'telefono'  => $this->request->getPost('telefono')  ?: null,
-            'email'     => $this->request->getPost('email')     ?: null,
-            'note'      => $this->request->getPost('note')      ?: null,
-        ]);
+        $model->update($id, $this->request->getPost());
 
         $this->geocodifica($model, $id);
 

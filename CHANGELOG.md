@@ -5,6 +5,36 @@ Tutte le modifiche significative al progetto sono documentate in questo file.
 Il formato segue [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `MAJOR.MINOR.PATCH`.
 
+## [0.22.0] — 2026-06-08
+
+### Aggiunto
+- **Sconti fornitore su articoli** — migration `perc_sconto_1/2/3` nullable su `mag_articoli`; form create/edit con 3 input sconti e prezzo netto calcolato live in JS; scheda articolo mostra sconti a catena e prezzo netto; form nuovo movimento con colonne Listino/Sc.1%/Sc.2%/Sc.3%/Costo netto auto-calcolate per riga (auto-fill da dati articolo)
+- **MagazzinoOldDataSeeder** — importa 14 fornitori e 1186 articoli dal vecchio gestionale (`doc/magColombini/magColombini.sql`) con mapping categorie e sconti fornitore
+
+### Modificato
+- **Refactoring controller CRUD** — normalizzazioni dati (cast, nullable, uppercase) spostate nei model con callback `beforeInsert`/`beforeUpdate`; controller `store()`/`update()` ora passa `$request->getPost()` direttamente al model
+- **Magazzino index** — colonna Posizione spostata prima di Categoria; coordinate visibili in lista; select articolo nel form movimenti ridotta in larghezza
+- **Magazzino show** — Posizione mostrata come badge in evidenza sotto il nome articolo (rimossa dalla tabella)
+
+### Corretto
+- **Flashdata duplicati** — rimossi i blocchi `success`/`error` ridondanti da 7 view (magazzino e fornitori) che li mostravano due volte rispetto al layout
+- **CLAUDE.md** — aggiunte regole: brainstorming prima di implementare, pattern controller/model, flashdata gestiti dal layout
+
+## [0.21.0] — 2026-06-08
+
+### Aggiunto
+- **Movimenti magazzino — modulo completo** — controller `MagMovimenti` con index (filtri tipo/data), create, store (transazione atomica insert + aggiornamento giacenze), show (dettaglio con totale DDT), delete (transazione inversa con ripristino giacenze)
+- **Form carico guidato da fornitore** — selezionando il fornitore gli articoli associati salgono in cima agli `<select>` tramite optgroup JS senza AJAX; colonna costo unitario visibile solo per carico/inventario
+- **`MagMovimentiRigheModel`** — model per le righe con metodo `perMovimento()`
+- **Sidebar** — voce "Movimenti" aggiunta sotto Magazzino (solo staff); link "Articoli" con rilevamento attivo corretto per non accendersi su `/magazzino/movimenti`
+
+## [0.20.0] — 2026-06-08
+
+### Aggiunto
+- **Fornitori — modulo completo** — controller `Fornitori` con CRUD (index/show/create/edit/delete con blocco se ha articoli collegati); toggle azienda/privato nel form; 4 view + 4 file help
+- **Magazzino — modulo articoli** — controller `Magazzino` con CRUD; filtro per categoria nella lista; avvisi sotto-scorta evidenziati; scheda articolo con storico movimenti; giacenza non modificabile da form (solo da movimenti); 4 view + 4 file help
+- **Routes** — gruppi `/fornitori` e `/magazzino` sostituiscono il vecchio stub magazzino; entrambi con filtro `solo-staff`
+
 ## [0.19.0] — 2026-06-08
 
 ### Aggiunto

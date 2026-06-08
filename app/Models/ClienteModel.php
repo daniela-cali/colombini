@@ -11,6 +11,9 @@ class ClienteModel extends Model
     protected $useTimestamps  = true;
     protected $useSoftDeletes = true;
     protected $uniqueKeys     = ['codice'];
+    protected $beforeInsert = ['normalizza'];
+    protected $beforeUpdate = ['normalizza'];
+
     protected $allowedFields  = [
         'id_external',
         'codice',
@@ -36,6 +39,20 @@ class ClienteModel extends Model
         'geocoded_at',
         'geocodifica_fallita',
     ];
+
+    // Converte le stringhe vuote in null per tutti i campi facoltativi del cliente.
+    protected function normalizza(array $data): array
+    {
+        $d = &$data['data'];
+        foreach (['ragsoc', 'nome', 'cognome', 'piva', 'cfisc',
+                  'indirizzo', 'citta', 'cap', 'provincia',
+                  'telefono', 'email', 'note'] as $campo) {
+            if (array_key_exists($campo, $d)) {
+                $d[$campo] = $d[$campo] !== '' ? $d[$campo] : null;
+            }
+        }
+        return $data;
+    }
 
     public function generaCodiceInterno(): string
     {

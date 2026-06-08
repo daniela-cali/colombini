@@ -139,8 +139,18 @@
 
                 <!-- Magazzino -->
                 <li class="nav-header">Magazzino</li>
+                <?php if ($_isStaff): ?>
                 <li class="nav-item">
-                    <a href="<?= base_url('magazzino') ?>" class="nav-link <?= str_starts_with(uri_string(), 'magazzino') ? 'active' : '' ?>">
+                    <a href="<?= base_url('magazzino/movimenti') ?>"
+                       class="nav-link <?= str_starts_with(uri_string(), 'magazzino/movimenti') ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-exchange-alt"></i>
+                        <p>Movimenti</p>
+                    </a>
+                </li>
+                <?php endif; ?>
+                <li class="nav-item">
+                    <?php $_artMagUri = uri_string() === 'magazzino' || (str_starts_with(uri_string(), 'magazzino/') && ! str_starts_with(uri_string(), 'magazzino/movimenti')); ?>
+                    <a href="<?= base_url('magazzino') ?>" class="nav-link <?= $_artMagUri ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-boxes"></i>
                         <p>Articoli</p>
                     </a>
