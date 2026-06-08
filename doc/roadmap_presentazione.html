@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<title>Colombini SNC — Prossimi sviluppi del gestionale</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 13px;
+    color: #1a1a2e;
+    background: #fff;
+    padding: 40px 48px;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-bottom: 3px solid #2980b9;
+    padding-bottom: 14px;
+    margin-bottom: 32px;
+  }
+
+  header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #2980b9;
+  }
+
+  header .meta {
+    font-size: 11px;
+    color: #888;
+    text-align: right;
+  }
+
+  .intro {
+    background: #f0f7ff;
+    border-left: 4px solid #2980b9;
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    margin-bottom: 32px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #333;
+  }
+
+  .block {
+    margin-bottom: 28px;
+    page-break-inside: avoid;
+  }
+
+  .block-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .block-number {
+    background: #2980b9;
+    color: #fff;
+    font-weight: 700;
+    font-size: 12px;
+    border-radius: 20px;
+    padding: 3px 11px;
+    white-space: nowrap;
+  }
+
+  .block-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1a2e;
+  }
+
+  .tag-priority {
+    background: #fff3cd;
+    color: #856404;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 20px;
+    padding: 2px 9px;
+    border: 1px solid #ffc107;
+  }
+
+  .features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .features.single {
+    grid-template-columns: 1fr;
+  }
+
+  .feature {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+
+  .feature-title {
+    font-weight: 600;
+    font-size: 12.5px;
+    margin-bottom: 4px;
+    color: #1a1a2e;
+  }
+
+  .feature-desc {
+    font-size: 11.5px;
+    color: #555;
+    line-height: 1.5;
+  }
+
+  .milestone {
+    background: #e8f5e9;
+    border: 2px solid #43a047;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 28px;
+    page-break-inside: avoid;
+  }
+
+  .milestone h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2e7d32;
+    margin-bottom: 6px;
+  }
+
+  .milestone p {
+    font-size: 12px;
+    color: #388e3c;
+    line-height: 1.6;
+  }
+
+  .postgo {
+    background: #f3f0ff;
+    border: 1px solid #c5b8f0;
+    border-radius: 10px;
+    padding: 16px 20px;
+    page-break-inside: avoid;
+  }
+
+  .postgo h2 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #5e35b1;
+    margin-bottom: 10px;
+  }
+
+  .postgo ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .postgo ul li {
+    font-size: 12px;
+    color: #555;
+    padding: 4px 0;
+    padding-left: 16px;
+    position: relative;
+  }
+
+  .postgo ul li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: #9575cd;
+  }
+
+  footer {
+    margin-top: 40px;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 12px;
+    font-size: 10.5px;
+    color: #aaa;
+    text-align: center;
+  }
+
+  @media print {
+    body { padding: 24px 32px; }
+    .block { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Colombini SNC — Gestionale</h1>
+    <div style="font-size:13px; color:#555; margin-top:4px;">Sviluppi in programma · Giugno–Settembre 2026</div>
+  </div>
+  <div class="meta">
+    Documento riservato<br>
+    Aggiornato: 08/06/2026
+  </div>
+</header>
+
+<div class="intro">
+  Il gestionale è già operativo per la gestione degli interventi, del calendario, dei viaggi e del portale clienti.
+  Le funzioni descritte in questo documento completano il quadro e permetteranno di andare online con i dati reali
+  entro <strong>fine settembre 2026</strong>.
+</div>
+
+
+<!-- BLOCCO 1 -->
+<div class="block">
+  <div class="block-header">
+    <span class="block-number">1</span>
+    <span class="block-title">Magazzino e materiali</span>
+    <span class="tag-priority">Priorità alta</span>
+  </div>
+  <div class="features">
+    <div class="feature">
+      <div class="feature-title">Importazione dal sistema attuale</div>
+      <div class="feature-desc">I prodotti presenti nel magazzino attuale vengono trasferiti nel nuovo gestionale in un'unica operazione, senza perdita di dati.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-title">Gestione prodotti e giacenze</div>
+      <div class="feature-desc">Elenco prodotti chimici e ricambi con quantità disponibile. Ogni utilizzo registrato in un intervento aggiorna automaticamente la giacenza.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-title">Materiali nell'intervento</div>
+      <div class="feature-desc">Alla chiusura di un intervento il tecnico indica i prodotti utilizzati, scegliendoli dalla lista del magazzino.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-title">Rapportino completo</div>
+      <div class="feature-desc">Il PDF del rapportino di lavoro includerà la lista dei materiali impiegati, oltre ai dati già presenti (firme, note, orari).</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- BLOCCO 2 -->
+<div class="block">
+  <div class="block-header">
+    <span class="block-number">2</span>
+    <span class="block-title">Impianti</span>
+  </div>
+  <div class="features">
+    <div class="feature">
+      <div class="feature-title">Censimento impianti per cliente</div>
+      <div class="feature-desc">Ogni cliente può avere uno o più impianti registrati (piscina, trattamento acqua) con le relative caratteristiche tecniche.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-title">Scheda impianto nel portale</div>
+      <div class="feature-desc">Il cliente può vedere i propri impianti dal portale e richiedere assistenza direttamente su un impianto specifico.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- BLOCCO 3 -->
+<div class="block">
+  <div class="block-header">
+    <span class="block-number">3</span>
+    <span class="block-title">Abbonamenti e visite programmate</span>
+    <span class="tag-priority">Priorità alta</span>
+  </div>
+  <div class="features">
+    <div class="feature">
+      <div class="feature-title">Contratti di manutenzione</div>
+      <div class="feature-desc">Ogni cliente può avere un contratto che prevede visite periodiche (es. ogni 2 settimane in estate). Il sistema tiene traccia della validità e della frequenza.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-title">Creazione automatica degli interventi</div>
+      <div class="feature-desc">In base al contratto, il gestionale genera automaticamente gli interventi programmati alle scadenze previste, pronti per essere assegnati a un tecnico.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-title">Materiali per la visita successiva</div>
+      <div class="feature-desc">Al termine di ogni visita, il tecnico può segnalare cosa dovrà portare alla visita successiva. Questa nota viene collegata al cliente e all'intervento futuro.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-title">Promemoria in pianificazione</div>
+      <div class="feature-desc">Quando la visita successiva viene pianificata, il tecnico vede subito i materiali segnalati in precedenza, senza doverli cercare.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- BLOCCO 4 -->
+<div class="block">
+  <div class="block-header">
+    <span class="block-number">4</span>
+    <span class="block-title">Report e statistiche</span>
+  </div>
+  <div class="features">
+    <div class="feature">
+      <div class="feature-title">Produttività tecnici</div>
+      <div class="feature-desc">Quanti interventi ha seguito ogni tecnico, in quale periodo, con quali tempi medi di chiusura.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-title">Storico cliente</div>
+      <div class="feature-desc">Riepilogo di tutti gli interventi effettuati per un cliente, con frequenza e tipologia.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-title">Consumi magazzino</div>
+      <div class="feature-desc">Quali prodotti vengono utilizzati di più, da chi e in quale periodo. Supporto per decidere il riordino.</div>
+    </div>
+    <div class="feature">
+      <div class="feature-title">Notifiche automatiche via email</div>
+      <div class="feature-desc">Promemoria appuntamento al cliente e conferma di chiusura intervento inviati automaticamente senza intervento manuale.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- MILESTONE -->
+<div class="milestone">
+  <h2>Obiettivo: go-live fine settembre 2026</h2>
+  <p>
+    Entro fine settembre il gestionale sarà pronto per essere utilizzato con i dati reali aziendali.
+    I tecnici accederanno tramite il loro portale dedicato per gestire interventi, rapportini e materiali.
+    I clienti potranno seguire le proprie richieste e vedere lo storico degli interventi in autonomia.
+  </p>
+</div>
+
+
+<!-- POST GO-LIVE -->
+<div class="postgo">
+  <h2>Dopo il go-live — idee per il futuro</h2>
+  <ul>
+    <li>App mobile semplificata per i tecnici (interventi del giorno, chiusura, firma dal telefono)</li>
+    <li>Ottimizzazione automatica dei percorsi giornalieri tra gli interventi</li>
+    <li>Dashboard direzionale con andamenti e KPI aggregati</li>
+    <li>Integrazione con software di fatturazione</li>
+  </ul>
+</div>
+
+
+<footer>
+  Colombini SNC · Documento interno · Giugno 2026
+</footer>
+
+</body>
+</html>

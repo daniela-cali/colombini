@@ -2,6 +2,7 @@
 
 *Stato attuale: v0.18.0 — tutti i moduli operativi core sono funzionanti.*
 *Ultimo aggiornamento: 2026-06-08*
+*Target go-live (v1.0.0): fine settembre 2026*
 
 ---
 
@@ -15,19 +16,30 @@
 
 ---
 
-## 0.22 — 0.25 · Impianti & Magazzino
+## 0.22 — 0.25 · Magazzino & Impianti *(priorità alta — sblocca i rapportini completi)*
 
 | Feature | Note |
 |---|---|
-| **Impianti — censimento piscine** | CRUD impianto per cliente (tipo, anno installazione, caratteristiche); collegato alla scheda cliente |
-| **Impianti — trattamento acqua** | Sotto-sezione separata nella sidebar (già strutturata) |
+| **Magazzino — import da DB esistente** | I tecnici usano già un DB magazzino; import one-shot nel gestionale una volta analizzata la struttura |
 | **Magazzino — prodotti chimici** | Elenco prodotti con giacenza; movimentazione collegata agli interventi |
 | **Magazzino — ricambi piscine/trattamento** | Stessa struttura, categoria separata |
-| **Intervento → consumo materiali** | Registrare i prodotti usati durante un intervento, scalati dal magazzino |
+| **Intervento → consumo materiali** | Nel form di chiusura il tecnico seleziona i materiali usati; scalati dal magazzino |
+| **Rapportino PDF — sezione materiali** | Il PDF già generato da Dompdf include i materiali utilizzati nell'intervento |
+| **Impianti — censimento piscine** | CRUD impianto per cliente (tipo, anno installazione, caratteristiche); collegato alla scheda cliente |
+| **Impianti — trattamento acqua** | Sotto-sezione separata nella sidebar (già strutturata) |
+
+## 0.26 — 0.28 · Visite in abbonamento *(priorità alta — generano interventi programmati)*
+
+| Feature | Note |
+|---|---|
+| **Scheletro abbonamenti** | Contratti di manutenzione periodica per cliente: frequenza, tipo intervento, periodo validità |
+| **Generazione automatica interventi programmati** | Gli abbonamenti generano automaticamente interventi con stato `programmato` alle scadenze previste |
+| **Materiali da portare alla visita successiva** | Il tecnico nella chiusura dell'intervento indica i materiali da portare alla visita successiva; salvati con riferimento a cliente e intervento successivo |
+| **Promemoria materiali nel rapportino/pianificazione** | Al momento della pianificazione della visita successiva, i materiali indicati in precedenza sono visibili al tecnico |
 
 ---
 
-## 0.26 — 0.29 · Report & Completamento pre-go-live
+## 0.29 — 0.32 · Report & Completamento pre-go-live
 
 | Feature | Note |
 |---|---|
