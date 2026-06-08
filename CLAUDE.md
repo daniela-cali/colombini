@@ -40,6 +40,11 @@ Per ogni nuova view creare sempre il corrispondente file help in `app/Views/help
 Prima di ogni commit aggiornare `CHANGELOG.md` seguendo il pattern markdown esistente e includerlo nella stessa commit.
 Il sistema confronta `CHANGELOG.md` con il campo `users.ultima_versione_vista` per mostrare le novità all'avvio dell'applicazione.
 
+## Roadmap
+Il file `ROADMAP.md` nella root contiene la pianificazione delle feature future, organizzata per fascia di versione.
+Aggiornarlo quando si completa un blocco di feature o si aggiungono nuove voci, e includerlo nella stessa commit del CHANGELOG.
+Il campo "Ultimo aggiornamento" in cima va aggiornato con la data corrente ad ogni modifica.
+
 ## Ripristino diff VSCode (Claude Code)
 Se il diff delle modifiche smette di apparire nell'IDE VSCode:
 1. Verificare che `~/.claude/settings.json` abbia `"defaultMode": "default"` (non `"acceptEdits"`)

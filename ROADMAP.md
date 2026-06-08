@@ -1,0 +1,54 @@
+# Roadmap — Colombini SNC Gestionale
+
+*Stato attuale: v0.18.0 — tutti i moduli operativi core sono funzionanti.*
+*Ultimo aggiornamento: 2026-06-08*
+
+---
+
+## 0.19 — 0.21 · Pianificazione avanzata
+
+| Feature | Note |
+|---|---|
+| **Zone geografiche nel pool calendario** | Raggruppamento/etichettatura visiva degli interventi per area — chiarire insieme cosa si intende esattamente |
+| **Ottimizzazione VRP — sblocco UI** | `VrpService` e `AssegnazioneService` già pronti; controller `Ottimizzazione` ha `genera()` e `salva()` implementati — togliere il "prossimamente" e collegare la view |
+| **Preventivi — funzionalità reale** | Attualmente solo stub; aggiungere voci, totali, PDF, invio email al cliente |
+
+---
+
+## 0.22 — 0.25 · Impianti & Magazzino
+
+| Feature | Note |
+|---|---|
+| **Impianti — censimento piscine** | CRUD impianto per cliente (tipo, anno installazione, caratteristiche); collegato alla scheda cliente |
+| **Impianti — trattamento acqua** | Sotto-sezione separata nella sidebar (già strutturata) |
+| **Magazzino — prodotti chimici** | Elenco prodotti con giacenza; movimentazione collegata agli interventi |
+| **Magazzino — ricambi piscine/trattamento** | Stessa struttura, categoria separata |
+| **Intervento → consumo materiali** | Registrare i prodotti usati durante un intervento, scalati dal magazzino |
+
+---
+
+## 0.26 — 0.29 · Report & Completamento pre-go-live
+
+| Feature | Note |
+|---|---|
+| **Report interventi** | Produttività tecnici, interventi per tipo/periodo, tempo medio chiusura |
+| **Report clienti** | Frequenza interventi, storico impianti |
+| **Report magazzino** | Consumi, soglie riordino |
+| **Portale cliente — scheda impianto** | Il cliente può vedere i propri impianti e richiedere assistenza su uno specifico |
+| **Notifiche email automatiche** | Promemoria appuntamento al cliente, notifica chiusura intervento |
+
+---
+
+## 1.0.0 · Go-live con dati reali
+
+> Switch da dati demo a dati aziendali reali — import clienti, tecnici, storico.
+> La versione 1.0.0 coincide con il momento in cui il sistema va in produzione.
+
+---
+
+## 1.x.x · Post go-live
+
+- App mobile semplificata per i tecnici (interventi del giorno, chiusura, firma)
+- Fatturazione o integrazione con software contabile
+- Ottimizzazione VRP automatica schedulata (notturna)
+- Dashboard direzionale con KPI aggregati e trend
