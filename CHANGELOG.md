@@ -5,6 +5,16 @@ Tutte le modifiche significative al progetto sono documentate in questo file.
 Il formato segue [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `MAJOR.MINOR.PATCH`.
 
+## [0.19.0] — 2026-06-08
+
+### Aggiunto
+- **Magazzino — migration tabelle** — nuove tabelle `fornitori`, `mag_categorie` (con dati iniziali: Ricambi piscine, Ricambi addolcitori), `mag_posizioni` (9 zone fisiche dal vecchio sistema), `mag_articoli`, `mag_movimenti`, `mag_movimenti_righe`; tutti i campi documentati con commenti MySQL
+- **Anagrafiche — Fornitori** — voce Fornitori aggiunta alla sezione Anagrafiche nella sidebar (route `/fornitori`, coming soon)
+- **Anagrafiche — Tecnici spostati** — Tecnici spostato da Sistema ad Anagrafiche; route rinominata da `/sistema/tecnici` a `/tecnici`; tutti i link e redirect aggiornati
+- **Magazzino — sidebar semplificata** — sostituiti i dropdown annidati (Piscine/Trattamento/Prodotti chimici) con un'unica voce "Articoli" → `/magazzino`
+
+---
+
 ## [0.18.0] — 2026-05-31
 
 ### Aggiunto

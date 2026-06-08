@@ -113,7 +113,7 @@ class Tecnici extends BaseController
 
         (new TecnicoCompetenzaModel())->salva($newId, $this->request->getPost());
 
-        return redirect()->to('sistema/tecnici/' . $newId)
+        return redirect()->to('tecnici/' . $newId)
             ->with('success', 'Tecnico "' . $username . '" creato con successo.');
     }
 
@@ -123,7 +123,7 @@ class Tecnici extends BaseController
         $tecnico = $users->find($id);
 
         if (! $tecnico || ($tecnico->ruolo !== 'tecnico' && ! $tecnico->assegnabile_interventi)) {
-            return redirect()->to('sistema/tecnici')->with('error', 'Tecnico non trovato.');
+            return redirect()->to('tecnici')->with('error', 'Tecnico non trovato.');
         }
 
         $interventi = new InterventoModel();
@@ -163,7 +163,7 @@ class Tecnici extends BaseController
         $tecnico = $users->find($id);
 
         if (! $tecnico || ($tecnico->ruolo !== 'tecnico' && ! $tecnico->assegnabile_interventi)) {
-            return redirect()->to('sistema/tecnici')->with('error', 'Tecnico non trovato.');
+            return redirect()->to('tecnici')->with('error', 'Tecnico non trovato.');
         }
 
         return view('tecnici/edit', [
@@ -181,7 +181,7 @@ class Tecnici extends BaseController
         $tecnico = $users->find($id);
 
         if (! $tecnico || ($tecnico->ruolo !== 'tecnico' && ! $tecnico->assegnabile_interventi)) {
-            return redirect()->to('sistema/tecnici')->with('error', 'Tecnico non trovato.');
+            return redirect()->to('tecnici')->with('error', 'Tecnico non trovato.');
         }
 
         $rules = [
@@ -228,7 +228,7 @@ class Tecnici extends BaseController
             $users->save($tecnico);
         }
 
-        return redirect()->to('sistema/tecnici/' . $id)->with('success', 'Tecnico aggiornato.');
+        return redirect()->to('tecnici/' . $id)->with('success', 'Tecnico aggiornato.');
     }
 
     public function orariUpdate(int $id)
@@ -237,13 +237,13 @@ class Tecnici extends BaseController
         $tecnico = $users->find($id);
 
         if (! $tecnico || ($tecnico->ruolo !== 'tecnico' && ! $tecnico->assegnabile_interventi)) {
-            return redirect()->to('sistema/tecnici')->with('error', 'Tecnico non trovato.');
+            return redirect()->to('tecnici')->with('error', 'Tecnico non trovato.');
         }
 
         $orariModel = new TecnicoOrarioModel();
         $orariModel->salva($id, $this->request->getPost());
 
-        return redirect()->to('sistema/tecnici/' . $id)->with('success', 'Orari di lavoro aggiornati.');
+        return redirect()->to('tecnici/' . $id)->with('success', 'Orari di lavoro aggiornati.');
     }
 
     public function competenzeUpdate(int $id)
@@ -252,13 +252,13 @@ class Tecnici extends BaseController
         $tecnico = $users->find($id);
 
         if (! $tecnico || ($tecnico->ruolo !== 'tecnico' && ! $tecnico->assegnabile_interventi)) {
-            return redirect()->to('sistema/tecnici')->with('error', 'Tecnico non trovato.');
+            return redirect()->to('tecnici')->with('error', 'Tecnico non trovato.');
         }
 
         $competenzeModel = new TecnicoCompetenzaModel();
         $competenzeModel->salva($id, $this->request->getPost());
 
-        return redirect()->to('sistema/tecnici/' . $id)->with('success', 'Competenze aggiornate.');
+        return redirect()->to('tecnici/' . $id)->with('success', 'Competenze aggiornate.');
     }
 
     public function delete(int $id)
@@ -267,7 +267,7 @@ class Tecnici extends BaseController
         $tecnico = $users->find($id);
 
         if (! $tecnico || ($tecnico->ruolo !== 'tecnico' && ! $tecnico->assegnabile_interventi)) {
-            return redirect()->to('sistema/tecnici')->with('error', 'Tecnico non trovato.');
+            return redirect()->to('tecnici')->with('error', 'Tecnico non trovato.');
         }
 
         $aperti = (new InterventoModel())
@@ -276,7 +276,7 @@ class Tecnici extends BaseController
             ->countAllResults();
 
         if ($aperti > 0) {
-            return redirect()->to('sistema/tecnici/' . $id)
+            return redirect()->to('tecnici/' . $id)
                 ->with('error', "Impossibile eliminare il tecnico: ha {$aperti} intervento/i aperto/i. Riassegna o chiudi gli interventi prima di procedere.");
         }
 
@@ -285,12 +285,12 @@ class Tecnici extends BaseController
             ->countAllResults();
 
         if ($viaggi > 0) {
-            return redirect()->to('sistema/tecnici/' . $id)
+            return redirect()->to('tecnici/' . $id)
                 ->with('error', "Impossibile eliminare il tecnico: è collegato a {$viaggi} viaggio/i. Elimina i viaggi associati prima di procedere.");
         }
 
         $users->delete($id, true);
 
-        return redirect()->to('sistema/tecnici')->with('success', 'Tecnico eliminato.');
+        return redirect()->to('tecnici')->with('success', 'Tecnico eliminato.');
     }
 }

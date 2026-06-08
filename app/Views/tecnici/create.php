@@ -2,7 +2,7 @@
 
 <?= $this->section('breadcrumb') ?>
     <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Home</a></li>
-    <li class="breadcrumb-item"><a href="<?= base_url('sistema/tecnici') ?>">Tecnici</a></li>
+    <li class="breadcrumb-item"><a href="<?= base_url('tecnici') ?>">Tecnici</a></li>
     <li class="breadcrumb-item active">Nuovo Tecnico</li>
 <?= $this->endSection() ?>
 
@@ -21,7 +21,7 @@
             </div>
         <?php endif; ?>
 
-        <form method="post" action="<?= base_url('sistema/tecnici') ?>">
+        <form method="post" action="<?= base_url('tecnici') ?>">
         <?= csrf_field() ?>
 
         <!-- Card 1: Dati tecnico -->
@@ -159,7 +159,7 @@
 
         <!-- Pulsanti finali -->
         <div class="card-footer clearfix mb-3">
-            <a href="<?= base_url('sistema/tecnici') ?>" class="btn btn-secondary float-left">
+            <a href="<?= base_url('tecnici') ?>" class="btn btn-secondary float-left">
                 <i class="fas fa-arrow-left mr-1"></i> Annulla
             </a>
             <button type="submit" class="btn btn-primary float-right">

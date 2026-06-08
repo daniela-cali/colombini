@@ -127,3 +127,6 @@ _modules/*
 
 # Claude
 .claude/
+
+# Docs
+/doc/magColombini/

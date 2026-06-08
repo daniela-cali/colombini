@@ -2,7 +2,7 @@
 
 <?= $this->section('breadcrumb') ?>
     <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Home</a></li>
-    <li class="breadcrumb-item"><a href="<?= base_url('sistema/tecnici') ?>">Tecnici</a></li>
+    <li class="breadcrumb-item"><a href="<?= base_url('tecnici') ?>">Tecnici</a></li>
     <li class="breadcrumb-item active"><?= esc($tecnico->cognome . ' ' . $tecnico->nome) ?></li>
 <?= $this->endSection() ?>
 
@@ -27,11 +27,11 @@
                 <span class="badge badge-info px-3 py-1">Tecnico</span>
             </div>
             <div class="card-footer clearfix">
-                <a href="<?= base_url('sistema/tecnici') ?>" class="btn btn-sm btn-secondary float-left">
+                <a href="<?= base_url('tecnici') ?>" class="btn btn-sm btn-secondary float-left">
                     <i class="fas fa-arrow-left mr-1"></i> Elenco
                 </a>
                 <div class="float-right">
-                    <a href="<?= base_url('sistema/tecnici/' . $tecnico->id . '/edit') ?>"
+                    <a href="<?= base_url('tecnici/' . $tecnico->id . '/edit') ?>"
                        class="btn btn-sm btn-outline-primary mr-1">
                         <i class="fas fa-edit mr-1"></i> Modifica
                     </a>
@@ -55,7 +55,7 @@
                     </button>
                 </div>
             </div>
-            <form method="post" action="<?= base_url('sistema/tecnici/' . $tecnico->id . '/orari') ?>">
+            <form method="post" action="<?= base_url('tecnici/' . $tecnico->id . '/orari') ?>">
                 <?= csrf_field() ?>
                 <div class="card-body p-0">
                     <table class="table table-sm mb-0">
@@ -244,7 +244,7 @@
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-star mr-1"></i> Competenze per tipo intervento</h3>
             </div>
-            <form method="post" action="<?= base_url('sistema/tecnici/' . $tecnico->id . '/competenze') ?>">
+            <form method="post" action="<?= base_url('tecnici/' . $tecnico->id . '/competenze') ?>">
                 <?= csrf_field() ?>
                 <div class="card-body">
                     <?php if (empty($tipiTutti)): ?>

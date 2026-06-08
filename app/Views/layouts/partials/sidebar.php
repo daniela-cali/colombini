@@ -61,6 +61,20 @@
                         <p>Clienti</p>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="<?= base_url('fornitori') ?>" class="nav-link <?= str_starts_with(uri_string(), 'fornitori') ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-industry"></i>
+                        <p>Fornitori</p>
+                    </a>
+                </li>
+                <?php if ($_isStaff): ?>
+                <li class="nav-item">
+                    <a href="<?= base_url('tecnici') ?>" class="nav-link <?= str_starts_with(uri_string(), 'tecnici') ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-hard-hat"></i>
+                        <p>Tecnici</p>
+                    </a>
+                </li>
+                <?php endif; ?>
 
                 <!-- Impianti -->
                 <li class="nav-header">Impianti</li>
@@ -124,60 +138,12 @@
                 <?php endif; ?>
 
                 <!-- Magazzino -->
-                <?php
-                    $_magPiscine     = str_starts_with(uri_string(), 'magazzino/piscine');
-                    $_magTrattamento = str_starts_with(uri_string(), 'magazzino/trattamento');
-                ?>
                 <li class="nav-header">Magazzino</li>
                 <li class="nav-item">
-                    <a href="<?= base_url('prodotti') ?>" class="nav-link <?= str_starts_with(uri_string(), 'prodotti') ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-flask"></i>
-                        <p>Prodotti chimici</p>
+                    <a href="<?= base_url('magazzino') ?>" class="nav-link <?= str_starts_with(uri_string(), 'magazzino') ? 'active' : '' ?>">
+                        <i class="nav-icon fas fa-boxes"></i>
+                        <p>Articoli</p>
                     </a>
-                </li>
-                <li class="nav-item has-treeview <?= $_magPiscine ? 'menu-open' : '' ?>">
-                    <a href="#" class="nav-link <?= $_magPiscine ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-swimming-pool"></i>
-                        <p>Piscine <i class="right fas fa-angle-left"></i></p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="<?= base_url('magazzino/piscine/impianti') ?>"
-                               class="nav-link <?= uri_string() === 'magazzino/piscine/impianti' ? 'active' : '' ?>">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Impianti</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="<?= base_url('magazzino/piscine/ricambi') ?>"
-                               class="nav-link <?= uri_string() === 'magazzino/piscine/ricambi' ? 'active' : '' ?>">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Ricambi</p>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="nav-item has-treeview <?= $_magTrattamento ? 'menu-open' : '' ?>">
-                    <a href="#" class="nav-link <?= $_magTrattamento ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-tint"></i>
-                        <p>Trattamento Acqua <i class="right fas fa-angle-left"></i></p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="<?= base_url('magazzino/trattamento/impianti') ?>"
-                               class="nav-link <?= uri_string() === 'magazzino/trattamento/impianti' ? 'active' : '' ?>">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Impianti</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="<?= base_url('magazzino/trattamento/ricambi') ?>"
-                               class="nav-link <?= uri_string() === 'magazzino/trattamento/ricambi' ? 'active' : '' ?>">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Ricambi</p>
-                            </a>
-                        </li>
-                    </ul>
                 </li>
 
                 <?php if ($_isStaff): ?>
@@ -197,13 +163,6 @@
                        class="nav-link <?= str_starts_with(uri_string(), 'impostazioni') ? 'active' : '' ?>">
                         <i class="nav-icon fas fa-cog"></i>
                         <p>Impostazioni</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="<?= base_url('sistema/tecnici') ?>"
-                       class="nav-link <?= str_starts_with(uri_string(), 'sistema/tecnici') ? 'active' : '' ?>">
-                        <i class="nav-icon fas fa-hard-hat"></i>
-                        <p>Tecnici</p>
                     </a>
                 </li>
                 <li class="nav-item">

@@ -2,8 +2,8 @@
 
 <?= $this->section('breadcrumb') ?>
     <li class="breadcrumb-item"><a href="<?= base_url('/') ?>">Home</a></li>
-    <li class="breadcrumb-item"><a href="<?= base_url('sistema/tecnici') ?>">Tecnici</a></li>
-    <li class="breadcrumb-item"><a href="<?= base_url('sistema/tecnici/' . $tecnico->id) ?>"><?= esc($tecnico->cognome . ' ' . $tecnico->nome) ?></a></li>
+    <li class="breadcrumb-item"><a href="<?= base_url('tecnici') ?>">Tecnici</a></li>
+    <li class="breadcrumb-item"><a href="<?= base_url('tecnici/' . $tecnico->id) ?>"><?= esc($tecnico->cognome . ' ' . $tecnico->nome) ?></a></li>
     <li class="breadcrumb-item active">Modifica</li>
 <?= $this->endSection() ?>
 
@@ -26,7 +26,7 @@
             <div class="card-header">
                 <h3 class="card-title">Modifica Tecnico</h3>
             </div>
-            <form method="post" action="<?= base_url('sistema/tecnici/' . $tecnico->id) ?>">
+            <form method="post" action="<?= base_url('tecnici/' . $tecnico->id) ?>">
                 <?= csrf_field() ?>
                 <div class="card-body">
 
@@ -120,7 +120,7 @@
 
                 </div>
                 <div class="card-footer clearfix">
-                    <a href="<?= base_url('sistema/tecnici/' . $tecnico->id) ?>" class="btn btn-secondary float-left">
+                    <a href="<?= base_url('tecnici/' . $tecnico->id) ?>" class="btn btn-secondary float-left">
                         <i class="fas fa-times mr-1"></i> Annulla
                     </a>
                     <button type="submit" class="btn btn-primary float-right">

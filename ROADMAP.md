@@ -1,6 +1,6 @@
 # Roadmap — Colombini SNC Gestionale
 
-*Stato attuale: v0.18.0 — tutti i moduli operativi core sono funzionanti.*
+*Stato attuale: v0.19.0 — migration magazzino completate, sidebar ristrutturata.*
 *Ultimo aggiornamento: 2026-06-08*
 *Target go-live (v1.0.0): fine settembre 2026*
 
@@ -16,13 +16,15 @@
 
 ---
 
-## 0.22 — 0.25 · Magazzino & Impianti *(priorità alta — sblocca i rapportini completi)*
+## 0.20 — 0.25 · Magazzino & Impianti *(priorità alta — sblocca i rapportini completi)*
 
 | Feature | Note |
 |---|---|
-| **Magazzino — import da DB esistente** | I tecnici usano già un DB magazzino; import one-shot nel gestionale una volta analizzata la struttura |
-| **Magazzino — prodotti chimici** | Elenco prodotti con giacenza; movimentazione collegata agli interventi |
-| **Magazzino — ricambi piscine/trattamento** | Stessa struttura, categoria separata |
+| ~~**Migration tabelle magazzino**~~ | ✅ Completato in v0.19.0 |
+| **Fornitori — CRUD completo** | Model, controller, views; anagrafica globale usata anche dal magazzino |
+| **Magazzino — CRUD articoli** | Elenco con filtro categoria, scheda articolo, create/edit; import da DB esistente |
+| **Magazzino — movimenti** | Registrazione carichi (DDT), scarichi manuali, consegne a cliente/intervento |
+| **Magazzino — prodotti chimici** | Categoria da aggiungere quando disponibile; struttura già pronta |
 | **Intervento → consumo materiali** | Nel form di chiusura il tecnico seleziona i materiali usati; scalati dal magazzino |
 | **Rapportino PDF — sezione materiali** | Il PDF già generato da Dompdf include i materiali utilizzati nell'intervento |
 | **Impianti — censimento piscine** | CRUD impianto per cliente (tipo, anno installazione, caratteristiche); collegato alla scheda cliente |

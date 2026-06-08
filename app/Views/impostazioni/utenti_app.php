@@ -66,7 +66,7 @@
                                 </td>
                                 <td class="text-right align-middle">
                                     <?php if ($u->ruolo === 'tecnico' || $u->assegnabile_interventi): ?>
-                                        <a href="<?= base_url('sistema/tecnici/' . $u->id) ?>"
+                                        <a href="<?= base_url('tecnici/' . $u->id) ?>"
                                            class="btn btn-sm btn-outline-primary mr-1" title="Scheda tecnico">
                                             <i class="fas fa-eye"></i>
                                         </a>
