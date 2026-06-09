@@ -245,5 +245,13 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
             $routes->post('(:num)',         'Impostazioni\Magazzino::updateCategoria/$1');
             $routes->post('(:num)/elimina', 'Impostazioni\Magazzino::deleteCategoria/$1');
         });
+
+        $routes->group('mag-posizioni', function (RouteCollection $routes) {
+            $routes->get('/',               'Impostazioni\Magazzino::posizioni');
+            $routes->post('/',              'Impostazioni\Magazzino::storePosizione');
+            $routes->get('(:num)/edit',     'Impostazioni\Magazzino::editPosizione/$1');
+            $routes->post('(:num)',         'Impostazioni\Magazzino::updatePosizione/$1');
+            $routes->post('(:num)/elimina', 'Impostazioni\Magazzino::deletePosizione/$1');
+        });
     });
 });

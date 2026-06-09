@@ -118,7 +118,12 @@
 <?= $this->include('help/magazzino/movimenti_create') ?>
 <?= $this->endSection() ?>
 
+<?= $this->section('styles') ?>
+<link rel="stylesheet" href="<?= base_url('plugins/select2/css/select2.min.css') ?>">
+<?= $this->endSection() ?>
+
 <?= $this->section('scripts') ?>
+<script src="<?= base_url('plugins/select2/js/select2.full.min.js') ?>"></script>
 <script>
 (function () {
     // Dati articoli dal server: [{id, cod_articolo, descrizione, fornitore_id}, ...]
@@ -155,6 +160,7 @@
 
         // Ripristina la selezione precedente se ancora valida
         if (currentVal) sel.value = currentVal;
+
     }
 
     function makeOption(a) {
@@ -230,6 +236,14 @@
         if (valArt) sel.value = valArt;
         tdArt.appendChild(sel);
         tr.appendChild(tdArt);
+
+        // Inizializza Select2 dopo che il nodo è nel DOM (agganciato a tr)
+        document.getElementById('righe-container').appendChild(tr);
+        $(sel).select2({
+            placeholder: '— seleziona articolo —',
+            allowClear: true,
+            width: '100%',
+        });
 
         // Cella quantità
         const tdQty = document.createElement('td');
@@ -315,8 +329,6 @@
         });
         tdRm.appendChild(btn);
         tr.appendChild(tdRm);
-
-        document.getElementById('righe-container').appendChild(tr);
     }
 
     // ── Event listeners ──────────────────────────────────────────────────────

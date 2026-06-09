@@ -13,6 +13,16 @@ class MagPosizioniModel extends Model
         'nome',
         'attiva',
     ];
+    protected $beforeInsert = ['normalizza'];
+    protected $beforeUpdate = ['normalizza'];
+
+    protected function normalizza(array $data): array
+    {
+        if (isset($data['data']['nome'])) {
+            $data['data']['nome'] = strtoupper(trim($data['data']['nome']));
+        }
+        return $data;
+    }
 
     // Restituisce id => nome per i select, solo posizioni attive.
     public function comeLista(): array

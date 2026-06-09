@@ -36,8 +36,10 @@ class MagArticoliModel extends Model
     protected function normalizza(array $data): array
     {
         $d = &$data['data'];
-        if (isset($d['cod_articolo'])) {
-            $d['cod_articolo'] = strtoupper(trim($d['cod_articolo']));
+        foreach (['cod_articolo', 'descrizione', 'unita_misura', 'coordinate'] as $campo) {
+            if (isset($d[$campo])) {
+                $d[$campo] = strtoupper(trim($d[$campo]));
+            }
         }
         if (array_key_exists('unita_misura', $d) && empty($d['unita_misura'])) {
             $d['unita_misura'] = 'N';

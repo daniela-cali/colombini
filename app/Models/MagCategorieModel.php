@@ -15,6 +15,16 @@ class MagCategorieModel extends Model
         'ordine',
         'attiva',
     ];
+    protected $beforeInsert = ['normalizza'];
+    protected $beforeUpdate = ['normalizza'];
+
+    protected function normalizza(array $data): array
+    {
+        if (isset($data['data']['nome'])) {
+            $data['data']['nome'] = strtoupper(trim($data['data']['nome']));
+        }
+        return $data;
+    }
 
     // Restituisce id => nome per i select, solo categorie attive ordinate per campo ordine.
     public function comeLista(): array

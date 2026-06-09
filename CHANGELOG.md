@@ -5,6 +5,15 @@ Tutte le modifiche significative al progetto sono documentate in questo file.
 Il formato segue [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `MAJOR.MINOR.PATCH`.
 
+## [0.25.0] — 2026-06-09
+
+### Aggiunto
+- **Posizioni scaffale — mini CRUD** — pagina in Impostazioni per creare, modificare ed eliminare le posizioni fisiche del magazzino; blocco eliminazione se articoli collegati; card nella home Impostazioni
+- **Select2 nel form movimenti** — la select articolo usa ora Select2 con ricerca testuale; stile allineato al form-control-sm di Bootstrap 4 tramite `custom.css`
+
+### Modificato
+- **Uppercase automatico magazzino** — `MagArticoliModel`, `MagCategorieModel`, `MagPosizioniModel` normalizzano in uppercase i campi testo (`descrizione`, `cod_articolo`, `unita_misura`, `coordinate`, `nome`) tramite callback `beforeInsert`/`beforeUpdate`
+
 ## [0.24.0] — 2026-06-09
 
 ### Modificato

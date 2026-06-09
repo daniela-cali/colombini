@@ -106,6 +106,20 @@ function sectionHeader(string $icon, string $label): string {
         </a>
     </div>
 
+    <div class="col-md-4 mb-4">
+        <a href="<?= base_url('impostazioni/mag-posizioni') ?>" class="text-decoration-none">
+            <div class="card card-outline card-primary h-100">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-map-marker-alt fa-3x mb-3" style="color: var(--clr-teal);"></i>
+                    <h5 class="card-title">Posizioni Scaffale</h5>
+                    <p class="text-muted small mb-0">
+                        Gestisci le zone fisiche del magazzino (scaffali, pannelli, ecc.).
+                    </p>
+                </div>
+            </div>
+        </a>
+    </div>
+
 </div>
 <?= $this->endSection() ?>
 

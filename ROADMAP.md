@@ -1,6 +1,6 @@
 # Roadmap — Colombini SNC Gestionale
 
-*Stato attuale: v0.24.0 — Refactoring controller Impostazioni in subfolder.*
+*Stato attuale: v0.25.0 — Posizioni scaffale CRUD, Select2 movimenti, uppercase magazzino.*
 *Ultimo aggiornamento: 2026-06-09*
 *Target go-live (v1.0.0): fine settembre 2026*
 
@@ -26,6 +26,7 @@
 | ~~**Magazzino — movimenti**~~ | ✅ Completato in v0.21.0 (carico/scarico/rettifica/inventario; consegna da intervento rimandato) |
 | ~~**Sconti fornitore + seeder dati storici**~~ | ✅ Completato in v0.22.0 |
 | ~~**Categorie magazzino — mini CRUD**~~ | ✅ Completato in v0.23.0 |
+| ~~**Posizioni scaffale — mini CRUD**~~ | ✅ Completato in v0.25.0 |
 | **Magazzino — prodotti chimici** | Categoria da aggiungere quando disponibile; struttura già pronta |
 | **Intervento → consumo materiali** | Nel form di chiusura il tecnico seleziona i materiali usati; scalati dal magazzino |
 | **Rapportino PDF — sezione materiali** | Il PDF già generato da Dompdf include i materiali utilizzati nell'intervento |
