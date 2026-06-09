@@ -6,35 +6,21 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+
+<?php
+// Helper per intestazione di sezione
+function sectionHeader(string $icon, string $label): string {
+    return '<div class="col-12 mt-3 mb-2">
+        <p class="text-muted text-uppercase mb-0" style="font-size:.7rem;letter-spacing:.1em;border-bottom:1px solid #dee2e6;padding-bottom:5px">
+            <i class="fas fa-' . $icon . ' mr-1"></i> ' . $label . '
+        </p>
+    </div>';
+}
+?>
+
 <div class="row">
 
-    <div class="col-md-4 mb-4">
-        <a href="<?= base_url('impostazioni/utenti-app') ?>" class="text-decoration-none">
-            <div class="card card-outline card-primary h-100">
-                <div class="card-body text-center py-4">
-                    <i class="fas fa-users-cog fa-3x mb-3" style="color: var(--clr-teal);"></i>
-                    <h5 class="card-title">Utenti App</h5>
-                    <p class="text-muted small mb-0">
-                        Amministratori, staff e tecnici con accesso al gestionale.
-                    </p>
-                </div>
-            </div>
-        </a>
-    </div>
-
-    <div class="col-md-4 mb-4">
-        <a href="<?= base_url('impostazioni/utenti-portale') ?>" class="text-decoration-none">
-            <div class="card card-outline card-primary h-100">
-                <div class="card-body text-center py-4">
-                    <i class="fas fa-users fa-3x mb-3" style="color: var(--clr-teal);"></i>
-                    <h5 class="card-title">Utenti Portale</h5>
-                    <p class="text-muted small mb-0">
-                        Crea e gestisci i clienti con accesso al portale di assistenza.
-                    </p>
-                </div>
-            </div>
-        </a>
-    </div>
+    <?= sectionHeader('cog', 'Configurazione generale') ?>
 
     <div class="col-md-4 mb-4">
         <a href="<?= base_url('impostazioni/parametri') ?>" class="text-decoration-none">
@@ -72,6 +58,52 @@
                 <p class="small mb-0">In costruzione.</p>
             </div>
         </div>
+    </div>
+
+    <?= sectionHeader('users-cog', 'Utenti') ?>
+
+    <div class="col-md-4 mb-4">
+        <a href="<?= base_url('impostazioni/utenti-app') ?>" class="text-decoration-none">
+            <div class="card card-outline card-primary h-100">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-users-cog fa-3x mb-3" style="color: var(--clr-teal);"></i>
+                    <h5 class="card-title">Utenti App</h5>
+                    <p class="text-muted small mb-0">
+                        Amministratori, staff e tecnici con accesso al gestionale.
+                    </p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-4 mb-4">
+        <a href="<?= base_url('impostazioni/utenti-portale') ?>" class="text-decoration-none">
+            <div class="card card-outline card-primary h-100">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-users fa-3x mb-3" style="color: var(--clr-teal);"></i>
+                    <h5 class="card-title">Utenti Portale</h5>
+                    <p class="text-muted small mb-0">
+                        Crea e gestisci i clienti con accesso al portale di assistenza.
+                    </p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <?= sectionHeader('boxes', 'Magazzino') ?>
+
+    <div class="col-md-4 mb-4">
+        <a href="<?= base_url('impostazioni/mag-categorie') ?>" class="text-decoration-none">
+            <div class="card card-outline card-primary h-100">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-tags fa-3x mb-3" style="color: var(--clr-teal);"></i>
+                    <h5 class="card-title">Categorie Magazzino</h5>
+                    <p class="text-muted small mb-0">
+                        Gestisci le categorie per classificare gli articoli in magazzino.
+                    </p>
+                </div>
+            </div>
+        </a>
     </div>
 
 </div>

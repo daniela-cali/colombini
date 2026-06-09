@@ -211,31 +211,39 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
     });
 
     $routes->group('impostazioni', ['filter' => 'solo-staff'], function (RouteCollection $routes) {
-        $routes->get('/',  'Impostazioni::index');
-        $routes->post('/', 'Impostazioni::update');
+        $routes->get('/',  'Impostazioni\Generale::index');
+        $routes->post('/', 'Impostazioni\Generale::update');
 
-        $routes->get('parametri',  'Impostazioni::parametri');
-        $routes->post('parametri', 'Impostazioni::salvaParametri');
+        $routes->get('parametri',  'Impostazioni\Generale::parametri');
+        $routes->post('parametri', 'Impostazioni\Generale::salvaParametri');
 
-        $routes->get('geocodifica',       'Impostazioni::geocodifica');
-        $routes->post('geocodifica-step', 'Impostazioni::geocodificaStep');
+        $routes->get('geocodifica',       'Impostazioni\Generale::geocodifica');
+        $routes->post('geocodifica-step', 'Impostazioni\Generale::geocodificaStep');
 
         $routes->group('utenti-portale', function (RouteCollection $routes) {
-            $routes->get('/',                   'Impostazioni::utentiPortale');
-            $routes->get('new',                 'Impostazioni::creaUtentePortale');
-            $routes->post('/',                  'Impostazioni::storeUtentePortale');
-            $routes->get('(:num)/edit',         'Impostazioni::editUtentePortale/$1');
-            $routes->post('(:num)',             'Impostazioni::updateUtentePortale/$1');
-            $routes->post('(:num)/elimina',     'Impostazioni::deleteUtentePortale/$1');
+            $routes->get('/',               'Impostazioni\Utenti::utentiPortale');
+            $routes->get('new',             'Impostazioni\Utenti::creaUtentePortale');
+            $routes->post('/',              'Impostazioni\Utenti::storeUtentePortale');
+            $routes->get('(:num)/edit',     'Impostazioni\Utenti::editUtentePortale/$1');
+            $routes->post('(:num)',         'Impostazioni\Utenti::updateUtentePortale/$1');
+            $routes->post('(:num)/elimina', 'Impostazioni\Utenti::deleteUtentePortale/$1');
         });
 
         $routes->group('utenti-app', function (RouteCollection $routes) {
-            $routes->get('/',               'Impostazioni::utentiApp');
-            $routes->get('new',             'Impostazioni::creaUtenteApp');
-            $routes->post('/',              'Impostazioni::storeUtenteApp');
-            $routes->get('(:num)/edit',     'Impostazioni::editUtenteApp/$1');
-            $routes->post('(:num)',         'Impostazioni::updateUtenteApp/$1');
-            $routes->post('(:num)/elimina', 'Impostazioni::deleteUtenteApp/$1');
+            $routes->get('/',               'Impostazioni\Utenti::utentiApp');
+            $routes->get('new',             'Impostazioni\Utenti::creaUtenteApp');
+            $routes->post('/',              'Impostazioni\Utenti::storeUtenteApp');
+            $routes->get('(:num)/edit',     'Impostazioni\Utenti::editUtenteApp/$1');
+            $routes->post('(:num)',         'Impostazioni\Utenti::updateUtenteApp/$1');
+            $routes->post('(:num)/elimina', 'Impostazioni\Utenti::deleteUtenteApp/$1');
+        });
+
+        $routes->group('mag-categorie', function (RouteCollection $routes) {
+            $routes->get('/',               'Impostazioni\Magazzino::categorie');
+            $routes->post('/',              'Impostazioni\Magazzino::storeCategoria');
+            $routes->get('(:num)/edit',     'Impostazioni\Magazzino::editCategoria/$1');
+            $routes->post('(:num)',         'Impostazioni\Magazzino::updateCategoria/$1');
+            $routes->post('(:num)/elimina', 'Impostazioni\Magazzino::deleteCategoria/$1');
         });
     });
 });

@@ -5,6 +5,17 @@ Tutte le modifiche significative al progetto sono documentate in questo file.
 Il formato segue [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `MAJOR.MINOR.PATCH`.
 
+## [0.24.0] — 2026-06-09
+
+### Modificato
+- **Refactoring controller Impostazioni** — il monolite `Impostazioni.php` è stato suddiviso in 3 controller sotto `app/Controllers/Impostazioni/`: `Generale` (index, parametri, geocodifica), `Utenti` (utenti app + portale), `Magazzino` (categorie). Route aggiornate con namespace `Impostazioni\*`. Il vecchio file è stato eliminato.
+- **Impostazioni index** — pagina riorganizzata in sezioni visive (Configurazione generale / Utenti / Magazzino) con intestazioni tipografiche e bordi separatori
+
+## [0.23.0] — 2026-06-09
+
+### Aggiunto
+- **Categorie magazzino — mini CRUD** — pagina in Impostazioni per creare, modificare ed eliminare le categorie (`mag_categorie`); form integrato nella stessa pagina con doppio stato aggiungi/modifica; blocco eliminazione se categoria ha articoli collegati; card nella home Impostazioni
+
 ## [0.22.0] — 2026-06-08
 
 ### Aggiunto

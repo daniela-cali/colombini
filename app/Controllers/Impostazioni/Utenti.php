@@ -1,78 +1,25 @@
 <?php
 
-namespace App\Controllers;
+namespace App\Controllers\Impostazioni;
 
-use App\Models\UserModel;
+use App\Controllers\BaseController;
 use App\Models\ClienteModel;
-use App\Models\TipoInterventoModel;
-use App\Services\GeocoderService;
-use CodeIgniter\HTTP\ResponseInterface;
+use App\Models\UserModel;
 use CodeIgniter\Shield\Entities\User;
 
-class Impostazioni extends BaseController
+class Utenti extends BaseController
 {
-    public function index(): string
-    {
-        return view('impostazioni/index', ['title' => 'Impostazioni', 'page_title' => 'Impostazioni']);
-    }
-
-    public function update()
-    {
-        return redirect()->to('impostazioni');
-    }
-
-    public function parametri(): string
-    {
-        return view('impostazioni/parametri', [
-            'title'      => 'Parametri Generali',
-            'page_title' => 'Parametri Generali',
-            'tipi'       => (new TipoInterventoModel())->where('attivo', 1)->orderBy('ordine')->findAll(),
-        ]);
-    }
-
-    public function salvaParametri()
-    {
-        $post = $this->request->getPost();
-
-        // Sede aziendale
-        foreach (['sede_nome', 'sede_indirizzo', 'sede_citta', 'sede_cap', 'sede_lat', 'sede_lng', 'sede_telefono', 'sede_sito'] as $key) {
-            setting()->set('Azienda.' . $key, $post[$key] ?? null);
-        }
-
-        // Upload logo
-        $logo = $this->request->getFile('sede_logo');
-        if ($logo && $logo->isValid() && ! $logo->hasMoved()) {
-            $dir = FCPATH . 'uploads' . DIRECTORY_SEPARATOR;
-            if (! is_dir($dir)) mkdir($dir, 0755, true);
-            $ext      = $logo->getClientExtension();
-            $filename = 'logo_azienda.' . $ext;
-            $logo->move($dir, $filename, true);
-            setting()->set('Azienda.sede_logo_path', 'uploads/' . $filename);
-        }
-
-        // Orari default tecnici
-        foreach (['orario_inizio', 'orario_fine', 'pausa_inizio', 'pausa_fine'] as $key) {
-            setting()->set('Tecnici.' . $key, $post[$key] ?? null);
-        }
-
-        // Durate interventi
-        foreach (array_keys(TipoInterventoModel::comeLista()) as $tipo) {
-            $val = $post['durata_' . $tipo] ?? null;
-            setting()->set('Interventi.durata_' . $tipo, $val !== null && $val !== '' ? (int) $val : null);
-        }
-
-        return redirect()->to('impostazioni/parametri')->with('success', 'Impostazioni salvate.');
-    }
-
     public function utentiPortale(): string
     {
-        $users    = new UserModel();
-        $utentiPortale  = $users->where('ruolo', 'cliente')->orderBy('cognome', 'ASC')->findAll();
+        $utenti = (new UserModel())
+            ->where('ruolo', 'cliente')
+            ->orderBy('cognome', 'ASC')
+            ->findAll();
 
         return view('impostazioni/utenti_portale', [
-            'title'      => 'Utenti Portale',
-            'page_title' => 'Utenti Portale',
-            'utenti_portale'    => $utentiPortale,
+            'title'          => 'Utenti Portale',
+            'page_title'     => 'Utenti Portale',
+            'utenti_portale' => $utenti,
         ]);
     }
 
@@ -102,9 +49,8 @@ class Impostazioni extends BaseController
         }
 
         $username = $this->request->getPost('username');
-
-        $users = new UserModel();
-        $user  = new User([
+        $users    = new UserModel();
+        $user     = new User([
             'username' => $username,
             'active'   => true,
             'nome'     => $this->request->getPost('nome'),
@@ -131,17 +77,23 @@ class Impostazioni extends BaseController
         $users = new UserModel();
         $user  = $users->findById($id);
 
-        if (! $user ) {
+        if (! $user) {
             return redirect()->to('impostazioni/utenti-portale')->with('error', 'Utente non trovato.');
         }
-        if ( $user->ruolo !== 'cliente' ) {
-            return redirect()->to('impostazioni/utenti-portale')->with('error', "L'utente ha un ruolo diverso da 'cliente': ". esc($user->ruolo));
+        if ($user->ruolo !== 'cliente') {
+            return redirect()->to('impostazioni/utenti-portale')
+                ->with('error', "L'utente ha un ruolo diverso da 'cliente': " . esc($user->ruolo));
         }
+
         $cliente = (new ClienteModel())->getByUserId($id);
-        if ( !$cliente ) {
-            return redirect()->to('impostazioni/utenti-portale')->with('error', 'Nessun cliente collegato a questo utente.');
+        if (! $cliente) {
+            return redirect()->to('impostazioni/utenti-portale')
+                ->with('error', 'Nessun cliente collegato a questo utente.');
         }
-        $denominazione = !empty($cliente["ragsoc"]) ? $cliente["ragsoc"] : trim($cliente["nome"] . ' ' . $cliente["cognome"]);
+
+        $denominazione = ! empty($cliente['ragsoc'])
+            ? $cliente['ragsoc']
+            : trim($cliente['nome'] . ' ' . $cliente['cognome']);
 
         return view('impostazioni/edit_utente_portale', [
             'title'      => 'Modifica Utente Portale',
@@ -150,17 +102,18 @@ class Impostazioni extends BaseController
             'utente'     => $user,
         ]);
     }
-    
+
     public function updateUtentePortale(int $id)
     {
         $users = new UserModel();
         $user  = $users->findById($id);
 
-        if (! $user ) {
+        if (! $user) {
             return redirect()->to('impostazioni/utenti-portale')->with('error', 'Utente non trovato.');
         }
-        if ( $user->ruolo !== 'cliente' ) {
-            return redirect()->to('impostazioni/utenti-portale')->with('error', "L'utente ha un ruolo diverso da 'cliente': ". esc($user->ruolo));
+        if ($user->ruolo !== 'cliente') {
+            return redirect()->to('impostazioni/utenti-portale')
+                ->with('error', "L'utente ha un ruolo diverso da 'cliente': " . esc($user->ruolo));
         }
 
         $rules = [
@@ -176,27 +129,23 @@ class Impostazioni extends BaseController
         $messages = [
             'username'         => [
                 'min_length' => 'Il nome utente deve contenere un minimo di 3 caratteri, fino a un massimo di 30.',
-                'is_unique' => 'Questo nome utente è già in uso'],
-            'password_confirm' => ['matches'   => 'Le password non coincidono.'],
+                'is_unique'  => 'Questo nome utente è già in uso.',
+            ],
+            'password_confirm' => ['matches' => 'Le password non coincidono.'],
         ];
 
         if (! $this->validate($rules, $messages)) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $users->update($id, [
-            'username'                   => $this->request->getPost('username'),
-        ]);
-
         $nuovoUsername = $this->request->getPost('username');
+        $users->update($id, ['username' => $nuovoUsername]);
+
         if ($nuovoUsername !== $user->username) {
-            // aggiorna l'email identity
-            $identity = $user->getEmailIdentity();
+            $identity         = $user->getEmailIdentity();
             $identity->secret = $nuovoUsername . '@portale.colombini-snc.it';
             model(\CodeIgniter\Shield\Models\UserIdentityModel::class)->save($identity);
         }
-
-        /* Refresh dell'utente dopo update e set password se modificata */
 
         if ($password) {
             $user = $users->findById($id);
@@ -213,50 +162,54 @@ class Impostazioni extends BaseController
         $users = new UserModel();
         $user  = $users->findById($id);
 
-        if (! $user ) {
+        if (! $user) {
             return redirect()->to('impostazioni/utenti-portale')->with('error', 'Utente non trovato.');
         }
-        if ( $user->ruolo !== 'cliente' ) {
-            return redirect()->to('impostazioni/utenti-portale')->with('error', "L'utente ha un ruolo diverso da 'cliente': ". esc($user->ruolo));
+        if ($user->ruolo !== 'cliente') {
+            return redirect()->to('impostazioni/utenti-portale')
+                ->with('error', "L'utente ha un ruolo diverso da 'cliente': " . esc($user->ruolo));
         }
-        /* Verifico che sia cliente e che non abbia interventi associati */
+
         $clienteRecord = (new ClienteModel())->getByUserId($id);
-        if ($clienteRecord){
-            $db = \Config\Database::connect();
-            $viaggi = $db->table('interventi')
+        if ($clienteRecord) {
+            $viaggi = db_connect()->table('interventi')
                 ->select('viaggi_tappe.viaggio_id')
                 ->distinct()
                 ->join('viaggi_tappe', 'viaggi_tappe.intervento_id = interventi.id')
                 ->where('interventi.cliente_id', $clienteRecord['id'])
                 ->get()->getResultArray();
-            $inViaggio = count($viaggi);
-            if ($inViaggio > 0){
-                $nel    = $inViaggio === 1 ? 'nel'     : 'nei';
-                $v      = $inViaggio === 1 ? 'viaggio' : 'viaggi';
-                $links  = implode(', ', array_map(
-                    fn($vid) => '<a href="' . base_url('viaggi/' . (int)$vid) . '" class="alert-link">#' . (int)$vid . '</a>',
+
+            if (count($viaggi) > 0) {
+                $n     = count($viaggi);
+                $nel   = $n === 1 ? 'nel'     : 'nei';
+                $v     = $n === 1 ? 'viaggio' : 'viaggi';
+                $links = implode(', ', array_map(
+                    fn($vid) => '<a href="' . base_url('viaggi/' . (int) $vid) . '" class="alert-link">#' . (int) $vid . '</a>',
                     array_column($viaggi, 'viaggio_id')
                 ));
-                $msg = "Impossibile eliminare: il cliente ha interventi inseriti {$nel} {$v} {$links}. Rimuovili prima dai viaggi.";
 
                 return redirect()->to('impostazioni/utenti-portale')
-                    ->with('error_html', $msg);
+                    ->with('error_html', "Impossibile eliminare: il cliente ha interventi inseriti {$nel} {$v} {$links}. Rimuovili prima dai viaggi.");
             }
         }
 
-
-
         $users->delete($id, true);
 
-        return redirect()->to('impostazioni/utenti-portale')->with('success', 'Utente eliminato.');
+        return redirect()->to('impostazioni/utenti-portale')
+            ->with('success', 'Utente eliminato.');
     }
+
+    // -------------------------------------------------------------------------
+    // Utenti App
+    // -------------------------------------------------------------------------
 
     public function utentiApp(): string
     {
-        $users  = new UserModel();
-        $utenti = $users->whereIn('ruolo', UserModel::RUOLI_APP)
-                        ->orderBy('ruolo', 'ASC')->orderBy('cognome', 'ASC')
-                        ->findAll();
+        $utenti = (new UserModel())
+            ->whereIn('ruolo', UserModel::RUOLI_APP)
+            ->orderBy('ruolo', 'ASC')
+            ->orderBy('cognome', 'ASC')
+            ->findAll();
 
         return view('impostazioni/utenti_app', [
             'title'      => 'Utenti App',
@@ -297,9 +250,8 @@ class Impostazioni extends BaseController
 
         $username = $this->request->getPost('username');
         $ruolo    = $this->request->getPost('ruolo');
-
-        $users = new UserModel();
-        $user  = new User([
+        $users    = new UserModel();
+        $user     = new User([
             'username' => $username,
             'active'   => true,
             'nome'     => $this->request->getPost('nome'),
@@ -318,7 +270,7 @@ class Impostazioni extends BaseController
         $user->addGroup($ruolo);
 
         return redirect()->to('impostazioni/utenti-app')
-            ->with('success', 'Utente ' . $username . '" creato con successo.');
+            ->with('success', 'Utente "' . $username . '" creato con successo.');
     }
 
     public function editUtenteApp(int $id)
@@ -371,7 +323,6 @@ class Impostazioni extends BaseController
             'assegnabile_interventi' => $nuovoRuolo === 'tecnico' ? 0 : (int) $this->request->getPost('assegnabile_interventi'),
         ]);
 
-        // aggiorna il gruppo Shield se il ruolo è cambiato
         if ($user->ruolo !== $nuovoRuolo) {
             $user->removeGroup($user->ruolo);
             $user->addGroup($nuovoRuolo);
@@ -399,93 +350,5 @@ class Impostazioni extends BaseController
 
         return redirect()->to('impostazioni/utenti-app')
             ->with('success', 'Utente "' . $user->username . '" eliminato.');
-    }
-
-    public function geocodifica(): string
-    {
-        $clienti = new ClienteModel();
-
-        $totale    = $clienti->where('stato', 1)->countAllResults();
-        $geocodati = $clienti->where('stato', 1)->where('geocoded_at IS NOT NULL')->countAllResults();
-        $falliti   = $clienti->where('stato', 1)->where('geocoded_at IS NULL')->where('geocodifica_fallita', 1)->countAllResults();
-        $daFare    = $clienti->where('stato', 1)->where('geocoded_at IS NULL')->where('geocodifica_fallita', 0)->countAllResults();
-
-        $clientiFalliti = (new ClienteModel())
-            ->where('stato', 1)
-            ->where('geocoded_at IS NULL')
-            ->where('geocodifica_fallita', 1)
-            ->orderBy('ragsoc, cognome')
-            ->findAll();
-
-        return view('impostazioni/geocodifica', [
-            'title'           => 'Geocodifica Clienti',
-            'page_title'      => 'Geocodifica Clienti',
-            'totale'          => $totale,
-            'geocodati'       => $geocodati,
-            'falliti'         => $falliti,
-            'da_fare'         => $daFare,
-            'clienti_falliti' => $clientiFalliti,
-        ]);
-    }
-
-    public function geocodificaStep(): ResponseInterface
-    {
-        $force   = (bool) $this->request->getPost('force');
-        $afterId = (int)  $this->request->getPost('after_id');
-        $clienti = new ClienteModel();
-        $geocoder = new GeocoderService();
-
-        $query = $clienti->where('stato', 1)->where('geocoded_at IS NULL');
-        if (! $force) {
-            $query->where('geocodifica_fallita', 0);
-        }
-        if ($afterId) {
-            $query->where('id >', $afterId);
-        }
-
-        $cliente = $query->orderBy('id', 'ASC')->first();
-
-        if (! $cliente) {
-            return $this->response->setJSON(['done' => true]);
-        }
-
-        $coords = $geocoder->geocode(
-            $cliente['indirizzo'] ?? '',
-            $cliente['citta']     ?? '',
-            $cliente['cap']       ?? ''
-        );
-
-        $rimanenti = $clienti->where('stato', 1)
-                             ->where('geocoded_at IS NULL')
-                             ->where('geocodifica_fallita', 0)
-                             ->countAllResults();
-
-        if ($coords) {
-            $clienti->update($cliente['id'], [
-                'lat'                 => $coords['lat'],
-                'lng'                 => $coords['lng'],
-                'geocoded_at'         => date('Y-m-d H:i:s'),
-                'geocodifica_fallita' => 0,
-            ]);
-            $esito = 'ok';
-        } else {
-            $clienti->update($cliente['id'], [
-                'geocodifica_fallita' => 1,
-            ]);
-            $esito     = 'fallito';
-            $rimanenti = max(0, $rimanenti - 1);
-        }
-
-        $nomeDisplay = $cliente['tipo'] === 'persona_fisica'
-            ? trim(($cliente['cognome'] ?? '') . ' ' . ($cliente['nome'] ?? ''))
-            : ($cliente['ragsoc'] ?? '');
-
-        return $this->response->setJSON([
-            'done'       => false,
-            'esito'      => $esito,
-            'cliente'    => $nomeDisplay,
-            'rimanenti'  => $rimanenti,
-            'after_id'   => (int) $cliente['id'],
-        ]);
     }
 }
