@@ -1,6 +1,6 @@
 # Roadmap — Colombini SNC Gestionale
 
-*Stato attuale: v0.25.0 — Posizioni scaffale CRUD, Select2 movimenti, uppercase magazzino.*
+*Stato attuale: v0.26.0 — Materiali forniti negli interventi (prompt chiusura, Select2, storico cliente).*
 *Ultimo aggiornamento: 2026-06-09*
 *Target go-live (v1.0.0): fine settembre 2026*
 
@@ -28,7 +28,7 @@
 | ~~**Categorie magazzino — mini CRUD**~~ | ✅ Completato in v0.23.0 |
 | ~~**Posizioni scaffale — mini CRUD**~~ | ✅ Completato in v0.25.0 |
 | **Magazzino — prodotti chimici** | Categoria da aggiungere quando disponibile; struttura già pronta |
-| **Intervento → consumo materiali** | Nel form di chiusura il tecnico seleziona i materiali usati; scalati dal magazzino |
+| ~~**Intervento → consumo materiali**~~ | ✅ Completato in v0.26.0 (prompt chiusura + Select2 + storico cliente) |
 | **Rapportino PDF — sezione materiali** | Il PDF già generato da Dompdf include i materiali utilizzati nell'intervento |
 | **Impianti — censimento piscine** | CRUD impianto per cliente (tipo, anno installazione, caratteristiche); collegato alla scheda cliente |
 | **Impianti — trattamento acqua** | Sotto-sezione separata nella sidebar (già strutturata) |
@@ -39,7 +39,7 @@
 |---|---|
 | **Scheletro abbonamenti** | Contratti di manutenzione periodica per cliente: frequenza, tipo intervento, periodo validità |
 | **Generazione automatica interventi programmati** | Gli abbonamenti generano automaticamente interventi con stato `programmato` alle scadenze previste |
-| **Materiali da portare alla visita successiva** | Il tecnico nella chiusura dell'intervento indica i materiali da portare alla visita successiva; salvati con riferimento a cliente e intervento successivo |
+| **Materiali da portare alla visita successiva** | Il tecnico nella chiusura dell'intervento indica i materiali da portare alla visita successiva; salvati con riferimento a cliente e intervento successivo — **dipende dalla generazione automatica interventi programmati** |
 | **Promemoria materiali nel rapportino/pianificazione** | Al momento della pianificazione della visita successiva, i materiali indicati in precedenza sono visibili al tecnico |
 
 ---

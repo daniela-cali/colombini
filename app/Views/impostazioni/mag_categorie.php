@@ -14,6 +14,9 @@
         <div class="card card-primary">
             <div class="card-header">
                 <h3 class="card-title">Categorie magazzino</h3>
+                <div class="card-tools">
+                    <span id="sort-indicator" style="min-width:20px;display:inline-block;"></span>
+                </div>
             </div>
             <div class="card-body p-0">
                 <?php if (empty($categorie)): ?>
@@ -22,17 +25,23 @@
                 <table class="table table-hover mb-0">
                     <thead class="thead-light">
                         <tr>
+                            <?php if (count($categorie) > 1): ?>
+                            <th style="width:36px"></th>
+                            <?php endif; ?>
                             <th>Nome</th>
-                            <th class="text-center" style="width:80px">Ordine</th>
                             <th class="text-center" style="width:80px">Attiva</th>
                             <th style="width:120px"></th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="lista-categorie">
                     <?php foreach ($categorie as $cat): ?>
-                        <tr>
+                        <tr data-id="<?= $cat['id'] ?>">
+                            <?php if (count($categorie) > 1): ?>
+                            <td class="sort-handle text-center text-muted align-middle">
+                                <i class="fas fa-grip-vertical"></i>
+                            </td>
+                            <?php endif; ?>
                             <td class="align-middle"><?= esc($cat['nome']) ?></td>
-                            <td class="align-middle text-center"><?= $cat['ordine'] ?></td>
                             <td class="align-middle text-center">
                                 <?php if ($cat['attiva']): ?>
                                     <span class="badge badge-success">Sì</span>
@@ -122,3 +131,44 @@
 <?= $this->section('help') ?>
 <?= $this->include('help/impostazioni/mag_categorie') ?>
 <?= $this->endSection() ?>
+
+<?php if (count($categorie ?? []) > 1): ?>
+<?= $this->section('scripts') ?>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<script>
+(function () {
+    var tbody    = document.getElementById('lista-categorie');
+    var csrfName = '<?= csrf_token() ?>';
+    var csrfHash = '<?= csrf_hash() ?>';
+    var saveUrl  = '<?= base_url('impostazioni/mag-categorie/riordina') ?>';
+    var indicator = document.getElementById('sort-indicator');
+
+    Sortable.create(tbody, {
+        handle:    '.sort-handle',
+        animation: 150,
+        onEnd: function () {
+            var ids = Array.from(tbody.querySelectorAll('tr[data-id]'))
+                          .map(function (tr) { return tr.dataset.id; });
+
+            indicator.innerHTML = '<i class="fas fa-spinner fa-spin text-muted"></i>';
+
+            var data = new FormData();
+            data.append(csrfName, csrfHash);
+            ids.forEach(function (id) { data.append('ids[]', id); });
+
+            fetch(saveUrl, { method: 'POST', body: data })
+                .then(function (r) { return r.json(); })
+                .then(function (json) {
+                    if (json.csrf) { csrfHash = json.csrf; }
+                    indicator.innerHTML = '<i class="fas fa-check text-success"></i>';
+                    setTimeout(function () { indicator.innerHTML = ''; }, 1200);
+                })
+                .catch(function () {
+                    indicator.innerHTML = '<i class="fas fa-exclamation-triangle text-danger" title="Errore nel salvataggio"></i>';
+                });
+        }
+    });
+})();
+</script>
+<?= $this->endSection() ?>
+<?php endif; ?>

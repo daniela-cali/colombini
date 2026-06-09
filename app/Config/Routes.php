@@ -241,6 +241,7 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
         $routes->group('mag-categorie', function (RouteCollection $routes) {
             $routes->get('/',               'Impostazioni\Magazzino::categorie');
             $routes->post('/',              'Impostazioni\Magazzino::storeCategoria');
+            $routes->post('riordina',       'Impostazioni\Magazzino::riordinaCategorie');
             $routes->get('(:num)/edit',     'Impostazioni\Magazzino::editCategoria/$1');
             $routes->post('(:num)',         'Impostazioni\Magazzino::updateCategoria/$1');
             $routes->post('(:num)/elimina', 'Impostazioni\Magazzino::deleteCategoria/$1');

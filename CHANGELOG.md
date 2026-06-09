@@ -5,6 +5,19 @@ Tutte le modifiche significative al progetto sono documentate in questo file.
 Il formato segue [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `MAJOR.MINOR.PATCH`.
 
+## [0.26.0] — 2026-06-09
+
+### Aggiunto
+- **Materiali forniti negli interventi** — al momento della chiusura il tecnico viene guidato con un prompt "Hai consegnato materiali?"; se sì si apre un form multi-riga con Select2 (optgroup "Abituali per questo cliente") per registrare articoli e quantità; salvati in `intervento_materiali` in transazione con la chiusura
+- **Scheda intervento — sezione materiali** — nella view `show` dell'intervento completato i materiali registrati sono elencati nella card dettagli
+- **Rapportino PDF — sezione materiali** — il PDF include la tabella dei materiali forniti tra le note di chiusura e le firme
+- **Migration `intervento_materiali`** — tabella con FK su `interventi` (CASCADE), `mag_articoli` e `mag_movimenti` (nullable, per futura generazione scarico automatico)
+- **`InterventoMaterialiModel`** — metodi `perIntervento()` e `abitualiPerCliente()` per recupero materiali e storico clienti
+- **Categorie magazzino — ordinamento drag-and-drop** — handle `⋮⋮` nella lista categorie; l'ordine viene salvato via AJAX con feedback visivo (spinner → check); disponibile solo con 2+ categorie
+
+### Corretto
+- **Categorie magazzino — normalizzazione nome** — cambiato da `strtoupper` a `ucwords` per evitare problemi visivi (es. "Prodotti Chimici" anziché "PRODOTTI CHIMICI")
+
 ## [0.25.0] — 2026-06-09
 
 ### Aggiunto

@@ -61,6 +61,17 @@ class Magazzino extends BaseController
         return redirect()->to('impostazioni/mag-categorie')->with('success', 'Categoria aggiornata.');
     }
 
+    // Salva il nuovo ordine delle categorie ricevuto via AJAX drag-and-drop.
+    public function riordinaCategorie()
+    {
+        $ids   = $this->request->getPost('ids') ?? [];
+        $model = new MagCategorieModel();
+        foreach (array_values($ids) as $pos => $id) {
+            $model->update((int) $id, ['ordine' => $pos + 1]);
+        }
+        return $this->response->setJSON(['ok' => true, 'csrf' => csrf_hash()]);
+    }
+
     // Elimina categoria; bloccato se ha articoli collegati.
     public function deleteCategoria(int $id)
     {

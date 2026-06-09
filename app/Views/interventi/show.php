@@ -202,6 +202,25 @@
                 </div>
                 <?php endif; ?>
 
+                <?php if (!empty($materiali_forniti)): ?>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-4 text-muted small font-weight-bold">
+                        <i class="fas fa-boxes mr-1"></i>Materiali forniti
+                    </div>
+                    <div class="col-sm-8">
+                        <ul class="list-unstyled mb-0">
+                            <?php foreach ($materiali_forniti as $mat): ?>
+                            <li class="small">
+                                <span class="badge badge-secondary mr-1"><?= esc($mat['quantita']) ?>×</span>
+                                <strong><?= esc($mat['cod_articolo']) ?></strong> — <?= esc($mat['descrizione']) ?>
+                            </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                </div>
+                <?php endif; ?>
+
             </div>
             <div class="card-footer">
                 <div class="d-flex flex-wrap justify-content-between align-items-center">
@@ -317,7 +336,7 @@
 <!-- Modal chiusura intervento -->
 <?php $from = service('request')->getGet('from'); ?>
 <div class="modal fade" id="modalChiudi" tabindex="-1" data-backdrop="static">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form method="post" action="<?= base_url('interventi/' . $intervento['id'] . '/chiudi') ?>" id="form-chiudi">
                 <?= csrf_field() ?>
@@ -332,41 +351,89 @@
                     <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body">
-                    <p class="text-muted small mb-3">
-                        L'intervento verrà marcato come <strong>completato</strong> con data e ora attuali.
-                    </p>
-                    <div class="form-group">
-                        <label for="note_chiusura" class="font-weight-bold small">
-                            Note di chiusura <span class="text-muted font-weight-normal">(opzionale)</span>
-                        </label>
-                        <textarea name="note_chiusura" id="note_chiusura" rows="3"
-                                  class="form-control"
-                                  placeholder="Es: lavoro completato, ricambi installati, cliente soddisfatto…"></textarea>
-                    </div>
-                    <div class="form-group mb-0">
-                        <label class="font-weight-bold small">
-                            Firma tecnico <span class="text-muted font-weight-normal">(opzionale)</span>
-                        </label>
-                        <div style="border:1px solid #ced4da;border-radius:.25rem;background:#fff;touch-action:none;">
-                            <canvas id="canvas-firma-tecnico" style="width:100%;display:block;"></canvas>
-                        </div>
-                        <div class="mt-2 d-flex justify-content-between align-items-center">
-                            <button type="button" id="btn-clear-firma-tecnico" class="btn btn-sm btn-outline-secondary">
-                                <i class="fas fa-eraser mr-1"></i>Cancella
+                    <!-- Step 1: prompt materiali -->
+                    <div id="step-prompt">
+                        <div class="text-center py-4">
+                            <i class="fas fa-boxes fa-3x text-muted mb-3 d-block"></i>
+                            <p class="font-weight-bold mb-4">Hai consegnato materiali durante questa visita?</p>
+                            <button type="button" id="btn-si-materiali" class="btn btn-success">
+                                <i class="fas fa-check mr-1"></i> Sì, inserisci materiali
                             </button>
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="chk-presa-visione-tecnico"
-                                       name="presa_visione_tecnico" value="1">
-                                <label class="custom-control-label small" for="chk-presa-visione-tecnico">
-                                    Presa visione senza firma
-                                </label>
+                            <button type="button" id="btn-no-materiali" class="btn btn-secondary ml-2">
+                                <i class="fas fa-arrow-right mr-1"></i> No, chiudi direttamente
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Step 2: inserimento materiali -->
+                    <div id="step-materiali" style="display:none">
+                        <h6 class="font-weight-bold mb-3">
+                            <i class="fas fa-boxes mr-1"></i> Materiali forniti
+                        </h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Articolo</th>
+                                        <th style="width:100px">Qtà</th>
+                                        <th style="width:40px"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="materiali-container"></tbody>
+                            </table>
+                        </div>
+                        <button type="button" id="btn-add-materiale" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-plus mr-1"></i> Aggiungi riga
+                        </button>
+                    </div>
+                    <!-- Step 3: note e firma tecnico -->
+                    <div id="step-chiusura" style="display:none">
+                        <p class="text-muted small mb-3">
+                            L'intervento verrà marcato come <strong>completato</strong> con data e ora attuali.
+                        </p>
+                        <div class="form-group">
+                            <label for="note_chiusura" class="font-weight-bold small">
+                                Note di chiusura <span class="text-muted font-weight-normal">(opzionale)</span>
+                            </label>
+                            <textarea name="note_chiusura" id="note_chiusura" rows="3"
+                                      class="form-control"
+                                      placeholder="Es: lavoro completato, ricambi installati, cliente soddisfatto…"></textarea>
+                        </div>
+                        <div class="form-group mb-0">
+                            <label class="font-weight-bold small">
+                                Firma tecnico <span class="text-muted font-weight-normal">(opzionale)</span>
+                            </label>
+                            <div style="border:1px solid #ced4da;border-radius:.25rem;background:#fff;touch-action:none;">
+                                <canvas id="canvas-firma-tecnico" style="width:100%;display:block;"></canvas>
+                            </div>
+                            <div class="mt-2 d-flex justify-content-between align-items-center">
+                                <button type="button" id="btn-clear-firma-tecnico" class="btn btn-sm btn-outline-secondary">
+                                    <i class="fas fa-eraser mr-1"></i>Cancella
+                                </button>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="chk-presa-visione-tecnico"
+                                           name="presa_visione_tecnico" value="1">
+                                    <label class="custom-control-label small" for="chk-presa-visione-tecnico">
+                                        Presa visione senza firma
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer" id="footer-prompt">
                     <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Annulla</button>
-                    <button type="submit" class="btn btn-success btn-sm">
+                </div>
+                <div class="modal-footer" id="footer-materiali" style="display:none">
+                    <button type="button" class="btn btn-secondary btn-sm" id="btn-back-from-mat">
+                        <i class="fas fa-arrow-left mr-1"></i> Indietro
+                    </button>
+                    <button type="button" class="btn btn-primary btn-sm ml-2" id="btn-continua-chiusura">
+                        Continua <i class="fas fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+                <div class="modal-footer" id="footer-chiusura" style="display:none">
+                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-success btn-sm ml-2">
                         <i class="fas fa-check mr-1"></i> Conferma chiusura
                     </button>
                 </div>
@@ -461,6 +528,124 @@
 <?= $this->endSection() ?>
 <?php endif; ?>
 
+<?= $this->section('styles') ?>
+<link rel="stylesheet" href="<?= base_url('plugins/select2/css/select2.min.css') ?>">
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script src="<?= base_url('plugins/select2/js/select2.full.min.js') ?>"></script>
+<script>
+(function () {
+    var ARTICOLI     = <?= json_encode(array_values($articoli)) ?>;
+    var ABITUALI_IDS = <?= json_encode(array_map('intval', $abituali_ids)) ?>;
+    var matIdx = 0;
+
+    function makeOpt(a) {
+        var o = document.createElement('option');
+        o.value = a.id;
+        o.textContent = '[' + a.cod_articolo + '] ' + a.descrizione;
+        return o;
+    }
+
+    function buildMatOpts(sel) {
+        var abituali = ARTICOLI.filter(function (a) { return ABITUALI_IDS.indexOf(parseInt(a.id)) >= 0; });
+        var altri    = ARTICOLI.filter(function (a) { return ABITUALI_IDS.indexOf(parseInt(a.id)) < 0; });
+        sel.innerHTML = '<option value="">— seleziona articolo —</option>';
+        if (abituali.length) {
+            var g = document.createElement('optgroup');
+            g.label = 'Abituali per questo cliente';
+            abituali.forEach(function (a) { g.appendChild(makeOpt(a)); });
+            sel.appendChild(g);
+        }
+        var g2 = document.createElement('optgroup');
+        g2.label = abituali.length ? 'Altri articoli' : 'Tutti gli articoli';
+        altri.forEach(function (a) { g2.appendChild(makeOpt(a)); });
+        sel.appendChild(g2);
+    }
+
+    function addMatRiga() {
+        var idx = matIdx++;
+        var tr  = document.createElement('tr');
+
+        var tdA = document.createElement('td');
+        var sel = document.createElement('select');
+        sel.name      = 'materiali[' + idx + '][articolo_id]';
+        sel.className = 'form-control form-control-sm';
+        buildMatOpts(sel);
+        tdA.appendChild(sel);
+        tr.appendChild(tdA);
+
+        var tdQ  = document.createElement('td');
+        var inpQ = document.createElement('input');
+        inpQ.type        = 'number';
+        inpQ.name        = 'materiali[' + idx + '][quantita]';
+        inpQ.className   = 'form-control form-control-sm';
+        inpQ.min         = 1;
+        inpQ.step        = 1;
+        inpQ.placeholder = '1';
+        tdQ.appendChild(inpQ);
+        tr.appendChild(tdQ);
+
+        var tdR  = document.createElement('td');
+        tdR.className = 'text-center';
+        var btnR = document.createElement('button');
+        btnR.type      = 'button';
+        btnR.className = 'btn btn-sm btn-outline-danger';
+        btnR.innerHTML = '<i class="fas fa-times"></i>';
+        btnR.addEventListener('click', function () {
+            var rows = document.querySelectorAll('#materiali-container tr');
+            if (rows.length > 1) {
+                if ($(sel).data('select2')) { $(sel).select2('destroy'); }
+                tr.remove();
+            } else {
+                if ($(sel).data('select2')) { $(sel).val('').trigger('change'); }
+                inpQ.value = '';
+            }
+        });
+        tdR.appendChild(btnR);
+        tr.appendChild(tdR);
+
+        document.getElementById('materiali-container').appendChild(tr);
+        $(sel).select2({
+            placeholder:    '— seleziona articolo —',
+            width:          '100%',
+            dropdownParent: $('#modalChiudi'),
+        });
+    }
+
+    function showStep(step) {
+        ['prompt', 'materiali', 'chiusura'].forEach(function (s) {
+            var vis = s === step ? '' : 'none';
+            document.getElementById('step-'   + s).style.display = vis;
+            document.getElementById('footer-' + s).style.display = vis;
+        });
+        if (step === 'chiusura') {
+            setTimeout(function () { $('#modalChiudi').trigger('chiusura:show'); }, 50);
+        }
+    }
+
+    document.getElementById('btn-si-materiali').addEventListener('click', function () {
+        showStep('materiali');
+        if (document.getElementById('materiali-container').children.length === 0) { addMatRiga(); }
+    });
+
+    document.getElementById('btn-no-materiali').addEventListener('click', function () { showStep('chiusura'); });
+
+    document.getElementById('btn-back-from-mat').addEventListener('click', function () { showStep('prompt'); });
+
+    document.getElementById('btn-continua-chiusura').addEventListener('click', function () { showStep('chiusura'); });
+
+    document.getElementById('btn-add-materiale').addEventListener('click', function () { addMatRiga(); });
+
+    $('#modalChiudi').on('hidden.bs.modal', function () {
+        showStep('prompt');
+        document.getElementById('materiali-container').innerHTML = '';
+        matIdx = 0;
+    });
+})();
+</script>
+<?= $this->endSection() ?>
+
 <?= $this->section('scripts') ?>
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 <script>
@@ -478,7 +663,7 @@
         if (padTec) padTec.clear();
     }
 
-    $('#modalChiudi').on('shown.bs.modal', function () {
+    $('#modalChiudi').on('chiusura:show', function () {
         if (!padTec) {
             resizeCanvasTec();
             padTec = new SignaturePad(canvas, { penColor: '#1f2937' });

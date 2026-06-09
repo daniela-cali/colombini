@@ -21,7 +21,7 @@ class MagCategorieModel extends Model
     protected function normalizza(array $data): array
     {
         if (isset($data['data']['nome'])) {
-            $data['data']['nome'] = strtoupper(trim($data['data']['nome']));
+            $data['data']['nome'] = ucwords(strtolower(trim($data['data']['nome'])));
         }
         return $data;
     }

@@ -33,6 +33,14 @@ table.dettagli tr:last-child td { border-bottom: none; }
 /* Note */
 .note-box { background:#f9fafb; border:1px solid #e5e7eb; border-radius:3px; padding:10px; font-size:11px; line-height:1.5; }
 
+/* Tabella materiali */
+table.materiali { width: 100%; border-collapse: collapse; margin-top: 6px; }
+table.materiali th { font-size: 10px; font-weight: bold; color: #6b7280; text-transform: uppercase;
+                     border-bottom: 1px solid #e5e7eb; padding: 4px 6px; text-align: left; }
+table.materiali td { font-size: 11px; padding: 5px 6px; border-bottom: 1px solid #f3f4f6; vertical-align: top; }
+table.materiali td.qty { width: 60px; text-align: center; font-weight: bold; }
+table.materiali tr:last-child td { border-bottom: none; }
+
 /* Firme */
 table.firme { width: 100%; margin-top: 44px; }
 table.firme td { width: 50%; padding: 0 20px; text-align: center; }
@@ -97,6 +105,29 @@ table.firme td { width: 50%; padding: 0 20px; text-align: center; }
 <?php if ($intervento['note_chiusura']): ?>
 <h2>Note di Chiusura</h2>
 <div class="note-box"><?= nl2br(esc($intervento['note_chiusura'])) ?></div>
+<?php endif; ?>
+
+<!-- Materiali forniti -->
+<?php if (!empty($materiali_forniti)): ?>
+<h2>Materiali Forniti</h2>
+<table class="materiali">
+    <thead>
+        <tr>
+            <th>Codice</th>
+            <th>Descrizione</th>
+            <th style="width:60px;text-align:center;">Qtà</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($materiali_forniti as $mat): ?>
+        <tr>
+            <td><?= esc($mat['cod_articolo']) ?></td>
+            <td><?= esc($mat['descrizione']) ?></td>
+            <td class="qty"><?= (int) $mat['quantita'] ?></td>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
 <?php endif; ?>
 
 <!-- Firme -->

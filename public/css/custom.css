@@ -315,3 +315,7 @@ input[type=number] {
     margin: 0;
     line-height: 1;
 }
+
+/* Drag handle tabelle sortable */
+.sort-handle { cursor: grab; }
+.sort-handle:active { cursor: grabbing; }

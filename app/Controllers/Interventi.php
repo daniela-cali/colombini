@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 use App\Models\ClienteModel;
 use App\Models\InterventoModel;
+use App\Models\InterventoMaterialiModel;
+use App\Models\MagArticoliModel;
 use App\Models\TipoInterventoModel;
 use App\Models\UserModel;
 use App\Models\RichiestaModel;
@@ -174,12 +176,20 @@ class Interventi extends BaseController
             return redirect()->to('interventi')->with('error', 'Intervento non trovato.');
         }
 
+        $matModel = new InterventoMaterialiModel();
+
         return view('interventi/show', [
-            'title'      => 'Intervento #' . $id,
-            'page_title' => 'Intervento #' . $id,
-            'intervento' => $intervento,
-            'tipi'       => TipoInterventoModel::comeLista(),
-            'stati'      => InterventoModel::STATI,
+            'title'            => 'Intervento #' . $id,
+            'page_title'       => 'Intervento #' . $id,
+            'intervento'       => $intervento,
+            'tipi'             => TipoInterventoModel::comeLista(),
+            'stati'            => InterventoModel::STATI,
+            'articoli'         => (new MagArticoliModel())
+                                      ->select('id, cod_articolo, descrizione')
+                                      ->orderBy('descrizione')
+                                      ->findAll(),
+            'abituali_ids'     => $matModel->abitualiPerCliente((int) $intervento['cliente_id']),
+            'materiali_forniti'=> $matModel->perIntervento($id),
         ]);
     }
 
@@ -331,7 +341,33 @@ class Interventi extends BaseController
             $data['firma_tecnico_at'] = date('Y-m-d H:i:s');
         }
 
+        $materiali = array_values(array_filter(
+            $this->request->getPost('materiali') ?? [],
+            fn($m) => !empty($m['articolo_id']) && (int) ($m['quantita'] ?? 0) > 0
+        ));
+
+        $db = \Config\Database::connect();
+        $db->transStart();
+
         $model->update($id, $data);
+
+        if (!empty($materiali)) {
+            $matModel = new InterventoMaterialiModel();
+            foreach ($materiali as $m) {
+                $matModel->insert([
+                    'intervento_id' => $id,
+                    'articolo_id'   => (int) $m['articolo_id'],
+                    'quantita'      => (int) $m['quantita'],
+                ]);
+            }
+        }
+
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return redirect()->back()->with('error', 'Errore nel salvataggio. Riprovare.');
+        }
+
         $from = $this->request->getPost('from') ?: 'interventi/' . $id;
         return redirect()->to($from)->with('success', 'Intervento chiuso.');
     }
@@ -655,12 +691,13 @@ class Interventi extends BaseController
         }
 
         return [
-            'intervento'  => $intervento,
-            'nomeCliente' => $nomeCliente,
-            'nomeTecnico' => $nomeTecnico,
-            'tipi'        => TipoInterventoModel::comeLista(),
-            'stati'       => InterventoModel::STATI,
-            'azienda'     => [
+            'intervento'        => $intervento,
+            'nomeCliente'       => $nomeCliente,
+            'nomeTecnico'       => $nomeTecnico,
+            'tipi'              => TipoInterventoModel::comeLista(),
+            'stati'             => InterventoModel::STATI,
+            'materiali_forniti' => (new InterventoMaterialiModel())->perIntervento($id),
+            'azienda'           => [
                 'nome'      => setting('Azienda.sede_nome')      ?? '',
                 'indirizzo' => setting('Azienda.sede_indirizzo') ?? '',
                 'citta'     => setting('Azienda.sede_citta')     ?? '',
