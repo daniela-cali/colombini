@@ -88,6 +88,9 @@ $prioritaInfo = [
                                     <span class="badge <?= esc($priInfo['badge']) ?>" style="font-size:.65rem;"><?= esc($priInfo['label']) ?></span>
                                 </div>
                                 <small class="text-muted">
+                                    <?php if (!empty($i['data_entro'])): ?>
+                                        <i class="fas fa-clock" style="font-size:.65rem;"></i> <?= date('d/m', strtotime($i['data_entro'])) ?> ·
+                                    <?php endif; ?>
                                     #<?= $i['id'] ?>
                                     <?php if (isset($i['distanza_km'])): ?>
                                         · <?= number_format($i['distanza_km'], 1) ?> km
@@ -166,6 +169,22 @@ $prioritaInfo = [
             </form>
         </div>
 
+        <?php if (!empty($scadenzeSettimana)): ?>
+        <div class="alert alert-warning py-2 mb-2 d-flex align-items-center flex-wrap" style="gap:.5rem;">
+            <small class="font-weight-bold text-nowrap">
+                <i class="fas fa-clock mr-1"></i>Scadenze aperte:
+            </small>
+            <?php foreach ($scadenzeSettimana as $s):
+                $cn = $s['ragsoc'] ?: trim(($s['cliente_cognome'] ?? '') . ' ' . ($s['cliente_nome'] ?? '')) ?: '—';
+            ?>
+            <a href="<?= base_url('interventi/' . $s['id']) ?>"
+               class="badge badge-light border font-weight-normal text-dark">
+                <?= esc($cn) ?> <span class="text-muted">· <?= date('d/m', strtotime($s['data_entro'])) ?></span>
+            </a>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+
         <div class="card">
             <div class="card-body p-2 p-md-3">
                 <div id="calendario"></div>
@@ -196,6 +215,8 @@ $prioritaInfo = [
                     <dd class="col-sm-8" id="modal-data"></dd>
                     <dt class="col-sm-4 text-muted font-weight-normal small">Stato</dt>
                     <dd class="col-sm-8" id="modal-stato"></dd>
+                    <dt class="col-sm-4 text-muted font-weight-normal small" id="modal-entro-label" style="display:none;">Entro il</dt>
+                    <dd class="col-sm-8" id="modal-entro" style="display:none;"></dd>
                 </dl>
                 <div id="modal-descrizione-wrap" class="mt-3 pt-3 border-top" style="display:none;">
                     <p class="small text-muted mb-1">Descrizione</p>
@@ -620,6 +641,13 @@ document.addEventListener('DOMContentLoaded', function () {
             var urlBase = url.split('?')[0];
             $('#modal-descrizione').text(p.descrizione || '');
             $('#modal-descrizione-wrap').toggle(!!p.descrizione);
+            if (p.data_entro) {
+                var ep = p.data_entro.split('-');
+                $('#modal-entro').text(ep[2] + '/' + ep[1] + '/' + ep[0]);
+                $('#modal-entro, #modal-entro-label').show();
+            } else {
+                $('#modal-entro, #modal-entro-label').hide();
+            }
             $('#modal-btn-apri').attr('href', urlBase + '?from=calendario');
             $('#modal-btn-modifica').attr('href', urlBase.replace(/\/interventi\/(\d+)$/, '/interventi/$1/edit') + '?from=calendario');
             $('#modalIntervento').modal('show');
@@ -630,6 +658,7 @@ document.addEventListener('DOMContentLoaded', function () {
         eventContent: function (info) {
             var p    = info.event.extendedProps;
             var time = info.timeText;
+            function fmtDd(s) { var parts = s.split('-'); return parts[2] + '/' + parts[1]; }
             // position:relative sul wrapper permette al bottone × di posizionarsi in alto a destra
             var html = '<div style="position:relative;padding:2px 4px;overflow:hidden;line-height:1.25;">'
                      // padding-right:14px evita che il titolo finisca sotto il bottone ×
@@ -640,6 +669,7 @@ document.addEventListener('DOMContentLoaded', function () {
                      + '<div style="font-size:.72rem;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'
                      +   (p.tecnico || '')
                      +   (p.citta ? ' · ' + p.citta : '')
+                     +   (p.data_entro ? ' · <i class="fas fa-clock" style="font-size:.65rem;"></i> ' + fmtDd(p.data_entro) : '')
                      + '</div>'
                      // Bottone × — data-id contiene l'id dell'intervento (viene letto dal click handler sotto)
                      + '<button class="btn-rimuovi-pian" data-id="' + info.event.id + '"'

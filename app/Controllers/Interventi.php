@@ -124,33 +124,8 @@ class Interventi extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $dataPianificata = $this->request->getPost('data_pianificata');
-        if ($dataPianificata) {
-            $dataPianificata = date('Y-m-d H:i:s', strtotime($dataPianificata));
-        }
-
-        $richiestaId = $this->request->getPost('richiesta_id') ?: null;
-
-        $lat = $this->request->getPost('lat');
-        $lng = $this->request->getPost('lng');
-
         $model = new InterventoModel();
-        $id    = $model->insert([
-            'richiesta_id'     => $richiestaId,
-            'tipo_intervento'  => $this->request->getPost('tipo_intervento'),
-            'luogo_intervento' => $this->request->getPost('luogo_intervento') ?: null,
-            'citta'            => $this->request->getPost('citta') ?: null,
-            'lat'              => $lat !== '' ? $lat : null,
-            'lng'              => $lng !== '' ? $lng : null,
-            'geocoded_at'      => ($lat !== '' && $lng !== '') ? date('Y-m-d H:i:s') : null,
-            'cliente_id'       => $this->request->getPost('cliente_id') ?: null,
-            'tecnico_id'       => $this->request->getPost('tecnico_id') ?: null,
-            'data_pianificata' => $dataPianificata ?: null,
-            'descrizione'      => $this->request->getPost('descrizione') ?: null,
-            'note_interne'     => $this->request->getPost('note_interne') ?: null,
-            'stato'            => $this->request->getPost('stato') ?: 'da_pianificare',
-            'priorita'         => $this->request->getPost('priorita') ?: 'ordinario',
-        ]);
+        $id    = $model->insert($this->request->getPost());
 
         if ($richiestaId) {
             (new RichiestaModel())->update($richiestaId, ['stato' => 'in_lavorazione']);
@@ -278,38 +253,17 @@ class Interventi extends BaseController
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
 
-        $dataPianificata = $this->request->getPost('data_pianificata');
-        if ($dataPianificata) {
-            $dataPianificata = date('Y-m-d H:i:s', strtotime($dataPianificata));
-        }
+        $dati = $this->request->getPost();
 
-        $lat = $this->request->getPost('lat');
-        $lng = $this->request->getPost('lng');
-
-        $data = [
-            'tipo_intervento'  => $this->request->getPost('tipo_intervento'),
-            'luogo_intervento' => $this->request->getPost('luogo_intervento') ?: null,
-            'citta'            => $this->request->getPost('citta') ?: null,
-            'lat'              => $lat !== '' ? $lat : null,
-            'lng'              => $lng !== '' ? $lng : null,
-            'geocoded_at'      => ($lat !== '' && $lng !== '') ? date('Y-m-d H:i:s') : null,
-            'cliente_id'       => $this->request->getPost('cliente_id') ?: null,
-            'tecnico_id'       => $this->request->getPost('tecnico_id') ?: null,
-            'data_pianificata' => $dataPianificata ?: null,
-            'descrizione'      => $this->request->getPost('descrizione') ?: null,
-            'note_interne'     => $this->request->getPost('note_interne') ?: null,
-            'stato'            => $this->request->getPost('stato'),
-        ];
-
-        if ($data['stato'] === 'completato' && ! $intervento['data_completamento']) {
-            $data['data_completamento'] = date('Y-m-d H:i:s');
+        // data_completamento: valore calcolato server-side, non proviene dal form
+        if (($dati['stato'] ?? '') === 'completato' && ! $intervento['data_completamento']) {
+            $dati['data_completamento'] = date('Y-m-d H:i:s');
         }
 
         $nuovaRichiesta = $this->request->getPost('richiesta_id') ?: null;
         $vecchiaRichiesta = $intervento['richiesta_id'] ?: null;
 
         if ($nuovaRichiesta !== $vecchiaRichiesta) {
-            $data['richiesta_id'] = $nuovaRichiesta;
             $richiestaModel = new RichiestaModel();
             if ($nuovaRichiesta) {
                 $richiestaModel->update($nuovaRichiesta, ['stato' => 'in_lavorazione']);
@@ -319,7 +273,7 @@ class Interventi extends BaseController
             }
         }
 
-        $model->update($id, $data);
+        $model->update($id, $dati);
 
         $from = $this->request->getPost('from');
         $dest = $from ? base_url($from) : base_url('interventi/' . $id);

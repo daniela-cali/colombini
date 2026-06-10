@@ -5,6 +5,16 @@ Tutte le modifiche significative al progetto sono documentate in questo file.
 Il formato segue [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `MAJOR.MINOR.PATCH`.
 
+## [0.28.0] — 2026-06-10
+
+### Aggiunto
+- **Calendario — `data_entro` nelle card** — gli eventi del calendario e le card del pool mostrano "Entro gg/mm" sulla seconda riga quando la scadenza è impostata; visibile anche nel modal di dettaglio evento
+- **Calendario — banner scadenze aperte** — sopra il calendario compare un banner `alert-warning` con tutti gli interventi aperti che hanno una scadenza impostata, ordinati per urgenza; ogni chip è un link diretto alla scheda intervento
+
+### Corretto
+- **`data_entro` non veniva salvata** — `store()` e `update()` in `Interventi.php` costruivano l'array campi manualmente escludendo il campo; refactoring completo: entrambi i metodi usano ora `$this->request->getPost()` diretto
+- **`InterventoModel` — normalizza()** — aggiunto callback `$beforeInsert`/`$beforeUpdate` che gestisce: conversione `data_pianificata` da formato HTML (`Y-m-d\TH:i`) a MySQL, null-coercion per tutti i campi opzionali (incluso `data_entro`), `geocoded_at` automatico
+
 ## [0.27.0] — 2026-06-10
 
 ### Aggiunto

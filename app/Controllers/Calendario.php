@@ -45,6 +45,7 @@ class Calendario extends BaseController
         $pool = (new InterventoModel())
             ->select('interventi.id, interventi.tipo_intervento, interventi.descrizione,
                       interventi.luogo_intervento, interventi.priorita, interventi.cliente_id,
+                      interventi.data_entro,
                       c.ragsoc, c.cognome AS cliente_cognome, c.nome AS cliente_nome,
                       c.tipo AS cliente_tipo, c.citta AS cliente_citta,
                       c.lat, c.lng')
@@ -86,6 +87,16 @@ class Calendario extends BaseController
             $poolPerTipo[$i['tipo_intervento']][] = $i;
         }
 
+        // Tutti gli interventi aperti con una scadenza impostata, ordinati per urgenza
+        $scadenzeSettimana = (new InterventoModel())
+            ->select('interventi.id, interventi.data_entro,
+                      c.ragsoc, c.nome AS cliente_nome, c.cognome AS cliente_cognome')
+            ->join('clienti c', 'c.id = interventi.cliente_id', 'left')
+            ->where('interventi.data_entro IS NOT NULL', null, false)
+            ->whereNotIn('interventi.stato', ['completato', 'annullato'])
+            ->orderBy('interventi.data_entro', 'ASC')
+            ->findAll();
+
         return view('calendario/index', [
             'title'                => 'Calendario',
             'page_title'           => 'Calendario Interventi',
@@ -95,6 +106,7 @@ class Calendario extends BaseController
             'pool'                 => $pool,
             'poolPerTipo'          => $poolPerTipo,
             'oraInizio'            => setting('Tecnici.orario_inizio') ?? '08:00',
+            'scadenzeSettimana'    => $scadenzeSettimana,
         ]);
     }
 
@@ -108,6 +120,7 @@ class Calendario extends BaseController
         $q = $model
             ->select('interventi.id, interventi.tipo_intervento, interventi.stato,
                       interventi.data_pianificata, interventi.durata_effettiva, interventi.descrizione,
+                      interventi.data_entro,
                       c.ragsoc AS cliente_ragsoc, c.nome AS cliente_nome, c.cognome AS cliente_cognome,
                       c.citta AS cliente_citta,
                       u.nome AS tecnico_nome, u.cognome AS tecnico_cognome, u.colore AS tecnico_colore,
@@ -154,6 +167,7 @@ class Calendario extends BaseController
                     'stato'      => $i['stato'],
                     'descrizione'=> $i['descrizione'] ?: '',
                     'citta'      => $i['cliente_citta'] ?: '',
+                    'data_entro' => $i['data_entro'] ?? null,
                 ],
             ];
         }

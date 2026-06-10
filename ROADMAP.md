@@ -1,6 +1,6 @@
 # Roadmap — Colombini SNC Gestionale
 
-*Stato attuale: v0.28.0 (prossimo) — Visite in abbonamento e interventi programmati.*
+*Stato attuale: v0.28.0 (in corso) — Calendario data_entro, banner scadenze, normalizzazione model.*
 *Ultimo aggiornamento: 2026-06-10*
 *Target go-live (v1.0.0): fine settembre 2026*
 
@@ -41,7 +41,14 @@
 | ~~**Richiesta portale → intervento**~~ | ✅ Completato in v0.27.0 — bottone "Crea intervento" nella scheda richiesta; pre-compila tipo/luogo/descrizione; aggiorna stato richiesta |
 | ~~**`intervento_materiali_note` — refactoring e nuova tabella**~~ | ✅ Completato in v0.27.0 — nuova tabella con scope cliente, stato lifecycle (da portare→fornito), sezione Materiali & Note nella scheda cliente, step materiali nella modale chiusura, campo `data_entro` negli interventi |
 
-## 0.28 — 0.30 · Visite in abbonamento *(priorità alta — generano interventi programmati)*
+## 0.28 · Calendario & Qualità codice
+
+| Feature | Note |
+|---|---|
+| ~~**`data_entro` nel calendario**~~ | ✅ Completato in v0.28.0 — visibile nelle card pool, eventi FC e modal; banner "Scadenze aperte" sopra il calendario |
+| ~~**`InterventoModel::normalizza()`**~~ | ✅ Completato in v0.28.0 — refactoring store()/update() con getPost() diretto; normalizzazioni nel model |
+
+## 0.29 — 0.31 · Visite in abbonamento *(priorità alta — generano interventi programmati)*
 
 | Feature | Note |
 |---|---|

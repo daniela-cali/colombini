@@ -12,6 +12,8 @@ class InterventoModel extends Model
     protected $primaryKey     = 'id';
     protected $useTimestamps  = true;
     protected $useSoftDeletes = true;
+    protected $beforeInsert   = ['normalizza'];
+    protected $beforeUpdate   = ['normalizza'];
     protected $allowedFields  = [
         'richiesta_id',
         'tipo_intervento',
@@ -39,6 +41,37 @@ class InterventoModel extends Model
         'fissato',
         'ora_inizio',
     ];
+
+    // Conversioni e null-coercion uniformi su insert e update.
+    protected function normalizza(array $data): array
+    {
+        $d = &$data['data'];
+
+        // Datetime HTML (Y-m-d\TH:i) → MySQL (Y-m-d H:i:s)
+        if (array_key_exists('data_pianificata', $d)) {
+            $d['data_pianificata'] = $d['data_pianificata']
+                ? date('Y-m-d H:i:s', strtotime($d['data_pianificata']))
+                : null;
+        }
+
+        // Stringa vuota → null per i campi opzionali
+        foreach ([
+            'data_entro', 'richiesta_id', 'cliente_id', 'tecnico_id',
+            'luogo_intervento', 'citta', 'lat', 'lng',
+            'descrizione', 'note_interne', 'note_chiusura', 'priorita',
+        ] as $campo) {
+            if (array_key_exists($campo, $d) && $d[$campo] === '') {
+                $d[$campo] = null;
+            }
+        }
+
+        // geocoded_at: aggiornato automaticamente quando lat/lng vengono impostati o azzerati
+        if (array_key_exists('lat', $d)) {
+            $d['geocoded_at'] = $d['lat'] !== null ? date('Y-m-d H:i:s') : null;
+        }
+
+        return $data;
+    }
 
     public static function getDurata(string $tipo): int
     {
