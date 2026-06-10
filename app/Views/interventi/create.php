@@ -133,7 +133,7 @@
                                 <option value="">— Nessuno —</option>
                                 <?php foreach ($clienti as $c): ?>
                                     <option value="<?= $c['id'] ?>"
-                                        <?= old('cliente_id') == $c['id'] ? 'selected' : '' ?>>
+                                        <?= old('cliente_id', $cliente_id_pre) == $c['id'] ? 'selected' : '' ?>>
                                         <?= esc($c['tipo'] === 'persona_fisica'
                                             ? trim(($c['cognome'] ?? '') . ' ' . ($c['nome'] ?? ''))
                                             : ($c['ragsoc'] ?? '')) ?>
@@ -164,6 +164,21 @@
                         <label>Data e ora pianificata</label>
                         <input type="datetime-local" name="data_pianificata" class="form-control"
                                value="<?= esc(old('data_pianificata')) ?>">
+                    </div>
+
+                    <!-- Data entro -->
+                    <div class="form-group">
+                        <label>Entro il <span class="text-muted font-weight-normal">(scadenza, opzionale)</span></label>
+                        <div class="input-group">
+                            <input type="date" name="data_entro" id="data_entro" class="form-control"
+                                   value="<?= esc(old('data_entro')) ?>">
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-outline-secondary btn-entro" data-giorni="0">Oggi</button>
+                                <button type="button" class="btn btn-outline-secondary btn-entro" data-giorni="1">Domani</button>
+                                <button type="button" class="btn btn-outline-secondary btn-entro" data-fine-sett="1">Fine sett.</button>
+                                <button type="button" class="btn btn-outline-secondary btn-entro" data-sett-prox="1">Sett. prox</button>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Descrizione -->
@@ -285,6 +300,36 @@ document.getElementById('btn-geo').addEventListener('click', function () {
 
     selTipo.addEventListener('change', aggiornaSuggerimento);
     if (selCliente) selCliente.addEventListener('change', aggiornaSuggerimento);
+})();
+</script>
+<script>
+(function () {
+    function toYMD(d) {
+        return d.getFullYear() + '-'
+            + String(d.getMonth() + 1).padStart(2, '0') + '-'
+            + String(d.getDate()).padStart(2, '0');
+    }
+    function nextWeekday(n) { // 0=Dom,5=Ven,6=Sab
+        var d = new Date();
+        var diff = n - d.getDay();
+        if (diff <= 0) diff += 7;
+        d.setDate(d.getDate() + diff);
+        return d;
+    }
+    document.querySelectorAll('.btn-entro').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var d = new Date();
+            if (this.dataset.giorni !== undefined) {
+                d.setDate(d.getDate() + parseInt(this.dataset.giorni));
+            } else if (this.dataset.fineSett) {
+                d = nextWeekday(0); // domenica di questa settimana
+            } else if (this.dataset.settProx) {
+                d = nextWeekday(0);
+                d.setDate(d.getDate() + 7); // domenica della prossima
+            }
+            document.getElementById('data_entro').value = toYMD(d);
+        });
+    });
 })();
 </script>
 <?= $this->endSection() ?>

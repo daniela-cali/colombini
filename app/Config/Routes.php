@@ -67,7 +67,9 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
         $routes->get('(:num)/edit',         'Clienti::edit/$1');
         $routes->post('(:num)',             'Clienti::update/$1');
         $routes->post('(:num)/elimina',     'Clienti::delete/$1');
-        $routes->post('(:num)/geocodifica',  'Clienti::geocodificaSingolo/$1');
+        $routes->post('(:num)/geocodifica',              'Clienti::geocodificaSingolo/$1');
+        $routes->post('(:num)/materiali',                'Clienti::storeMateriale/$1');
+        $routes->post('(:num)/materiali/(:num)/elimina', 'Clienti::deleteMateriale/$1/$2');
         $routes->get('(:num)/portale',      'Clienti::creaPortale/$1');
         $routes->post('(:num)/portale',     'Clienti::storePortale/$1');
     });
@@ -150,9 +152,10 @@ $routes->group('', ['filter' => ['auth', 'admin-area']], function (RouteCollecti
     });
 
     $routes->group('richieste', ['filter' => 'solo-staff'], function (RouteCollection $routes) {
-        $routes->get('/',                       'Richieste::index');
-        $routes->get('(:num)',                  'Richieste::show/$1');
-        $routes->post('(:num)/risposta',        'Richieste::storeRisposta/$1');
+        $routes->get('/',                          'Richieste::index');
+        $routes->get('(:num)',                     'Richieste::show/$1');
+        $routes->post('(:num)/risposta',           'Richieste::storeRisposta/$1');
+        $routes->post('(:num)/crea-intervento',    'Richieste::creaIntervento/$1');
     });
 
     // ── Fornitori (anagrafica) ───────────────────────────────────────────────

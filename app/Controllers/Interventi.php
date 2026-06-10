@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 use App\Models\ClienteModel;
 use App\Models\InterventoModel;
-use App\Models\InterventoMaterialiModel;
+use App\Models\InterventoMaterialiNoteModel;
 use App\Models\MagArticoliModel;
 use App\Models\TipoInterventoModel;
 use App\Models\UserModel;
@@ -83,8 +83,9 @@ class Interventi extends BaseController
         $richieste = new RichiestaModel();
         $clienti   = new ClienteModel();
 
-        $tecnico_id_pre  = (int) $this->request->getGet('tecnico_id');
+        $tecnico_id_pre   = (int) $this->request->getGet('tecnico_id');
         $richiesta_id_pre = (int) $this->request->getGet('richiesta_id');
+        $cliente_id_pre   = (int) $this->request->getGet('cliente_id');
 
         $richiesteList = $richieste
             ->select('richieste_assistenza.*, c.id AS cliente_id_resolved')
@@ -102,6 +103,7 @@ class Interventi extends BaseController
             'tipi'             => TipoInterventoModel::comeLista(),
             'tecnico_id_pre'   => $tecnico_id_pre,
             'richiesta_id_pre' => $richiesta_id_pre,
+            'cliente_id_pre'   => $cliente_id_pre,
             'stati'            => InterventoModel::STATI,
             'priorita'         => InterventoModel::PRIORITA,
         ]);
@@ -154,6 +156,20 @@ class Interventi extends BaseController
             (new RichiestaModel())->update($richiestaId, ['stato' => 'in_lavorazione']);
         }
 
+        // Collega all'intervento le voci "da portare" già presenti nel profilo del cliente
+        $clienteId = $this->request->getPost('cliente_id') ?: null;
+        if ($clienteId) {
+            $matModel = new InterventoMaterialiNoteModel();
+            $libere   = $matModel
+                ->where('cliente_id', (int) $clienteId)
+                ->where('stato', InterventoMaterialiNoteModel::STATO_DA_PORTARE)
+                ->where('intervento_id IS NULL', null, false)
+                ->findAll();
+            foreach ($libere as $row) {
+                $matModel->update($row['id'], ['intervento_id' => $id]);
+            }
+        }
+
         return redirect()->to('interventi/' . $id)
             ->with('success', 'Intervento #' . $id . ' creato con successo.');
     }
@@ -176,7 +192,7 @@ class Interventi extends BaseController
             return redirect()->to('interventi')->with('error', 'Intervento non trovato.');
         }
 
-        $matModel = new InterventoMaterialiModel();
+        $matModel = new InterventoMaterialiNoteModel();
 
         return view('interventi/show', [
             'title'            => 'Intervento #' . $id,
@@ -188,8 +204,8 @@ class Interventi extends BaseController
                                       ->select('id, cod_articolo, descrizione')
                                       ->orderBy('descrizione')
                                       ->findAll(),
-            'abituali_ids'     => $matModel->abitualiPerCliente((int) $intervento['cliente_id']),
-            'materiali_forniti'=> $matModel->perIntervento($id),
+            'da_portare'       => $matModel->daPortarePerIntervento($id),
+            'materiali_forniti'=> $matModel->fornitiPerIntervento($id),
         ]);
     }
 
@@ -319,8 +335,14 @@ class Interventi extends BaseController
 
     public function chiudi(int $id)
     {
-        $model = new InterventoModel();
-        $data  = [
+        $model      = new InterventoModel();
+        $intervento = $model->find($id);
+
+        if (! $intervento) {
+            return redirect()->to('interventi')->with('error', 'Intervento non trovato.');
+        }
+
+        $data = [
             'stato'              => 'completato',
             'data_completamento' => date('Y-m-d H:i:s'),
         ];
@@ -341,8 +363,14 @@ class Interventi extends BaseController
             $data['firma_tecnico_at'] = date('Y-m-d H:i:s');
         }
 
-        $materiali = array_values(array_filter(
-            $this->request->getPost('materiali') ?? [],
+        // IDs delle note pre-caricate spuntate come consegnate
+        $fornitiIds = array_map('intval', array_filter(
+            (array) ($this->request->getPost('forniti_ids') ?? [])
+        ));
+
+        // Articoli extra aggiunti dal tecnico al momento della chiusura
+        $nuoviMat = array_values(array_filter(
+            $this->request->getPost('nuovi_materiali') ?? [],
             fn($m) => !empty($m['articolo_id']) && (int) ($m['quantita'] ?? 0) > 0
         ));
 
@@ -351,15 +379,24 @@ class Interventi extends BaseController
 
         $model->update($id, $data);
 
-        if (!empty($materiali)) {
-            $matModel = new InterventoMaterialiModel();
-            foreach ($materiali as $m) {
-                $matModel->insert([
-                    'intervento_id' => $id,
-                    'articolo_id'   => (int) $m['articolo_id'],
-                    'quantita'      => (int) $m['quantita'],
-                ]);
-            }
+        $matModel = new InterventoMaterialiNoteModel();
+
+        if (!empty($fornitiIds)) {
+            // Segna come forniti solo le righe di questo intervento (sicurezza)
+            $db->table('intervento_materiali_note')
+               ->whereIn('id', $fornitiIds)
+               ->where('intervento_id', $id)
+               ->update(['stato' => InterventoMaterialiNoteModel::STATO_FORNITO]);
+        }
+
+        foreach ($nuoviMat as $m) {
+            $matModel->insert([
+                'cliente_id'    => $intervento['cliente_id'],
+                'intervento_id' => $id,
+                'articolo_id'   => (int) $m['articolo_id'],
+                'quantita'      => (int) $m['quantita'],
+                'stato'         => InterventoMaterialiNoteModel::STATO_FORNITO,
+            ]);
         }
 
         $db->transComplete();
@@ -696,7 +733,7 @@ class Interventi extends BaseController
             'nomeTecnico'       => $nomeTecnico,
             'tipi'              => TipoInterventoModel::comeLista(),
             'stati'             => InterventoModel::STATI,
-            'materiali_forniti' => (new InterventoMaterialiModel())->perIntervento($id),
+            'materiali_forniti' => (new InterventoMaterialiNoteModel())->fornitiPerIntervento($id),
             'azienda'           => [
                 'nome'      => setting('Azienda.sede_nome')      ?? '',
                 'indirizzo' => setting('Azienda.sede_indirizzo') ?? '',

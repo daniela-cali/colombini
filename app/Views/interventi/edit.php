@@ -178,6 +178,21 @@
                                     : '' ?>">
                     </div>
 
+                    <!-- Data entro -->
+                    <div class="form-group">
+                        <label>Entro il <span class="text-muted font-weight-normal">(scadenza, opzionale)</span></label>
+                        <div class="input-group">
+                            <input type="date" name="data_entro" id="data_entro" class="form-control"
+                                   value="<?= esc(old('data_entro', $intervento['data_entro'] ?? '')) ?>">
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-outline-secondary btn-entro" data-giorni="0">Oggi</button>
+                                <button type="button" class="btn btn-outline-secondary btn-entro" data-giorni="1">Domani</button>
+                                <button type="button" class="btn btn-outline-secondary btn-entro" data-fine-sett="1">Fine sett.</button>
+                                <button type="button" class="btn btn-outline-secondary btn-entro" data-sett-prox="1">Sett. prox</button>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Descrizione -->
                     <div class="form-group">
                         <label>Descrizione / Problema</label>
@@ -248,6 +263,36 @@ document.getElementById('btn-geo').addEventListener('click', function () {
         })
         .finally(function () { btn.disabled = false; });
 });
+</script>
+<script>
+(function () {
+    function toYMD(d) {
+        return d.getFullYear() + '-'
+            + String(d.getMonth() + 1).padStart(2, '0') + '-'
+            + String(d.getDate()).padStart(2, '0');
+    }
+    function nextWeekday(n) {
+        var d = new Date();
+        var diff = n - d.getDay();
+        if (diff <= 0) diff += 7;
+        d.setDate(d.getDate() + diff);
+        return d;
+    }
+    document.querySelectorAll('.btn-entro').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var d = new Date();
+            if (this.dataset.giorni !== undefined) {
+                d.setDate(d.getDate() + parseInt(this.dataset.giorni));
+            } else if (this.dataset.fineSett) {
+                d = nextWeekday(0);
+            } else if (this.dataset.settProx) {
+                d = nextWeekday(0);
+                d.setDate(d.getDate() + 7);
+            }
+            document.getElementById('data_entro').value = toYMD(d);
+        });
+    });
+})();
 </script>
 <?= $this->endSection() ?>
 

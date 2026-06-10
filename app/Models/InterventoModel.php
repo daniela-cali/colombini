@@ -23,6 +23,7 @@ class InterventoModel extends Model
         'cliente_id',
         'tecnico_id',
         'data_pianificata',
+        'data_entro',
         'durata_viaggio',
         'durata_effettiva',
         'data_completamento',

@@ -5,6 +5,22 @@ Tutte le modifiche significative al progetto sono documentate in questo file.
 Il formato segue [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `MAJOR.MINOR.PATCH`.
 
+## [0.27.0] — 2026-06-10
+
+### Aggiunto
+- **Portale — auto-fill richiedente e telefono** — nome e telefono del richiedente vengono pre-compilati dall'anagrafica cliente; il portale rimane aggiornato al cambio cliente
+- **Richiesta portale → Intervento** — pulsante "Crea intervento" nella scheda richiesta; pre-compila tipo, luogo, cliente e descrizione; aggiorna lo stato richiesta a "In lavorazione" al salvataggio
+- **Refactoring `intervento_materiali_note`** — drop della vecchia tabella `intervento_materiali`; nuova tabella `intervento_materiali_note` con scope cliente (`cliente_id NOT NULL`), campo `stato` (0 = da portare / 1 = fornito), `solo_note`, `note TEXT`, `movimento_id` per futura integrazione scarico; FK `intervento_id` con `ON DELETE SET NULL` (le righe sopravvivono all'eliminazione dell'intervento)
+- **Scheda cliente — Materiali & Note** — nuova card con 3 tab: Note libere / Da portare / Già portati; form inline con Select2 per selezione articolo (quantità visibile solo se articolo selezionato) e campo note; eliminazione riga da portare con conferma
+- **Intervento — campo "Entro il"** — nuova colonna `data_entro DATE NULL` nella tabella `interventi`; campo nel form create/edit con 4 pulsanti quick-select (Oggi / Domani / Fine sett. / Sett. prox); nella scheda intervento badge colorato in rosso (scaduto), giallo (≤ 2 giorni), grigio (resto)
+- **Crea intervento da scheda cliente** — il pulsante "Nuovo intervento" nella scheda cliente passa `?cliente_id=X` pre-compilando il select cliente nel form di creazione
+- **Modale chiusura — step materiali** — rimpiazzato il vecchio form dinamico con checkboxes dei materiali "da portare" legati all'intervento; salto automatico allo step se ci sono materiali pendenti; righe aggiuntive con Select2 per i materiali consegnati sul momento
+
+### Corretto
+- **Scheda cliente — storico interventi** — il pulsante "Nuovo intervento" appare sempre, anche quando il cliente non ha ancora interventi (rimosso il wrapper condizionale `if (!empty($interventi))`)
+- **Chiusura intervento** — la query di aggiornamento stato materiali include sempre il filtro `intervento_id = X` per evitare di marcare note di altri interventi
+- **`InterventoMaterialiNoteModel::normalizza`** — visibilità cambiata da `private` a `protected` (richiesto da CI4 per i callback `beforeInsert`/`beforeUpdate`)
+
 ## [0.26.0] — 2026-06-09
 
 ### Aggiunto

@@ -143,6 +143,30 @@ $isClosed  = $richiesta['stato'] === 'chiusa';
 
     <!-- Sidebar dati richiesta -->
     <div class="col-md-4">
+
+        <!-- Azione: crea intervento o link a quello esistente -->
+        <?php if ($intervento_collegato): ?>
+        <div class="card card-outline card-success mb-3">
+            <div class="card-body py-2 text-center">
+                <i class="fas fa-check-circle text-success mr-1"></i>
+                <a href="<?= base_url('interventi/' . $intervento_collegato['id']) ?>" class="font-weight-bold">
+                    Intervento #<?= $intervento_collegato['id'] ?> collegato
+                </a>
+            </div>
+        </div>
+        <?php elseif (! $isClosed): ?>
+        <div class="card card-outline card-warning mb-3">
+            <div class="card-body py-2 text-center">
+                <form method="post" action="<?= base_url('richieste/' . $richiesta['id'] . '/crea-intervento') ?>">
+                    <?= csrf_field() ?>
+                    <button type="submit" class="btn btn-warning btn-sm">
+                        <i class="fas fa-tools mr-1"></i> Crea intervento da questa richiesta
+                    </button>
+                </form>
+            </div>
+        </div>
+        <?php endif; ?>
+
         <div class="card card-info">
             <div class="card-header">
                 <h3 class="card-title"><i class="fas fa-info-circle mr-1"></i> Dettagli</h3>

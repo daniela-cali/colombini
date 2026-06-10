@@ -2,9 +2,11 @@
 
 namespace App\Controllers;
 
+use App\Models\ClienteModel;
 use App\Models\RichiestaModel;
 use App\Models\RichiestaMessaggioModel;
 use App\Models\TipoInterventoModel;
+use CodeIgniter\HTTP\RedirectResponse;
 
 class Portale extends BaseController
 {
@@ -24,10 +26,20 @@ class Portale extends BaseController
 
     public function nuovaRichiesta(): string
     {
+        $cliente = (new ClienteModel())->where('user_id', auth()->id())->first();
+
+        $richiedenteDefault = '';
+        if ($cliente) {
+            $richiedenteDefault = $cliente['ragsoc']
+                ?: trim(($cliente['cognome'] ?? '') . ' ' . ($cliente['nome'] ?? ''));
+        }
+
         return view('portale/nuova_richiesta', [
-            'title'      => 'Nuova Richiesta',
-            'page_title' => 'Nuova Richiesta di Assistenza',
-            'tipi'       => TipoInterventoModel::comeListaCompleta(),
+            'title'               => 'Nuova Richiesta',
+            'page_title'          => 'Nuova Richiesta di Assistenza',
+            'tipi'                => TipoInterventoModel::comeListaCompleta(),
+            'richiedente_default' => $richiedenteDefault,
+            'telefono_default'    => $cliente['telefono'] ?? '',
         ]);
     }
 
@@ -60,7 +72,7 @@ class Portale extends BaseController
             ->with('success', 'Richiesta inviata correttamente. Vi contatteremo al più presto.');
     }
 
-    public function show(int $id): string
+    public function show(int $id): string|RedirectResponse
     {
         $model    = new RichiestaModel();
         $richiesta = $model->where('user_id', auth()->id())->find($id);

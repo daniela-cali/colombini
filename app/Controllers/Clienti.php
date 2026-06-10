@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 use App\Models\ClienteModel;
 use App\Models\InterventoModel;
+use App\Models\InterventoMaterialiNoteModel;
+use App\Models\MagArticoliModel;
 use App\Models\UserModel;
 use App\Services\ClientiImportService;
 use App\Services\GeocoderService;
@@ -40,14 +42,23 @@ class Clienti extends BaseController
 
         $interventi = (new InterventoModel())->conDettagli(0, null, null, false, $id);
 
+        $tutteNote              = (new InterventoMaterialiNoteModel())->perCliente($id);
+        $noteArticoliDaPortare  = array_values(array_filter($tutteNote, fn($n) => !(int) $n['solo_note'] && (int) $n['stato'] === InterventoMaterialiNoteModel::STATO_DA_PORTARE));
+        $noteSoloNote           = array_values(array_filter($tutteNote, fn($n) =>  (int) $n['solo_note']));
+        $noteArticoliPortati    = array_values(array_filter($tutteNote, fn($n) => !(int) $n['solo_note'] && (int) $n['stato'] === InterventoMaterialiNoteModel::STATO_FORNITO));
+
         return view('clienti/show', [
-            'title'        => $model->getNomeDisplay($cliente),
-            'page_title'   => 'Scheda Cliente',
-            'cliente'      => $cliente,
-            'utente'       => $utente,
-            'nome_display' => $model->getNomeDisplay($cliente),
-            'interventi'   => $interventi,
-            'stati'        => InterventoModel::STATI,
+            'title'                      => $model->getNomeDisplay($cliente),
+            'page_title'                 => 'Scheda Cliente',
+            'cliente'                    => $cliente,
+            'utente'                     => $utente,
+            'nome_display'               => $model->getNomeDisplay($cliente),
+            'interventi'                 => $interventi,
+            'stati'                      => InterventoModel::STATI,
+            'note_articoli_da_portare'   => $noteArticoliDaPortare,
+            'note_solo_note'             => $noteSoloNote,
+            'note_articoli_portati'      => $noteArticoliPortati,
+            'articoli'                   => (new MagArticoliModel())->select('id, cod_articolo, descrizione')->orderBy('descrizione')->findAll(),
         ]);
     }
 
@@ -264,7 +275,7 @@ class Clienti extends BaseController
         return redirect()->to('clienti/import/mappa');
     }
 
-    public function importMappa(): ?string
+    public function importMappa(): string|\CodeIgniter\HTTP\RedirectResponse
     {
         $filePath = session()->get('import_file');
         $headers  = session()->get('import_headers');
@@ -324,6 +335,53 @@ class Clienti extends BaseController
             'page_title' => 'Import Clienti — Risultato',
             'result'     => $result,
         ]);
+    }
+
+    // Inserisce una nuova riga "da portare" nel profilo del cliente.
+    // almeno articolo_id o note devono essere presenti; solo_note è auto-impostato dal model.
+    public function storeMateriale(int $clienteId): \CodeIgniter\HTTP\RedirectResponse
+    {
+        $model   = new ClienteModel();
+        $cliente = $model->find($clienteId);
+
+        if (! $cliente) {
+            return redirect()->to('clienti')->with('error', 'Cliente non trovato.');
+        }
+
+        $articoloId = $this->request->getPost('articolo_id') ?: null;
+        $nota       = trim($this->request->getPost('note') ?? '');
+
+        if (! $articoloId && $nota === '') {
+            return redirect()->to('clienti/' . $clienteId)
+                ->with('error', 'Inserire almeno un articolo o una nota.');
+        }
+
+        (new InterventoMaterialiNoteModel())->insert([
+            'cliente_id'  => $clienteId,
+            'articolo_id' => $articoloId,
+            'quantita'    => $this->request->getPost('quantita') ?: null,
+            'note'        => $nota ?: null,
+            'stato'       => InterventoMaterialiNoteModel::STATO_DA_PORTARE,
+        ]);
+
+        return redirect()->to('clienti/' . $clienteId)->with('success', 'Voce aggiunta.');
+    }
+
+    // Elimina una riga "da portare" dal profilo del cliente.
+    // Impedisce la cancellazione di righe già segnate come fornite (storico).
+    public function deleteMateriale(int $clienteId, int $noteId): \CodeIgniter\HTTP\RedirectResponse
+    {
+        $matModel = new InterventoMaterialiNoteModel();
+        $nota     = $matModel->where('id', $noteId)->where('cliente_id', $clienteId)->first();
+
+        if (! $nota || (int) $nota['stato'] !== InterventoMaterialiNoteModel::STATO_DA_PORTARE) {
+            return redirect()->to('clienti/' . $clienteId)
+                ->with('error', 'Voce non trovata o già consegnata.');
+        }
+
+        $matModel->delete($noteId);
+
+        return redirect()->to('clienti/' . $clienteId)->with('success', 'Voce eliminata.');
     }
 
     public function geocodificaSingolo(int $id)

@@ -62,7 +62,7 @@
                         Nome di chi richiede <span class="text-danger">*</span>
                     </label>
                     <input type="text" name="richiedente" class="form-control"
-                           value="<?= esc(old('richiedente')) ?>"
+                           value="<?= esc(old('richiedente', $richiedente_default)) ?>"
                            placeholder="Nome e Cognome" required>
                 </div>
 
@@ -72,7 +72,7 @@
                         Telefono di contatto <span class="text-danger">*</span>
                     </label>
                     <input type="tel" name="telefono_contatto" class="form-control"
-                           value="<?= esc(old('telefono_contatto')) ?>"
+                           value="<?= esc(old('telefono_contatto', $telefono_default)) ?>"
                            placeholder="es. 348 1234567" required>
                 </div>
 

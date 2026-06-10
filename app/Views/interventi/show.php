@@ -109,6 +109,32 @@
                     </div>
                 </div>
 
+                <?php if ($intervento['data_entro']): ?>
+                <?php
+                    $oggi      = new \DateTime('today');
+                    $entro     = new \DateTime($intervento['data_entro']);
+                    $diffGiorni = (int) $oggi->diff($entro)->format('%r%a');
+                    $badgeEntro = $diffGiorni < 0  ? 'badge-danger'
+                                : ($diffGiorni <= 2 ? 'badge-warning'
+                                :                     'badge-secondary');
+                ?>
+                <div class="row mb-3">
+                    <div class="col-sm-4 text-muted small font-weight-bold">Entro il</div>
+                    <div class="col-sm-8">
+                        <span class="badge <?= $badgeEntro ?> px-2 py-1">
+                            <?= date('d/m/Y', strtotime($intervento['data_entro'])) ?>
+                        </span>
+                        <?php if ($diffGiorni < 0): ?>
+                            <small class="text-danger ml-1">scaduta</small>
+                        <?php elseif ($diffGiorni === 0): ?>
+                            <small class="text-warning ml-1">oggi</small>
+                        <?php elseif ($diffGiorni === 1): ?>
+                            <small class="text-warning ml-1">domani</small>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+
                 <?php if ($intervento['data_completamento']): ?>
                 <div class="row mb-3">
                     <div class="col-sm-4 text-muted small font-weight-bold">Completato il</div>
@@ -364,25 +390,28 @@
                             </button>
                         </div>
                     </div>
-                    <!-- Step 2: inserimento materiali -->
+                    <!-- Step 2: materiali da consegnare (pre-caricati) + extra -->
                     <div id="step-materiali" style="display:none">
-                        <h6 class="font-weight-bold mb-3">
-                            <i class="fas fa-boxes mr-1"></i> Materiali forniti
+                        <h6 class="font-weight-bold mb-2">
+                            <i class="fas fa-boxes mr-1"></i> Materiali da consegnare
                         </h6>
+                        <!-- Righe pre-caricate da da_portare, popolate da JS -->
+                        <div id="da-portare-container" class="mb-3"></div>
+                        <!-- Articoli extra aggiunti dal tecnico al momento della chiusura -->
                         <div class="table-responsive">
-                            <table class="table table-sm table-bordered">
+                            <table class="table table-sm table-bordered mb-1">
                                 <thead class="thead-light">
                                     <tr>
-                                        <th>Articolo</th>
-                                        <th style="width:100px">Qtà</th>
+                                        <th>Articolo aggiuntivo</th>
+                                        <th style="width:90px">Qtà</th>
                                         <th style="width:40px"></th>
                                     </tr>
                                 </thead>
-                                <tbody id="materiali-container"></tbody>
+                                <tbody id="nuovi-materiali-container"></tbody>
                             </table>
                         </div>
                         <button type="button" id="btn-add-materiale" class="btn btn-sm btn-outline-secondary">
-                            <i class="fas fa-plus mr-1"></i> Aggiungi riga
+                            <i class="fas fa-plus mr-1"></i> Aggiungi articolo extra
                         </button>
                     </div>
                     <!-- Step 3: note e firma tecnico -->
@@ -536,9 +565,36 @@
 <script src="<?= base_url('plugins/select2/js/select2.full.min.js') ?>"></script>
 <script>
 (function () {
-    var ARTICOLI     = <?= json_encode(array_values($articoli)) ?>;
-    var ABITUALI_IDS = <?= json_encode(array_map('intval', $abituali_ids)) ?>;
-    var matIdx = 0;
+    var ARTICOLI  = <?= json_encode(array_values($articoli)) ?>;
+    var DA_PORTARE = <?= json_encode(array_values($da_portare)) ?>;
+    var nuovoIdx  = 0;
+
+    function htmlEsc(s) {
+        return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Popola #da-portare-container con checkboxes dalle righe "da portare" pre-esistenti.
+    function buildDaPortare() {
+        var cont = document.getElementById('da-portare-container');
+        cont.innerHTML = '';
+        if (!DA_PORTARE.length) return;
+
+        var html = '<ul class="list-group mb-2">';
+        DA_PORTARE.forEach(function (item) {
+            var label = item.cod_articolo
+                ? '[' + htmlEsc(item.cod_articolo) + '] ' + htmlEsc(item.descrizione) + ' &times;&nbsp;' + (item.quantita || '—')
+                : htmlEsc(item.note || '—');
+            html += '<li class="list-group-item py-2">'
+                + '<div class="custom-control custom-checkbox">'
+                + '<input type="checkbox" class="custom-control-input" id="chk-dp-' + item.id + '" '
+                + 'name="forniti_ids[]" value="' + item.id + '" checked>'
+                + '<label class="custom-control-label" for="chk-dp-' + item.id + '">' + label + '</label>'
+                + '</div>'
+                + '</li>';
+        });
+        html += '</ul>';
+        cont.innerHTML = html;
+    }
 
     function makeOpt(a) {
         var o = document.createElement('option');
@@ -548,28 +604,20 @@
     }
 
     function buildMatOpts(sel) {
-        var abituali = ARTICOLI.filter(function (a) { return ABITUALI_IDS.indexOf(parseInt(a.id)) >= 0; });
-        var altri    = ARTICOLI.filter(function (a) { return ABITUALI_IDS.indexOf(parseInt(a.id)) < 0; });
         sel.innerHTML = '<option value="">— seleziona articolo —</option>';
-        if (abituali.length) {
-            var g = document.createElement('optgroup');
-            g.label = 'Abituali per questo cliente';
-            abituali.forEach(function (a) { g.appendChild(makeOpt(a)); });
-            sel.appendChild(g);
-        }
-        var g2 = document.createElement('optgroup');
-        g2.label = abituali.length ? 'Altri articoli' : 'Tutti gli articoli';
-        altri.forEach(function (a) { g2.appendChild(makeOpt(a)); });
-        sel.appendChild(g2);
+        var g = document.createElement('optgroup');
+        g.label = 'Tutti gli articoli';
+        ARTICOLI.forEach(function (a) { g.appendChild(makeOpt(a)); });
+        sel.appendChild(g);
     }
 
-    function addMatRiga() {
-        var idx = matIdx++;
+    function addNuovoMatRiga() {
+        var idx = nuovoIdx++;
         var tr  = document.createElement('tr');
 
         var tdA = document.createElement('td');
         var sel = document.createElement('select');
-        sel.name      = 'materiali[' + idx + '][articolo_id]';
+        sel.name      = 'nuovi_materiali[' + idx + '][articolo_id]';
         sel.className = 'form-control form-control-sm';
         buildMatOpts(sel);
         tdA.appendChild(sel);
@@ -578,7 +626,7 @@
         var tdQ  = document.createElement('td');
         var inpQ = document.createElement('input');
         inpQ.type        = 'number';
-        inpQ.name        = 'materiali[' + idx + '][quantita]';
+        inpQ.name        = 'nuovi_materiali[' + idx + '][quantita]';
         inpQ.className   = 'form-control form-control-sm';
         inpQ.min         = 1;
         inpQ.step        = 1;
@@ -593,19 +641,13 @@
         btnR.className = 'btn btn-sm btn-outline-danger';
         btnR.innerHTML = '<i class="fas fa-times"></i>';
         btnR.addEventListener('click', function () {
-            var rows = document.querySelectorAll('#materiali-container tr');
-            if (rows.length > 1) {
-                if ($(sel).data('select2')) { $(sel).select2('destroy'); }
-                tr.remove();
-            } else {
-                if ($(sel).data('select2')) { $(sel).val('').trigger('change'); }
-                inpQ.value = '';
-            }
+            if ($(sel).data('select2')) { $(sel).select2('destroy'); }
+            tr.remove();
         });
         tdR.appendChild(btnR);
         tr.appendChild(tdR);
 
-        document.getElementById('materiali-container').appendChild(tr);
+        document.getElementById('nuovi-materiali-container').appendChild(tr);
         $(sel).select2({
             placeholder:    '— seleziona articolo —',
             width:          '100%',
@@ -624,9 +666,14 @@
         }
     }
 
+    // Se ci sono materiali da portare, entra direttamente nello step materiali
+    $('#modalChiudi').on('show.bs.modal', function () {
+        buildDaPortare();
+        showStep(DA_PORTARE.length > 0 ? 'materiali' : 'prompt');
+    });
+
     document.getElementById('btn-si-materiali').addEventListener('click', function () {
         showStep('materiali');
-        if (document.getElementById('materiali-container').children.length === 0) { addMatRiga(); }
     });
 
     document.getElementById('btn-no-materiali').addEventListener('click', function () { showStep('chiusura'); });
@@ -635,12 +682,13 @@
 
     document.getElementById('btn-continua-chiusura').addEventListener('click', function () { showStep('chiusura'); });
 
-    document.getElementById('btn-add-materiale').addEventListener('click', function () { addMatRiga(); });
+    document.getElementById('btn-add-materiale').addEventListener('click', function () { addNuovoMatRiga(); });
 
     $('#modalChiudi').on('hidden.bs.modal', function () {
         showStep('prompt');
-        document.getElementById('materiali-container').innerHTML = '';
-        matIdx = 0;
+        document.getElementById('da-portare-container').innerHTML = '';
+        document.getElementById('nuovi-materiali-container').innerHTML = '';
+        nuovoIdx = 0;
     });
 })();
 </script>

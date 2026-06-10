@@ -1,7 +1,7 @@
 # Roadmap — Colombini SNC Gestionale
 
-*Stato attuale: v0.26.0 — Materiali forniti negli interventi (prompt chiusura, Select2, storico cliente).*
-*Ultimo aggiornamento: 2026-06-09*
+*Stato attuale: v0.28.0 (prossimo) — Visite in abbonamento e interventi programmati.*
+*Ultimo aggiornamento: 2026-06-10*
 *Target go-live (v1.0.0): fine settembre 2026*
 
 ---
@@ -29,17 +29,25 @@
 | ~~**Posizioni scaffale — mini CRUD**~~ | ✅ Completato in v0.25.0 |
 | **Magazzino — prodotti chimici** | Categoria da aggiungere quando disponibile; struttura già pronta |
 | ~~**Intervento → consumo materiali**~~ | ✅ Completato in v0.26.0 (prompt chiusura + Select2 + storico cliente) |
-| **Rapportino PDF — sezione materiali** | Il PDF già generato da Dompdf include i materiali utilizzati nell'intervento |
+| ~~**Rapportino PDF — sezione materiali**~~ | ✅ Completato in v0.26.0 |
 | **Impianti — censimento piscine** | CRUD impianto per cliente (tipo, anno installazione, caratteristiche); collegato alla scheda cliente |
 | **Impianti — trattamento acqua** | Sotto-sezione separata nella sidebar (già strutturata) |
 
-## 0.26 — 0.28 · Visite in abbonamento *(priorità alta — generano interventi programmati)*
+## 0.27 · Portale & Materiali previsti
+
+| Feature | Note |
+|---|---|
+| ~~**Portale — auto-fill richiedente e telefono**~~ | ✅ Completato in v0.27.0 — pre-compilato da anagrafica cliente |
+| ~~**Richiesta portale → intervento**~~ | ✅ Completato in v0.27.0 — bottone "Crea intervento" nella scheda richiesta; pre-compila tipo/luogo/descrizione; aggiorna stato richiesta |
+| ~~**`intervento_materiali_note` — refactoring e nuova tabella**~~ | ✅ Completato in v0.27.0 — nuova tabella con scope cliente, stato lifecycle (da portare→fornito), sezione Materiali & Note nella scheda cliente, step materiali nella modale chiusura, campo `data_entro` negli interventi |
+
+## 0.28 — 0.30 · Visite in abbonamento *(priorità alta — generano interventi programmati)*
 
 | Feature | Note |
 |---|---|
 | **Scheletro abbonamenti** | Contratti di manutenzione periodica per cliente: frequenza, tipo intervento, periodo validità |
-| **Generazione automatica interventi programmati** | Gli abbonamenti generano automaticamente interventi con stato `programmato` alle scadenze previste |
-| **Materiali da portare alla visita successiva** | Il tecnico nella chiusura dell'intervento indica i materiali da portare alla visita successiva; salvati con riferimento a cliente e intervento successivo — **dipende dalla generazione automatica interventi programmati** |
+| **Generazione automatica interventi programmati** | Gli abbonamenti generano automaticamente interventi con stato `da_pianificare` alle scadenze previste |
+| **Materiali da portare alla visita successiva** | Alla chiusura il tecnico indica i materiali per la visita successiva — salvati in `intervento_materiali_previsti` dell'intervento corrente e trasferiti automaticamente al successivo generato dall'abbonamento |
 | **Promemoria materiali nel rapportino/pianificazione** | Al momento della pianificazione della visita successiva, i materiali indicati in precedenza sono visibili al tecnico |
 
 ---

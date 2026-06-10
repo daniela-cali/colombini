@@ -233,20 +233,145 @@
 
 </div>
 
+<!-- Materiali & Note per il cliente -->
+<div class="card card-info mt-3">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-boxes mr-1"></i> Materiali & Note
+        </h3>
+        <div class="card-tools">
+            <button type="button" class="btn btn-sm" data-toggle="modal" data-target="#modalAddMateriale">
+                <i class="fas fa-plus mr-1"></i> Aggiungi
+            </button>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <ul class="nav nav-tabs px-3 pt-2 border-bottom-0" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#tab-note" role="tab">
+                    Note
+                    <?php if (!empty($note_solo_note)): ?>
+                    <span class="badge badge-secondary ml-1"><?= count($note_solo_note) ?></span>
+                    <?php endif; ?>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#tab-da-portare" role="tab">
+                    Da portare
+                    <?php if (!empty($note_articoli_da_portare)): ?>
+                    <span class="badge badge-secondary ml-1"><?= count($note_articoli_da_portare) ?></span>
+                    <?php endif; ?>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#tab-portati" role="tab">
+                    Già portati
+                    <?php if (!empty($note_articoli_portati)): ?>
+                    <span class="badge badge-secondary ml-1"><?= count($note_articoli_portati) ?></span>
+                    <?php endif; ?>
+                </a>
+            </li>
+        </ul>
+        <div class="tab-content">
+
+            <!-- Tab: note testuali -->
+            <div class="tab-pane active" id="tab-note" role="tabpanel">
+                <?php if (empty($note_solo_note)): ?>
+                <p class="text-muted small p-3 mb-0">Nessuna nota. Usa "Aggiungi" lasciando l'articolo vuoto.</p>
+                <?php else: ?>
+                <?= view('clienti/_nota_rows', ['righe' => $note_solo_note, 'eliminabile' => true]) ?>
+                <?php endif; ?>
+            </div>
+
+            <!-- Tab: articoli da portare -->
+            <div class="tab-pane" id="tab-da-portare" role="tabpanel">
+                <?php if (empty($note_articoli_da_portare)): ?>
+                <p class="text-muted small p-3 mb-0">Nessun articolo da portare. Usa "Aggiungi" per inserirne uno.</p>
+                <?php else: ?>
+                <?= view('clienti/_nota_rows', ['righe' => $note_articoli_da_portare, 'eliminabile' => true]) ?>
+                <?php endif; ?>
+            </div>
+
+            <!-- Tab: articoli già portati (storico) -->
+            <div class="tab-pane" id="tab-portati" role="tabpanel">
+                <?php if (empty($note_articoli_portati)): ?>
+                <p class="text-muted small p-3 mb-0">Nessun articolo ancora consegnato.</p>
+                <?php else: ?>
+                <?= view('clienti/_nota_rows', ['righe' => $note_articoli_portati, 'eliminabile' => false]) ?>
+                <?php endif; ?>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Modal aggiunta materiale / nota -->
+<div class="modal fade" id="modalAddMateriale" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="<?= base_url('clienti/' . $cliente['id'] . '/materiali') ?>">
+                <?= csrf_field() ?>
+                <div class="modal-header" style="background:var(--clr-teal);color:#fff;">
+                    <h5 class="modal-title">
+                        <i class="fas fa-box mr-2"></i> Aggiungi materiale / nota
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="small font-weight-bold">
+                            Articolo <span class="text-muted font-weight-normal">(opzionale)</span>
+                        </label>
+                        <select name="articolo_id" id="sel-mat-articolo" class="form-control">
+                            <option value="">— nessun articolo specifico —</option>
+                            <?php foreach ($articoli as $art): ?>
+                            <option value="<?= $art['id'] ?>">[<?= esc($art['cod_articolo']) ?>] <?= esc($art['descrizione']) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-group" id="row-mat-quantita" style="display:none;">
+                        <label class="small font-weight-bold">Quantità</label>
+                        <input type="number" name="quantita" class="form-control" min="0.01" step="0.01" placeholder="es. 2">
+                    </div>
+                    <div class="form-group mb-0">
+                        <label class="small font-weight-bold">
+                            Note <span class="text-muted font-weight-normal">(opzionale)</span>
+                        </label>
+                        <textarea name="note" class="form-control" rows="2"
+                                  placeholder="Es: portare guanti, verificare filtro pompa…"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer clearfix">
+                    <button type="button" class="btn btn-secondary float-left" data-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary float-right">
+                        <i class="fas fa-save mr-1"></i> Salva
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Storico interventi -->
-<?php if (!empty($interventi)): ?>
 <div class="card card-outline card-secondary mt-3">
     <div class="card-header py-2">
         <h3 class="card-title">
             <i class="fas fa-history mr-1"></i> Storico interventi
+            <?php if (!empty($interventi)): ?>
             <span class="badge badge-secondary ml-1"><?= count($interventi) ?></span>
+            <?php endif; ?>
         </h3>
         <div class="card-tools">
-            <a href="<?= base_url('interventi/new?cliente_id=' . $cliente['id']) ?>" class="btn btn-sm btn-success">
-                <i class="fas fa-plus mr-1"></i> Nuovo
+            <a href="<?= base_url('interventi/new?cliente_id=' . $cliente['id']) ?>" class="btn btn-sm">
+                <i class="fas fa-plus mr-1"></i> Nuovo intervento
             </a>
         </div>
     </div>
+    <?php if (empty($interventi)): ?>
+    <div class="card-body text-muted small py-3 text-center">
+        Nessun intervento registrato per questo cliente.
+    </div>
+    <?php else: ?>
     <div class="table-responsive">
         <table class="table table-sm table-hover mb-0">
             <thead>
@@ -281,13 +406,41 @@
             </tbody>
         </table>
     </div>
+    <?php endif; ?>
 </div>
-<?php endif; ?>
 
 <?= $this->endSection() ?>
 
 <?= $this->section('help') ?>
 <?= $this->include('help/clienti/show') ?>
+<?= $this->endSection() ?>
+
+<?= $this->section('styles') ?>
+<link rel="stylesheet" href="<?= base_url('plugins/select2/css/select2.min.css') ?>">
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script src="<?= base_url('plugins/select2/js/select2.full.min.js') ?>"></script>
+<script>
+(function () {
+    var sel = document.getElementById('sel-mat-articolo');
+    var rowQ = document.getElementById('row-mat-quantita');
+
+    $('#modalAddMateriale').on('shown.bs.modal', function () {
+        $(sel).select2({ dropdownParent: $('#modalAddMateriale'), width: '100%', placeholder: '— nessun articolo specifico —' });
+    });
+
+    $(sel).on('change', function () {
+        rowQ.style.display = this.value ? '' : 'none';
+        if (!this.value) rowQ.querySelector('input').value = '';
+    });
+
+    $('#modalAddMateriale').on('hidden.bs.modal', function () {
+        if ($(sel).data('select2')) { $(sel).val('').trigger('change'); }
+        this.querySelector('textarea[name=note]').value = '';
+    });
+})();
+</script>
 <?= $this->endSection() ?>
 
 <?php if ($cliente['geocodifica_fallita'] ?? 0): ?>
