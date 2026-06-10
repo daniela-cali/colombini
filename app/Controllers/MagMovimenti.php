@@ -73,14 +73,9 @@ class MagMovimenti extends BaseController
         $db = \Config\Database::connect();
         $db->transStart();
 
-        $movId = (new MagMovimentiModel())->insert([
-            'tipo'          => $tipo,
-            'data'          => $this->request->getPost('data') ?: date('Y-m-d'),
-            'num_documento' => $this->request->getPost('num_documento') ?: null,
-            'fornitore_id'  => $this->request->getPost('fornitore_id') ?: null,
-            'note'          => $this->request->getPost('note')          ?: null,
-            'user_id'       => auth()->id(),
-        ]);
+        $movId = (new MagMovimentiModel())->insert(
+            array_merge($this->request->getPost(), ['user_id' => auth()->id()])
+        );
 
         $righeModel = new MagMovimentiRigheModel();
         $artModel   = new MagArticoliModel();

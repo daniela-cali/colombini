@@ -5,6 +5,11 @@ Tutte le modifiche significative al progetto sono documentate in questo file.
 Il formato segue [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `MAJOR.MINOR.PATCH`.
 
+## [0.28.1] — 2026-06-10
+
+### Corretto
+- **`MagMovimentiModel` — normalizza()** — aggiunto callback `$beforeInsert` che gestisce il default `data = oggi` e la null-coercion per `num_documento`, `fornitore_id`, `cliente_id`, `note`; `MagMovimenti::store()` usa ora `array_merge(getPost(), ['user_id' => ...])` invece di array esplicito campo per campo
+
 ## [0.28.0] — 2026-06-10
 
 ### Aggiunto

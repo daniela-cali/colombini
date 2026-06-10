@@ -9,6 +9,7 @@ class MagMovimentiModel extends Model
     protected $table         = 'mag_movimenti';
     protected $primaryKey    = 'id';
     protected $useTimestamps = true;
+    protected $beforeInsert  = ['normalizza'];
     protected $allowedFields = [
         'tipo',
         'data',
@@ -19,6 +20,21 @@ class MagMovimentiModel extends Model
         'note',
         'user_id',
     ];
+
+    // Null-coercion e default per i campi opzionali provenienti dal form.
+    protected function normalizza(array $data): array
+    {
+        $d = &$data['data'];
+        if (array_key_exists('data', $d) && empty($d['data'])) {
+            $d['data'] = date('Y-m-d');
+        }
+        foreach (['num_documento', 'fornitore_id', 'cliente_id', 'intervento_id', 'note'] as $campo) {
+            if (array_key_exists($campo, $d) && $d[$campo] === '') {
+                $d[$campo] = null;
+            }
+        }
+        return $data;
+    }
 
     // Etichette leggibili per ogni tipo di movimento.
     public const TIPI = [
