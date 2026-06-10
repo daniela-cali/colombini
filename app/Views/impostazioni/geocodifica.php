@@ -224,7 +224,7 @@
                 document.getElementById('progress-counts').textContent =
                     processed + ' / ' + total;
 
-                setTimeout(step, 300);
+                setTimeout(step, 1100);
             })
             .catch(function () {
                 log('<i class="fas fa-exclamation-circle mr-1"></i> Errore di rete — riprova.', 'danger');
@@ -259,6 +259,7 @@
         document.getElementById('progress-label').textContent = 'Completato.';
         document.getElementById('msg-done').style.display = '';
         document.getElementById('btn-stop').style.display  = 'none';
+        setTimeout(function () { location.reload(); }, 2000);
     }
 
     function esc(s) {

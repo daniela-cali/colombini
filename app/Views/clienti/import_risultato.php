@@ -17,19 +17,25 @@
             <div class="card-body">
 
                 <div class="row text-center">
-                    <div class="col-4">
+                    <div class="col-3">
                         <div class="description-block border-right">
-                            <h5 class="description-header text-success"><?= $result['totale'] ?? 0 ?></h5>
+                            <h5 class="description-header text-secondary"><?= $result['totale'] ?? 0 ?></h5>
                             <span class="description-text text-muted">ELABORATI</span>
                         </div>
                     </div>
-                    <div class="col-4">
+                    <div class="col-3">
                         <div class="description-block border-right">
-                            <h5 class="description-header text-primary"><?= $result['elaborati'] ?? 0 ?></h5>
-                            <span class="description-text text-muted">INSERITI / AGGIORNATI</span>
+                            <h5 class="description-header text-success"><?= $result['inseriti'] ?? 0 ?></h5>
+                            <span class="description-text text-muted">INSERITI</span>
                         </div>
                     </div>
-                    <div class="col-4">
+                    <div class="col-3">
+                        <div class="description-block border-right">
+                            <h5 class="description-header text-primary"><?= $result['aggiornati'] ?? 0 ?></h5>
+                            <span class="description-text text-muted">AGGIORNATI</span>
+                        </div>
+                    </div>
+                    <div class="col-3">
                         <div class="description-block">
                             <h5 class="description-header text-warning"><?= $result['saltati'] ?? 0 ?></h5>
                             <span class="description-text text-muted">SALTATI</span>

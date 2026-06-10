@@ -137,15 +137,24 @@
                                    value="<?= esc(old('cap')) ?>"
                                    placeholder="es. 20100">
                         </div>
-                        <div class="form-group col-md-4">
+                        <div class="form-group col-md-1">
                             <label for="provincia">Provincia</label>
                             <input type="text" name="provincia" id="provincia" class="form-control"
                                    maxlength="5"
                                    value="<?= esc(old('provincia')) ?>"
                                    placeholder="es. MI">
                         </div>
+                        <div class="form-group col-md-3">
+                            <label for="nazione">Nazione</label>
+                            <select name="nazione" id="nazione" class="form-control">
+                                <?php foreach ($nazioni as $nazione): ?>
+                                    <option value="<?= esc($nazione) ?>" <?= old('nazione', 'ITALIA') === $nazione ? 'selected' : '' ?>>
+                                        <?= esc($nazione) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
                     </div>
-
                     <div class="mb-3">
                         <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-geo"
                                 onclick="verificaIndirizzo()">

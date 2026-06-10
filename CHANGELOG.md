@@ -5,6 +5,17 @@ Tutte le modifiche significative al progetto sono documentate in questo file.
 Il formato segue [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 e il progetto adotta il [Versionamento Semantico](https://semver.org/lang/it/) `MAJOR.MINOR.PATCH`.
 
+## [0.29.0] — 2026-06-10
+
+### Aggiunto
+- **Clienti — campo `nazione`** — nuova colonna `VARCHAR(50) NOT NULL DEFAULT 'ITALIA'`; select nel form create/edit alimentata da `NAZIONI` const nel controller (`ITALIA`, `FRANCIA`, `NON VALORIZZATO`); validazione `in_list` lato server; `NON VALORIZZATO` usato come fallback per i record importati senza nazione
+- **Import CSV clienti — miglioramenti** — riconoscimento tipo da campo `perfis` (S = persona fisica, N = società); split automatico nome unico su primo spazio → `cognome` + `nome` per le persone fisiche; deduplicazione record per codice prima dell'import; sostituzione `upsertBatch` con loop insert/update individuale (risolve bug SQL CI4); risultato separato in `inseriti` / `aggiornati` / `saltati`; select di mappatura rimuove dal DOM le opzioni già assegnate per evitare duplicati
+- **Import CSV — `nazione` in `CAMPI_DEST`** — il campo nazione è ora mappabile dall'interfaccia di import
+
+### Corretto
+- **Geocodifica massiva — rate limit Nominatim** — delay tra le chiamate portato da 300 ms a 1100 ms per rispettare il limite di 1 req/sec; ricarica automatica della pagina a completamento per aggiornare i contatori
+- **`ResetDatiTest` seeder** — aggiunta `clienti` alla lista delle tabelle da azzerare
+
 ## [0.28.1] — 2026-06-10
 
 ### Corretto

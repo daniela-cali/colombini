@@ -139,12 +139,22 @@
                                    value="<?= esc(old('cap', $cliente['cap'])) ?>"
                                    placeholder="es. 20100">
                         </div>
-                        <div class="form-group col-md-4">
+                        <div class="form-group col-md-1">
                             <label for="provincia">Provincia</label>
                             <input type="text" name="provincia" id="provincia" class="form-control"
                                    maxlength="5"
                                    value="<?= esc(old('provincia', $cliente['provincia'])) ?>"
-                                   placeholder="es. MI">
+                                   placeholder="MI">
+                        </div>
+                        <div class="form-group col-md-3">
+                            <label for="nazione">Nazione</label>
+                            <select name="nazione" id="nazione" class="form-control">
+                                <?php foreach ($nazioni as $nazione): ?>
+                                    <option value="<?= esc($nazione) ?>" <?= old('nazione', $cliente['nazione'] ?? 'NON VALORIZZATO') === $nazione ? 'selected' : '' ?>>
+                                        <?= esc($nazione) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
                     </div>
 

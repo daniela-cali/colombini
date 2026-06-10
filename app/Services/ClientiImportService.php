@@ -17,6 +17,7 @@ class ClientiImportService
         'citta'       => 'Città',
         'cap'         => 'CAP',
         'provincia'   => 'Provincia',
+        'nazione'     => 'Nazione',
         'telefono'    => 'Telefono',
         'email'       => 'Email',
         'note'        => 'Note',
@@ -47,12 +48,10 @@ class ClientiImportService
         // Salta header
         fgetcsv($handle, 0, $sep);
 
-        $records  = [];
-        $saltati  = 0;
-        $riga     = 1;
+        $records = [];
+        $saltati = 0;
 
         while (($row = fgetcsv($handle, 0, $sep)) !== false) {
-            $riga++;
             $row = $this->convertEncoding($row);
 
             $record = [];
@@ -71,6 +70,15 @@ class ClientiImportService
             // normalizza tipo
             $record['tipo'] = $this->normalizeTipo($record['tipo'] ?? '');
 
+            // se persona fisica e il nome è arrivato nel campo ragsoc (es. "ROSSI MARIO"),
+            // splitta sul primo spazio: prima parte → cognome, resto → nome
+            if ($record['tipo'] === 'persona_fisica' && ! empty($record['ragsoc'])) {
+                $parti = explode(' ', trim($record['ragsoc']), 2);
+                $record['cognome'] = $parti[0] ?? null;
+                $record['nome']    = isset($parti[1]) ? trim($parti[1]) : null;
+                unset($record['ragsoc']);
+            }
+
             // cast stato
             if (isset($record['stato'])) {
                 $record['stato'] = filter_var($record['stato'], FILTER_VALIDATE_BOOLEAN) ? 1 : 0;
@@ -84,6 +92,10 @@ class ClientiImportService
             foreach ($record as $k => $v) {
                 if ($v === '') $record[$k] = null;
             }
+
+            if (empty($record['nazione'])) {
+                $record['nazione'] = 'NON VALORIZZATO';
+            }
             // codice non può essere null
             if (empty($record['codice'])) { $saltati++; continue; }
 
@@ -92,29 +104,49 @@ class ClientiImportService
 
         fclose($handle);
 
+        // deduplica per codice: in caso di righe doppiate nel CSV vince l'ultima
+        $unici = [];
+        foreach ($records as $r) {
+            $unici[(string) $r['codice']] = $r;
+        }
+        $records = array_values($unici);
+
         if (empty($records)) {
             return ['inseriti' => 0, 'aggiornati' => 0, 'saltati' => $saltati, 'totale' => 0];
         }
 
-        $model = new \App\Models\ClienteModel();
-        $model->upsertBatch($records);
+        $model     = new \App\Models\ClienteModel();
+        $inseriti  = 0;
+        $aggiornati = 0;
 
-        $affected = $model->db->affectedRows();
+        foreach ($records as $record) {
+            $existing = $model->where('codice', $record['codice'])->first();
+            if ($existing) {
+                $model->update($existing['id'], $record);
+                $aggiornati++;
+            } else {
+                $model->insert($record);
+                $inseriti++;
+            }
+        }
 
         return [
-            'totale'    => count($records),
-            'elaborati' => $affected,
-            'saltati'   => $saltati,
+            'totale'     => count($records),
+            'inseriti'   => $inseriti,
+            'aggiornati' => $aggiornati,
+            'saltati'    => $saltati,
         ];
     }
 
     private function detectSeparator(string $filePath): string
     {
-        $handle    = fopen($filePath, 'r');
+        $handle = fopen($filePath, 'r');
+        if (! $handle) return ';';
+
         $firstLine = fgets($handle);
         fclose($handle);
 
-        return substr_count($firstLine, ';') >= substr_count($firstLine, ',') ? ';' : ',';
+        return substr_count((string) $firstLine, ';') >= substr_count((string) $firstLine, ',') ? ';' : ',';
     }
 
     private function convertEncoding(array $row): array
@@ -130,7 +162,7 @@ class ClientiImportService
     private function normalizeTipo(string $val): string
     {
         $val = strtolower(trim($val));
-        $pf  = ['p', 'pf', 'persona', 'persona_fisica', 'privato', 'privata', 'f', '0'];
+        $pf  = ['s', 'p', 'pf', 'persona', 'persona_fisica', 'privato', 'privata', 'f', '0'];
         return in_array($val, $pf, true) ? 'persona_fisica' : 'societa';
     }
 }

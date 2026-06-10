@@ -78,3 +78,46 @@
     </div>
 </div>
 <?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
+<script>
+(function () {
+    var selects = document.querySelectorAll('select[name^="mapping["]');
+
+    // copia master di tutte le opzioni (esclusa "Non importare") da cui attingere
+    var tutteOpzioni = [];
+    selects[0] && Array.from(selects[0].options).forEach(function (opt) {
+        tutteOpzioni.push({ value: opt.value, text: opt.text });
+    });
+
+    function aggiornaOpzioni() {
+        var usati = {};
+        selects.forEach(function (sel) {
+            if (sel.value !== '') usati[sel.value] = true;
+        });
+
+        selects.forEach(function (sel) {
+            var corrente = sel.value;
+
+            // ricostruisce la select con solo le opzioni disponibili + quella corrente
+            sel.innerHTML = '';
+            tutteOpzioni.forEach(function (o) {
+                if (o.value === '' || !usati[o.value] || o.value === corrente) {
+                    var opt = document.createElement('option');
+                    opt.value = o.value;
+                    opt.text  = o.text;
+                    if (o.value === corrente) opt.selected = true;
+                    sel.appendChild(opt);
+                }
+            });
+        });
+    }
+
+    selects.forEach(function (sel) {
+        sel.addEventListener('change', aggiornaOpzioni);
+    });
+
+    aggiornaOpzioni();
+})();
+</script>
+<?= $this->endSection() ?>

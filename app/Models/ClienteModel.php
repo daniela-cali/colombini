@@ -27,6 +27,7 @@ class ClienteModel extends Model
         'citta',
         'cap',
         'provincia',
+        'nazione',
         'telefono',
         'email',
         'note',

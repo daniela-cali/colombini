@@ -4,7 +4,7 @@ namespace App\Database\Seeds;
 
 use CodeIgniter\Database\Seeder;
 
-// Azzera i dati operativi di test mantenendo clienti, magazzino e utenti.
+// Azzera tutti i dati operativi mantenendo solo utenti, veicoli, magazzino e impostazioni.
 // Uso: php spark db:seed ResetDatiTest
 class ResetDatiTest extends Seeder
 {
@@ -21,6 +21,7 @@ class ResetDatiTest extends Seeder
             'richieste_assistenza',
             'viaggi_tappe',
             'viaggi',
+            'clienti',
         ] as $tabella) {
             $db->query("TRUNCATE TABLE `{$tabella}`");
             echo "  Svuotata: {$tabella}\n";
@@ -28,6 +29,6 @@ class ResetDatiTest extends Seeder
 
         $db->query('SET FOREIGN_KEY_CHECKS = 1');
 
-        echo "\nReset completato. Clienti, utenti, veicoli, magazzino e impostazioni intatti.\n";
+        echo "\nReset completato. Utenti, veicoli, magazzino e impostazioni intatti.\n";
     }
 }

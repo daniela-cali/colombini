@@ -1,6 +1,6 @@
 # Roadmap — Colombini SNC Gestionale
 
-*Stato attuale: v0.28.0 (in corso) — Calendario data_entro, banner scadenze, normalizzazione model.*
+*Stato attuale: v0.29.0 — Nazione clienti, import CSV migliorato, geocodifica rate limit.*
 *Ultimo aggiornamento: 2026-06-10*
 *Target go-live (v1.0.0): fine settembre 2026*
 

@@ -13,6 +13,12 @@ use CodeIgniter\Shield\Entities\User;
 
 class Clienti extends BaseController
 {
+    private const NAZIONI = [
+        'NON VALORIZZATO',
+        'ITALIA',
+        'FRANCIA',
+    ];
+
     public function index(): string
     {
         $model   = new ClienteModel();
@@ -69,6 +75,7 @@ class Clienti extends BaseController
         return view('clienti/create', [
             'title'      => 'Nuovo Cliente',
             'page_title' => 'Nuovo Cliente',
+            'nazioni'    => self::NAZIONI,
             'codice_int' => $model->generaCodiceInterno(),
         ]);
     }
@@ -103,6 +110,7 @@ class Clienti extends BaseController
             'title'      => 'Modifica Cliente',
             'page_title' => 'Modifica Cliente',
             'cliente'    => $cliente,
+            'nazioni'    => self::NAZIONI,
             'from'       => $this->request->getGet('from') ?? '',
         ]);
     }
@@ -457,12 +465,15 @@ class Clienti extends BaseController
         $codiceRule = 'required|max_length[15]|is_unique[clienti.codice'
             . ($excludeId ? ",id,{$excludeId}" : '') . ']';
 
+        $nazioni = implode(',', self::NAZIONI);
+
         $rules = [
-            'codice' => $codiceRule,
-            'tipo'   => 'required|in_list[societa,persona_fisica]',
-            'piva'   => 'permit_empty|max_length[15]',
-            'cfisc'  => 'permit_empty|max_length[16]',
-            'email'  => 'permit_empty|valid_email',
+            'codice'  => $codiceRule,
+            'tipo'    => 'required|in_list[societa,persona_fisica]',
+            'nazione' => "required|in_list[{$nazioni}]",
+            'piva'    => 'permit_empty|max_length[15]',
+            'cfisc'   => 'permit_empty|max_length[16]',
+            'email'   => 'permit_empty|valid_email',
         ];
 
         if ($tipo === 'persona_fisica') {

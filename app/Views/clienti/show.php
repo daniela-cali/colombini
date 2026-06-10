@@ -153,6 +153,14 @@
                             </td>
                         </tr>
                     <?php endif; ?>
+                    <?php if ($cliente['nazione']): ?>
+                        <tr>
+                            <th class="text-muted">Nazione</th>
+                            <td>
+                                <?= esc($cliente['nazione'] ?? '') ?>
+                            </td>
+                        </tr>
+                    <?php endif; ?>
                     <?php if ($cliente['telefono']): ?>
                         <tr>
                             <th class="text-muted">Telefono</th>
